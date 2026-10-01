@@ -2,10 +2,10 @@
 
 ## Document Status
 
-**Version:** 1.1  
+**Version:** 1.2  
 **Date:** 2026-10-01  
 **Status:** Draft  
-**Revision Summary:** Clarified MVP scope (MVP 0/1), simplified concepts (removed recommendation score), removed technology prescriptions, added UX requirements, improved data model (primary_category + tags), deferred data completeness scoring
+**Revision Summary:** v1.2 changes: improved author model (author_display_name + optional given_name/family_name), renamed curator_comment to inclusion_rationale, added external_references entity. Previous v1.1 changes: clarified MVP scope (MVP 0/1), simplified concepts (removed recommendation score), removed technology prescriptions, added UX requirements, improved data model (primary_category + tags), deferred data completeness scoring
 
 ## Document Purpose
 
@@ -121,13 +121,14 @@ These features add value but are not essential to prove the core proposition: th
 - Empty state shown when no books exist
 
 #### FR-002: Full-Text Search
-**Description:** System shall support full-text search across title, author, and comment fields  
+**Description:** System shall support full-text search across title, author, and inclusion rationale fields  
 **Priority:** Must Have  
+**Release Target:** MVP 0  
 **Source:** intent.md - Common activities: searching the collection  
 **Acceptance Criteria:**
 - Search returns results matching title (partial or full)
-- Search returns results matching author name (first or last)
-- Search returns results matching curator comments
+- Search returns results matching author_display_name
+- Search returns results matching inclusion_rationale
 - Search is case-insensitive
 - Results appear within 1 second (see NFR-002)
 
@@ -153,7 +154,7 @@ These features add value but are not essential to prove the core proposition: th
 **Source:** intent.md - Common activities  
 **Acceptance Criteria:**
 - Sort by title (alphabetically)
-- Sort by author last name (alphabetically)
+- Sort by author (author_display_name, alphabetically)
 - Sort by year (chronologically, oldest or newest first) - **default per UX-010**
 - Sort by primary_category (alphabetically)
 - Sort by personal priority (if set)
@@ -167,11 +168,13 @@ These features add value but are not essential to prove the core proposition: th
 **Release Target:** MVP 0  
 **Source:** intent.md - Initial Scope: View detailed information about books  
 **Acceptance Criteria:**
-- Show all canonical metadata: title, original title, author, year, primary_category, tags, original language, source, author lifespan, curator comment
+- Show all canonical metadata: title, original title, author (author_display_name), year, primary_category, tags, original language, source, inclusion_rationale, author lifespan
+- Show external references (if any) as clickable links with link text
 - Show personal data for current user: reading status, priority, rating, ownership, personal notes
 - Gracefully handle missing optional fields
 - Display timestamps (started, completed) if applicable
 - Tags displayed as readable list (not internal format)
+- External references grouped or listed in order of addition
 
 ### 1.2 Curation (Curator Role Only)
 
@@ -181,10 +184,12 @@ These features add value but are not essential to prove the core proposition: th
 **Release Target:** MVP 0  
 **Source:** intent.md - Collection Curation  
 **Acceptance Criteria:**
-- Form requires title and author last name (minimum)
-- Form provides fields for all optional metadata including primary_category (dropdown from controlled vocabulary) and tags (multi-entry field)
+- Form requires title and author_display_name (minimum)
+- Form provides fields for all optional metadata including given_name, family_name, primary_category (dropdown from controlled vocabulary), tags (multi-entry field), inclusion_rationale
+- Form allows adding external references (URL and optional link text)
 - System validates required fields before saving
 - System validates primary_category against controlled vocabulary (if provided)
+- System validates URL format for external references (if provided)
 - Newly added book appears in collection immediately
 - System records created_by and created_at
 
@@ -201,12 +206,28 @@ These features add value but are not essential to prove the core proposition: th
 #### FR-012: Remove Book
 **Description:** Curator shall be able to remove books from the collection  
 **Priority:** Must Have  
+**Release Target:** MVP 0  
 **Source:** intent.md - Collection Curation  
 **Acceptance Criteria:**
 - Curator can delete a book from collection
 - System confirms deletion (prevent accidental removal)
 - Deletion removes all user personal data for that book
+- Deletion removes all external references for that book
 - System warns curator if book has significant personal data from multiple users
+
+#### FR-012a: Manage External References
+**Description:** Curator shall be able to add, edit, and remove external references for books  
+**Priority:** Must Have  
+**Release Target:** MVP 0  
+**Source:** External references support (Change 3)  
+**Acceptance Criteria:**
+- Curator can add external reference with URL and optional link text to any book
+- System validates URL format
+- Curator can edit existing external references (URL, link text, reference type)
+- Curator can remove external references
+- System prevents duplicate URLs for same book
+- External references are displayed in book detail view
+- Changes to external references are saved immediately
 
 #### FR-013: Review Recommendations
 **Description:** Curator shall be able to review user-submitted book recommendations  
@@ -558,10 +579,11 @@ This section specifies user experience requirements to support the core principl
 
 **Required Attributes:**
 - **title:** Book title (text, maximum approximately 500 characters)
-- **author_last_name:** Author's last/family name (text, maximum approximately 200 characters)
+- **author_display_name:** Author name as displayed to users (text, maximum approximately 300 characters). Examples: "Homer", "Unknown", "Brothers Grimm", "Various Authors", "Snorri Sturluson", "Tolstoy, Leo", "Edited by Jane Smith"
 
 **Optional Attributes:**
-- **author_first_name:** Author's first/given name (text, maximum approximately 200 characters)
+- **given_name:** Author's given/first name if applicable (text, maximum approximately 200 characters)
+- **family_name:** Author's family/last name if applicable (text, maximum approximately 200 characters)
 - **title_original:** Original title if published in another language (text, maximum approximately 500 characters)
 - **year_published:** Year or period of publication (text to accommodate formats like "8th century BC", "ca. 1200", "1965-1971")
 - **year_sort:** Normalized year value suitable for chronological sorting (numeric, can be negative for BC dates)
@@ -569,7 +591,7 @@ This section specifies user experience requirements to support the core principl
 - **tags:** Additional flexible classification (multi-valued collection of text strings, optional, examples: "tragedy", "political philosophy", "medieval", "existentialism")
 - **original_language:** Language book was originally written in (short code, 2-3 characters suggested, ISO 639 codes recommended)
 - **source:** Where the book recommendation originated (text, free-form)
-- **curator_comment:** Curator's notes about why book belongs in canon (text, free-form)
+- **inclusion_rationale:** Why this work belongs in the canon - its significance, cultural importance, or reason readers should consider it (text, free-form)
 - **author_lifespan:** Author's birth/death years (text, format example: "1564-1616")
 
 **Audit Attributes:**
@@ -583,6 +605,8 @@ This section specifies user experience requirements to support the core principl
 - Optional attributes may be absent (progressive enrichment principle)
 - primary_category must be from controlled vocabulary (if present)
 - tags are flexible and user-defined (no controlled vocabulary)
+- author_display_name supports diverse authorship: single authors, unknown authors, collective authors, editors, anthologies, historical names without conventional given/family name structure
+- given_name and family_name are optional parsing aids when applicable but not required
 
 **Primary Category Controlled Vocabulary:**
 The following values are permitted for primary_category:
@@ -601,8 +625,9 @@ The following values are permitted for primary_category:
 Additional values may be added by curator as needed. The vocabulary is intentionally broad to accommodate diverse works in the canon.
 
 **Traceability:**
-- Maps to Excel columns: Author, Last Name, First Name, Title (EN), Original Title, Year, Category → primary_category, Genre + Subject → tags, Original Language, Source, Comment, Author Lifespan
+- Maps to Excel columns: Author/Last Name/First Name → author_display_name (with optional given_name/family_name), Title (EN), Original Title, Year, Category → primary_category, Genre + Subject → tags, Original Language, Source, Comment → inclusion_rationale, Author Lifespan
 - Simplifies classification per Decision 5: primary_category (controlled) + tags (flexible)
+- Author model supports diverse authorship patterns (ancient works, unknown authors, collective works, editors)
 - Supports progressive enrichment principle (design-decisions.md)
 
 #### User Reading Status (Personal Data)
@@ -708,8 +733,7 @@ Additional values may be added by curator as needed. The vocabulary is intention
 **Attributes:**
 - **proposed_by_user_id:** Which user submitted this recommendation (reference to Users entity)
 - **title:** Proposed book title (text)
-- **author_last_name:** Proposed author last name (text)
-- **author_first_name:** Proposed author first name (text, optional)
+- **author_display_name:** Proposed author name (text)
 - **justification:** Why this book should be added to canon (text, free-form)
 - **status:** Current state (enumerated: pending, approved, rejected; default: pending)
 - **reviewed_by_user_id:** Which curator reviewed this (reference to Users entity, optional)
@@ -724,15 +748,41 @@ Additional values may be added by curator as needed. The vocabulary is intention
 - Approved recommendations create new Books in canonical collection
 - Rejected recommendations remain in system for audit (with reason)
 
+#### External References
+
+**Release Target:** MVP 0  
+**Purpose:** External links and references for books (Wikipedia, Project Gutenberg, publisher pages, educational resources, etc.)
+
+**Identity:** Each external reference must be uniquely identifiable
+
+**Relationships:**
+- Each reference belongs to one Book in canonical collection
+- Each Book can have zero or many external references
+
+**Attributes:**
+- **book_id:** Which book this reference belongs to (reference to Books entity)
+- **url:** Web address of external resource (text, URL format)
+- **link_text:** Display text or title for the link (text, optional, maximum approximately 200 characters)
+- **reference_type:** Optional categorization (text, optional, examples: "Wikipedia", "Project Gutenberg", "Publisher", "Educational Resource", "Literary Analysis")
+- **created_at:** When reference was added (timestamp, auto-set)
+- **created_by_user_id:** Which user added this reference (reference to Users entity, optional)
+
+**Business Rules:**
+- Only curator can add/edit/remove external references
+- URLs should be validated for basic format correctness
+- Duplicate URLs for same book should be prevented
+- External references are canonical (shared with all users)
+- Display order determined by created_at (oldest first) or reference_type grouping
+
 ### 2.2 Data Migration Mapping
 
 **Excel to Database Transformation:**
 
 | Excel Column | Database Mapping | Transformation Notes |
 |--------------|------------------|---------------------|
-| Author | books.author_last_name + books.author_first_name | Split or use as single name |
-| Last Name | books.author_last_name | Direct mapping |
-| First Name | books.author_first_name | Direct mapping, nullable |
+| Author | books.author_display_name | Use as-is, or combine with Last Name/First Name if present |
+| Last Name | books.family_name | Optional parsing aid, also used to construct author_display_name if needed |
+| First Name | books.given_name | Optional parsing aid, also used to construct author_display_name if needed |
 | Title (EN) | books.title | Direct mapping |
 | Original Title | books.title_original | Direct mapping, nullable |
 | Year | books.year_published | Keep as string for display |
@@ -742,8 +792,9 @@ Additional values may be added by curator as needed. The vocabulary is intention
 | Subject | books.tags | Convert to tag (multi-value) |
 | Original Language | books.original_language | Direct mapping, nullable |
 | Source | books.source | Direct mapping, nullable |
-| Comment | books.curator_comment | Direct mapping, nullable |
+| Comment | books.inclusion_rationale | Direct mapping, nullable |
 | Author Lifespan | books.author_lifespan | Direct mapping, nullable |
+| External Links | external_references.url + link_text | Parse if present, create multiple reference records if multiple links |
 | Lib | user_reading_status.ownership_status | 'X' → owned_physical, blank → not_owned |
 | Prio | user_reading_status.personal_priority + personal_rating + reading_status | Complex: 'x' → priority=high; '1-5' → rating=1-5; '-' → status=reading; blank → NULL. See Decision 3. |
 | Read | user_reading_status.reading_status | 'X' → finished, blank → not_started |
@@ -754,6 +805,15 @@ The Excel "Prio" column historically mixed three concepts. Migration logic:
 - '1-5' (numeric) → personal_rating = 1-5 stars (also implies recommendation strength per FR-025)
 - '-' → reading_status = Reading
 - blank → All fields NULL/default
+
+**Author Migration Detail:**
+The Excel author columns are consolidated into the flexible author model:
+- If "Author" column has value, use as author_display_name
+- If "Last Name" and "First Name" both present, construct author_display_name (e.g., "Tolstoy, Leo") and populate family_name/given_name
+- If only "Last Name" present, use as author_display_name
+- For ancient/unknown authors (e.g., "Homer", "Unknown"), use as author_display_name without parsing
+- For collective authors (e.g., "Brothers Grimm", "Various Authors"), use as author_display_name
+- family_name and given_name are optional aids for sorting/filtering but author_display_name is canonical
 
 **Category/Genre/Subject Migration Detail (Decision 5):**
 The Excel columns Category, Genre, and Subject are consolidated:
@@ -771,7 +831,7 @@ The Excel columns Category, Genre, and Subject are consolidated:
 **Principle:** System must work with incomplete data (design-decisions.md)
 
 **Requirements:**
-- System shall accept and store books with only required attributes (title, author_last_name)
+- System shall accept and store books with only required attributes (title, author_display_name)
 - System shall gracefully display books with missing optional attributes
 - UI shall clearly indicate which optional attributes are missing
 - System shall allow curator to add optional attributes at any time
@@ -960,9 +1020,8 @@ As a curator, I want to track which books I own so I know what to buy.
 As a curator, I want to add new books to the collection as I discover them, so the canon stays current.
 
 **Acceptance:**
-- Simple form to add new book (title + author minimum)
-- Add optional metadata (year, genre, language, etc.)
-- See data completeness score
+- Simple form to add new book (title + author_display_name minimum)
+- Add optional metadata (year, primary_category, tags, inclusion_rationale, external references, etc.)
 - Book appears in collection immediately
 - Can edit metadata later
 
@@ -986,9 +1045,10 @@ As a reader, I want to browse the canon to discover significant books I haven't 
 
 **Acceptance:**
 - View all books in collection
-- Filter by genre, category, language
+- Filter by primary_category, tags, language
 - Sort by year, author, title
-- Read curator comments about why book is significant
+- Read inclusion rationale about why book is significant
+- See external references (Wikipedia, Project Gutenberg, etc.)
 - See which books other readers have rated highly (future)
 
 ---
@@ -1112,33 +1172,38 @@ As a reader, I want personalized suggestions for what to read next, so I don't f
 1. Curator clicks "Add Book" button
 2. System displays book entry form with fields:
    - Title (required)
-   - Author Last Name (required)
-   - Author First Name
+   - Author Display Name (required)
+   - Given Name (optional)
+   - Family Name (optional)
    - Original Title
    - Year Published
    - Primary Category (dropdown from controlled vocabulary)
    - Tags (multi-entry)
    - Original Language
    - Source
-   - Curator Comment
+   - Inclusion Rationale
    - Author Lifespan
-3. Curator enters title and author last name (minimum)
+   - External References (add URL and link text, repeatable)
+3. Curator enters title and author display name (minimum)
 4. Curator fills in as many optional fields as available
-5. Curator submits form
-6. System validates required fields
-7. System validates primary_category against controlled vocabulary (if provided)
-8. System saves book to collection
-9. System displays success message
-10. System shows book in collection
+5. Curator can add one or more external references (optional)
+6. Curator submits form
+7. System validates required fields
+8. System validates primary_category against controlled vocabulary (if provided)
+9. System validates URL format for external references (if provided)
+10. System saves book to collection
+11. System saves external references (if any)
+12. System displays success message
+13. System shows book in collection
 
-**Alternative Flow 6a:** Validation fails
+**Alternative Flow 7a:** Validation fails
 - System highlights missing/invalid fields
 - Curator corrects and resubmits
 
 **Alternative Flow 4a:** Curator only has minimal info
-- Curator enters just title and author
+- Curator enters just title and author display name
 - System accepts with only required fields
-- Optional fields can be added later (progressive enrichment)
+- Optional fields and external references can be added later (progressive enrichment)
 
 **Postcondition:** New book exists in canonical collection, visible to all users
 
@@ -1343,7 +1408,7 @@ Recommendation Score removed as separate field. Personal Rating now implies reco
 **Question:** Should any comments be visible to other users, or all private?
 
 **Current Design:**
-- `books.curator_comment` - shared with all users, part of canonical data
+- `books.inclusion_rationale` - shared with all users, explains why book is in canon, part of canonical data
 - `user_reading_status.personal_notes` - private, user's own reflections
 
 **Future Enhancement:** Shared comments/discussions
@@ -1352,7 +1417,7 @@ Recommendation Score removed as separate field. Personal Rating now implies reco
 - Explicitly out of scope for MVP
 
 **Decision:** Confirm this two-tier model works for curator:
-1. Curator comments visible to all (why book is in canon)
+1. Inclusion rationale visible to all (why book is in canon)
 2. Personal notes always private
 3. No shared user comments in MVP
 
@@ -1390,18 +1455,17 @@ year_precision: century
 
 **Question:** Which fields should be included in full-text search?
 
-**Proposed:**
+**Implemented (FR-002):**
 - title
 - title_original (if present)
-- author_first_name
-- author_last_name
-- curator_comment
+- author_display_name
+- inclusion_rationale
 
 **Not included:**
-- personal_notes (should personal notes be searchable? Privacy concern if shown in results)
-- category, genre (covered by filter, not search)
+- personal_notes (excluded from search per Decision 4 - privacy concern)
+- primary_category, tags (covered by filter, not search)
 
-**Decision Needed:** Confirm search scope, especially regarding personal notes
+**Decision:** Personal notes excluded from search to maintain privacy boundaries
 
 ## 7. Success Criteria
 
