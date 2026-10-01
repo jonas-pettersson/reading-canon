@@ -2,10 +2,10 @@
 
 ## Document Status
 
-**Version:** 1.2  
+**Version:** 1.3  
 **Date:** 2026-10-01  
 **Status:** Draft  
-**Revision Summary:** v1.2 changes: improved author model (author_display_name + optional given_name/family_name), renamed curator_comment to inclusion_rationale, added external_references entity. Previous v1.1 changes: clarified MVP scope (MVP 0/1), simplified concepts (removed recommendation score), removed technology prescriptions, added UX requirements, improved data model (primary_category + tags), deferred data completeness scoring
+**Revision Summary:** v1.3 changes: added context-of-use requirements (desktop vs mobile workflows), strengthened mobile-browser support for essential reading workflows, updated responsive design requirements. Previous v1.2 changes: improved author model (author_display_name + optional given_name/family_name), renamed curator_comment to inclusion_rationale, added external_references entity. Previous v1.1 changes: clarified MVP scope (MVP 0/1), simplified concepts (removed recommendation score), removed technology prescriptions, added UX requirements, improved data model (primary_category + tags), deferred data completeness scoring
 
 ## Document Purpose
 
@@ -527,10 +527,10 @@ This section specifies user experience requirements to support the core principl
 - WCAG 2.1 AA color contrast minimum met for all text
 
 #### UX-008: Responsive Behavior
-**Requirement:** Application should remain usable on narrow screens (tablets, large phones)  
-**Priority:** Should Have for MVP 0, Must Have for MVP 1  
-**Release Target:** MVP 0 (nice-to-have), MVP 1 (required)  
-**Rationale:** While MVP 0 is desktop-focused, basic responsive behavior prevents unusability on other devices  
+**Requirement:** Application shall provide responsive layouts appropriate to device size and usage context  
+**Priority:** Must Have for MVP 0 (essential workflows), Must Have for MVP 1 (all workflows)  
+**Release Target:** MVP 0  
+**Rationale:** Essential reading workflows frequently occur in mobile contexts (bookstores, libraries, travel). Desktop remains primary for curation and administration.  
 **Acceptance Criteria:**
 - Navigation collapses to menu icon below 768px width
 - Book list reflows to single column on narrow screens
@@ -538,6 +538,8 @@ This section specifies user experience requirements to support the core principl
 - Touch targets minimum 44x44 pixels for mobile use
 - No horizontal scrolling required
 - Text remains readable (no tiny fonts)
+- Essential workflows (see UX-011) must be fully usable on phone-sized screens (minimum 375px width)
+- Administrative workflows (book curation, metadata entry, migration) may be optimized for desktop
 
 #### UX-009: Performance Perception
 **Requirement:** Application shall indicate loading state for operations that take time  
@@ -564,6 +566,116 @@ This section specifies user experience requirements to support the core principl
 - Books without year_published appear at end (or beginning with clear indicator)
 - User can change sort order (persists during session)
 - Sort order indicator clearly visible to user
+
+#### UX-011: Mobile Essential Workflows
+**Requirement:** Essential reading workflows shall be efficient and fully usable on mobile browsers (phone-sized screens)  
+**Priority:** Must Have  
+**Release Target:** MVP 0  
+**Rationale:** High-frequency reading activities occur in mobile contexts (bookstores, libraries, travel) where desktop access is unavailable  
+**Essential Workflows (mobile-optimized):**
+- View current reading list ("Currently Reading" books)
+- View reading priorities (filtered by priority: High/Medium/Low)
+- View next reading candidates ("Want to Read" filtered by priority)
+- Mark book as currently reading (status change)
+- Mark book as completed (status change with optional rating/notes)
+- Update ownership status (mark as Owned, Ordered, etc.)
+- View book details (title, author, inclusion rationale, external references)
+- Quick search by title or author
+
+**Acceptance Criteria:**
+- Essential workflows accessible within 2 taps from home screen on mobile
+- Status changes can be made with single tap or minimal interaction
+- Forms for status updates are mobile-friendly (large touch targets, minimal typing)
+- Reading list views are scannable on phone screen without excessive scrolling
+- Book detail view displays all essential information without horizontal scroll
+- Search results are clearly readable on narrow screen
+- Navigation between essential workflows is intuitive on mobile
+
+**Non-Essential Workflows (desktop-optimized, may have reduced mobile experience):**
+- Adding new books to collection
+- Editing book metadata
+- Managing external references
+- Advanced filtering and sorting
+- Collection-wide statistics
+- Data migration and import
+- User management (MVP 1)
+
+### 1.7 Context of Use Requirements
+
+This section describes the intended usage contexts to inform design decisions.
+
+#### CU-001: Desktop Context - Collection Curation
+**Context:** Curator working at desktop computer  
+**Typical Activities:**
+- Adding new books to canonical collection
+- Editing book metadata (titles, categories, tags, inclusion rationale, external references)
+- Reviewing and enriching incomplete records
+- Performing data migration from Excel
+- Managing user accounts (MVP 1)
+- Conducting advanced searches across metadata
+- Analyzing collection statistics
+
+**Usage Characteristics:**
+- Extended sessions (30+ minutes)
+- Keyboard and mouse input available
+- Large screen (desktop or laptop)
+- Stable internet connection
+- Focus on data entry and metadata management
+
+**Design Implications:**
+- Forms optimized for keyboard input
+- Multi-field layouts suitable for wide screens
+- Complex filtering and sorting interfaces acceptable
+- Detailed metadata entry expected
+
+#### CU-002: Mobile Context - Reading Activities
+**Context:** Reader accessing system via mobile browser  
+**Typical Activities:**
+- Checking which book to read next (while at bookstore or library)
+- Viewing current reading priorities
+- Marking book as acquired or purchased (ownership update)
+- Marking book as started (status change to "Reading")
+- Marking book as completed (status change to "Finished" with optional rating)
+- Looking up book details (inclusion rationale, external references)
+- Quick search for specific book
+
+**Usage Characteristics:**
+- Brief sessions (under 5 minutes)
+- Touch input on phone-sized screen (375-430px width typical)
+- Potentially unstable or slow connection
+- Likely one-handed use
+- High-frequency, focused interactions
+
+**Design Implications:**
+- Large touch targets (minimum 44x44 pixels)
+- Minimal data entry required
+- Quick access to most frequent actions
+- Streamlined navigation for essential workflows
+- Graceful degradation on slow connections
+
+#### CU-003: Primary vs Secondary Contexts
+**Requirement:** System shall support both contexts with appropriate prioritization  
+**Priority:** Must Have  
+**Release Target:** MVP 0  
+**Rationale:** Different workflows have different natural contexts. Optimizing each context appropriately improves overall usability without requiring native mobile applications.
+
+**Desktop as Primary:**
+- Collection curation workflows remain desktop-first
+- Administrative functions remain desktop-first
+- Complex metadata entry optimized for keyboard/mouse
+- Wide-screen layouts for data-rich views
+
+**Mobile as Essential:**
+- Essential reading workflows (UX-011) must be fully functional on mobile browsers
+- Status updates and ownership changes must be efficient on touch screens
+- Reading list views must be usable on phone screens
+- No native mobile app required, no offline support required
+
+**Technology Approach:**
+- Responsive web design (not separate mobile site)
+- Progressive enhancement (desktop features work on mobile when screen permits)
+- No requirement for PWA, offline support, or app store deployment
+- Modern mobile browser support (last 2 versions of iOS Safari, Chrome Android)
 
 ## 2. Data Model Requirements
 
@@ -879,12 +991,32 @@ Data completeness scoring, enrichment dashboards, and prioritized enrichment wor
 - Filtering by criteria
 - Viewing statistics
 
-#### NFR-011: Desktop Browser Support
-**Requirement:** System must work on modern desktop browsers  
+#### NFR-011: Browser Support and Responsive Design
+**Requirement:** System must work on modern browsers across desktop and mobile contexts with appropriate prioritization  
 **Priority:** Must Have  
-**Supported:** Chrome, Firefox, Safari, Edge (latest 2 versions)  
-**Mobile:** Nice-to-have, not required for MVP  
-**Rationale:** Primary use case is desktop work
+**Release Target:** MVP 0  
+**Rationale:** Desktop remains primary for curation; mobile essential for high-frequency reading activities (see Context of Use Requirements 1.7)
+
+**Desktop Browser Support (all workflows):**
+- Chrome, Firefox, Safari, Edge (latest 2 versions)
+- Full functionality for all workflows
+- Optimized for keyboard/mouse input
+- Wide-screen layouts
+
+**Mobile Browser Support (essential workflows per UX-011):**
+- iOS Safari (latest 2 versions)
+- Chrome Android (latest 2 versions)
+- Essential reading workflows must be fully functional and efficient
+- Touch-optimized interfaces (44x44px minimum touch targets)
+- Responsive layouts for phone screens (minimum 375px width)
+- Administrative workflows (collection curation, metadata entry) may have reduced experience on mobile
+
+**Technology Approach:**
+- Responsive web design (single codebase)
+- No native mobile application required
+- No offline support required
+- No PWA features required
+- No app store deployment required
 
 #### NFR-012: Intuitive Interface
 **Requirement:** Interface must be intuitive for non-technical users  
@@ -1515,7 +1647,7 @@ The following capabilities are explicitly deferred and should not drive early ar
 - Book recommendation submission/approval workflow (FR-013, FR-014, US-008) - deferred to Post-MVP per Decision 1
 - Unrestricted user-created books (only curator can add to canonical collection)
 - Real-time chat
-- Mobile applications (responsive mobile is nice-to-have, but native apps are out)
+- Native mobile applications (responsive mobile-browser support is in scope per NFR-011 and UX-011, but native apps, PWAs, offline support, and app store deployment are out)
 - E-reader integrations
 - AI-generated reading recommendations
 - Public user profiles
