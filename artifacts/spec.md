@@ -2,9 +2,10 @@
 
 ## Document Status
 
-**Version:** 1.0  
+**Version:** 1.1  
 **Date:** 2026-10-01  
-**Status:** Draft
+**Status:** Draft  
+**Revision Summary:** Clarified MVP scope (MVP 0/1), simplified concepts (removed recommendation score), removed technology prescriptions, added UX requirements, improved data model (primary_category + tags), deferred data completeness scoring
 
 ## Document Purpose
 
@@ -15,6 +16,95 @@ All requirements maintain traceability to:
 - `intent.md` - Problem statement and desired outcomes
 - `design-decisions.md` - Design philosophy and choices
 
+## MVP Scope Definition
+
+This specification defines requirements across multiple release stages. Each requirement is tagged with its release target.
+
+### MVP 0: Curator-Only Baseline (First Release)
+
+**Goal:** Prove core value - "better than Excel for curator's personal use"
+
+**Release Target:** First working system validation
+
+**In Scope:**
+- ✅ Single authenticated user (curator only) - simple authentication, no invitation workflow
+- ✅ Collection management: display, search, filter, sort, view book details (FR-001 to FR-005)
+- ✅ Collection curation: add, edit, remove books (FR-010 to FR-012)
+- ✅ Personal reading management: status, priority, ownership, notes, rating, timestamps (FR-020, FR-021, FR-023 to FR-026)
+- ✅ Basic statistics: counts by status and ownership (FR-030, FR-031)
+- ✅ Excel data migration (Section 2.2, UC-004)
+- ✅ Data model with canonical vs. personal data separation
+
+**Out of Scope (Deferred to MVP 1 or Post-MVP):**
+- ❌ Multi-user support: invitation tokens, registration, role-based access (FR-040 to FR-043) → **MVP 1**
+- ❌ Recommendation submission/approval workflow (FR-013, FR-014) → **Post-MVP**
+- ❌ Book Recommendations entity → **Post-MVP**
+- ❌ Invitation Tokens entity → **MVP 1**
+- ❌ Recommendation score as separate field (FR-022) → **Removed** (see Decision 2)
+- ❌ Algorithmic next-book suggestions (FR-033) → **Post-MVP**
+- ❌ Completed books with time-based filtering (FR-032) → **Post-MVP**
+- ❌ Data completeness scoring and enrichment dashboard (US-005) → **Post-MVP**
+- ❌ Reader user stories (US-006 to US-010) → **MVP 1**
+- ❌ Invitation use cases (UC-005, UC-006) → **MVP 1**
+
+**Success Criteria for MVP 0:**
+- SC-001: Curator prefers application over Excel (primary criterion)
+- SC-002: Deciding what to read next is easier
+- SC-003: Updating reading progress is easier
+- SC-007: Performance remains acceptable
+
+**Deployment:** Local deployment (localhost) acceptable for MVP 0 validation
+
+---
+
+### MVP 1: Shared Canon (Second Release)
+
+**Goal:** Enable 2-5 invited readers to use the application
+
+**Release Target:** After MVP 0 validation
+
+**Adds to MVP 0:**
+- ✅ Multi-user with authentication (email/password)
+- ✅ Invitation workflow (FR-040, FR-041, Invitation Tokens entity)
+- ✅ Role-based access (FR-043: curator vs. reader)
+- ✅ Reader personal data separation (readers track own status, ratings, notes)
+- ✅ Reader user stories (US-006, US-007, US-009)
+- ✅ Production deployment with proper hosting
+
+**Still Deferred to Post-MVP:**
+- ❌ Recommendation submission/approval workflow (FR-013, FR-014)
+- ❌ Algorithmic next-book suggestions
+- ❌ Data completeness scoring and enrichment dashboard
+- ❌ Social features (discussions, shared comments, reading groups)
+- ❌ Advanced filtering and statistics
+
+**Success Criteria for MVP 1:**
+- SC-004: Collection can be shared with selected users
+- SC-005: Users maintain independent reading states
+- SC-006: Curator control is preserved
+
+---
+
+### Post-MVP: Social and Intelligence Features
+
+**Deferred Capabilities:**
+- Recommendation submission/approval workflow
+- Discussions and shared comments per book
+- Enhanced statistics with visualizations and time-based filtering
+- Algorithmic reading recommendations
+- Data completeness scoring and enrichment tools
+- Reading groups
+- Enhanced search (faceted, relevance ranking)
+- Bulk operations for curator
+- Data export (CSV/Excel)
+- Edition management
+- Page-level progress tracking
+
+**Rationale for Deferral:**
+These features add value but are not essential to prove the core proposition: that Reading Canon is better than Excel for managing a curated reading collection.
+
+---
+
 ## 1. Functional Requirements
 
 ### 1.1 Collection Management
@@ -22,11 +112,12 @@ All requirements maintain traceability to:
 #### FR-001: Display Book Collection
 **Description:** System shall display all books in the canonical collection  
 **Priority:** Must Have  
+**Release Target:** MVP 0  
 **Source:** intent.md - Initial Scope: Collection Management  
 **Acceptance Criteria:**
-- All books in the database are visible to authenticated users
+- All books in the canonical collection are visible to authenticated users
 - Book list shows at minimum: title, author, year
-- List is paginated for collections over 100 books
+- System shall remain responsive when displaying large collections (see NFR-001)
 - Empty state shown when no books exist
 
 #### FR-002: Full-Text Search
@@ -41,53 +132,59 @@ All requirements maintain traceability to:
 - Results appear within 1 second (see NFR-002)
 
 #### FR-003: Filter Books
-**Description:** System shall support filtering by category, genre, language, and personal reading status  
+**Description:** System shall support filtering by primary category, tags, language, and personal reading status  
 **Priority:** Must Have  
+**Release Target:** MVP 0  
 **Source:** intent.md - Common activities: filtering the collection  
 **Acceptance Criteria:**
-- Filter by category (novel, play, poetry, etc.)
-- Filter by genre
+- Filter by primary_category (Novel, Play, Poetry, Philosophy, History, etc.)
+- Filter by tags (multiple tag selection, show books matching any selected tag)
 - Filter by original language
 - Filter by personal reading status (Want to Read, Reading, etc.)
 - Filter by ownership status
-- Multiple filters can be applied simultaneously
+- Multiple filters can be applied simultaneously (combined with AND logic)
 - Filters persist during session
+- Clear all filters action available
 
 #### FR-004: Sort Books
-**Description:** System shall support sorting by title, author, year, priority, and rating  
+**Description:** System shall support sorting by title, author, year, primary category, priority, and rating  
 **Priority:** Must Have  
+**Release Target:** MVP 0  
 **Source:** intent.md - Common activities  
 **Acceptance Criteria:**
 - Sort by title (alphabetically)
 - Sort by author last name (alphabetically)
-- Sort by year (chronologically, oldest or newest first)
+- Sort by year (chronologically, oldest or newest first) - **default per UX-010**
+- Sort by primary_category (alphabetically)
 - Sort by personal priority (if set)
 - Sort by personal rating (if set)
 - Sort by date added to collection
-- Sort direction can be reversed
+- Sort direction can be reversed (ascending/descending)
 
 #### FR-005: View Book Details
 **Description:** System shall display detailed information about each book  
 **Priority:** Must Have  
+**Release Target:** MVP 0  
 **Source:** intent.md - Initial Scope: View detailed information about books  
 **Acceptance Criteria:**
-- Show all canonical metadata: title, original title, author, year, category, genre, subject, language, source, author lifespan, curator comment
-- Show personal data for current user: reading status, priority, rating, recommendation score, ownership, personal notes
-- Show data completeness indicator
+- Show all canonical metadata: title, original title, author, year, primary_category, tags, original language, source, author lifespan, curator comment
+- Show personal data for current user: reading status, priority, rating, ownership, personal notes
 - Gracefully handle missing optional fields
 - Display timestamps (started, completed) if applicable
+- Tags displayed as readable list (not internal format)
 
 ### 1.2 Curation (Curator Role Only)
 
 #### FR-010: Add New Book
 **Description:** Curator shall be able to add new books to the canonical collection  
 **Priority:** Must Have  
+**Release Target:** MVP 0  
 **Source:** intent.md - Collection Curation  
 **Acceptance Criteria:**
 - Form requires title and author last name (minimum)
-- Form provides fields for all optional metadata
+- Form provides fields for all optional metadata including primary_category (dropdown from controlled vocabulary) and tags (multi-entry field)
 - System validates required fields before saving
-- System calculates data completeness score
+- System validates primary_category against controlled vocabulary (if provided)
 - Newly added book appears in collection immediately
 - System records created_by and created_at
 
@@ -113,8 +210,10 @@ All requirements maintain traceability to:
 
 #### FR-013: Review Recommendations
 **Description:** Curator shall be able to review user-submitted book recommendations  
-**Priority:** Should Have (MVP scope)  
-**Source:** intent.md - Collection Curation  
+**Priority:** Should Have  
+**Release Target:** Post-MVP  
+**Source:** intent.md - Collection Curation (listed as Future Enhancement)  
+**Rationale for Deferral:** Recommendation workflow adds significant complexity. For MVP, curator can add books suggested by readers through informal channels (email, conversation). Formal workflow deferred until multi-user adoption is validated.  
 **Acceptance Criteria:**
 - Curator can view list of pending recommendations
 - Each recommendation shows: proposed book details, who submitted it, when
@@ -122,8 +221,10 @@ All requirements maintain traceability to:
 
 #### FR-014: Approve/Reject Recommendations
 **Description:** Curator shall be able to approve or reject book recommendations  
-**Priority:** Should Have (MVP scope)  
-**Source:** intent.md - Collection Curation  
+**Priority:** Should Have  
+**Release Target:** Post-MVP  
+**Source:** intent.md - Collection Curation (listed as Future Enhancement)  
+**Rationale for Deferral:** Part of recommendation workflow. Deferred with FR-013.  
 **Acceptance Criteria:**
 - Curator can approve recommendation (adds book to collection)
 - Curator can reject recommendation with optional reason
@@ -147,24 +248,30 @@ All requirements maintain traceability to:
 #### FR-021: Set Personal Priority
 **Description:** User shall set personal reading priority per book  
 **Priority:** Must Have  
-**Source:** design-decisions.md #5 - Priority vs Recommendation  
+**Release Target:** MVP 0  
+**Source:** design-decisions.md #5 - Priority vs Recommendation (modified per Decision 2)  
 **Acceptance Criteria:**
 - User can set priority: High, Medium, Low, or None
-- Priority is separate from recommendation score
+- Priority answers "when do I want to read this?" (Next/Soon/Someday)
+- Priority is separate from personal rating (which implies recommendation strength)
 - Priority is personal (does not affect other users)
 - User can filter books by priority
 - Priority can be changed at any time
 
 #### FR-022: Assign Recommendation Score
-**Description:** User shall assign recommendation score per book  
-**Priority:** Must Have  
+**Status:** REMOVED  
+**Removal Rationale:** Conflates with Personal Rating (FR-025). Product Decision 2: Simplify to two concepts (Priority + Rating). For most users, rating and recommendation strength are equivalent. If separate recommendation becomes needed in the future (e.g., "important but not personally enjoyable"), it can be added post-MVP.  
+**Original Description:** User shall assign recommendation score per book  
+**Priority:** ~~Must Have~~  
 **Source:** design-decisions.md #5 - Priority vs Recommendation  
-**Acceptance Criteria:**
-- User can assign score: 1-5 scale or None
-- Recommendation represents "how strongly would I recommend this to others"
-- Recommendation is separate from personal priority
-- Recommendation is separate from personal rating
-- User can view their own highly-recommended books
+**Original Acceptance Criteria:**
+- ~~User can assign score: 1-5 scale or None~~
+- ~~Recommendation represents "how strongly would I recommend this to others"~~
+- ~~Recommendation is separate from personal priority~~
+- ~~Recommendation is separate from personal rating~~
+- ~~User can view their own highly-recommended books~~
+
+**Replacement:** See FR-025 (Personal Rating), which now implies recommendation strength.
 
 #### FR-023: Track Ownership Status
 **Description:** User shall track ownership status for books  
@@ -190,13 +297,15 @@ All requirements maintain traceability to:
 #### FR-025: Assign Personal Rating
 **Description:** User shall assign personal rating to books  
 **Priority:** Must Have  
+**Release Target:** MVP 0  
 **Source:** intent.md - Personal Reading Management: rating  
 **Acceptance Criteria:**
 - User can assign rating: 1-5 stars or None
 - Rating is personal (not shared with other users)
-- Rating represents personal enjoyment/value
-- Rating is separate from recommendation score
+- Rating represents personal enjoyment/value and by implication, recommendation strength
+- A highly-rated book (4-5 stars) implies strong recommendation to others
 - User can filter books by their rating
+- User can view their highest-rated books as implicit recommendations
 
 #### FR-026: View Reading Timestamps
 **Description:** User shall see when they started and completed books  
@@ -247,7 +356,9 @@ All requirements maintain traceability to:
 #### FR-033: Suggest Next Book
 **Description:** System shall suggest next book to read based on priority and status  
 **Priority:** Should Have  
+**Release Target:** Post-MVP  
 **Source:** intent.md - Primary user wants to: prioritize future reading  
+**Rationale for Deferral:** MVP curator can manually filter and sort by priority. Algorithmic suggestions add complexity without proving core value.  
 **Acceptance Criteria:**
 - Show books with status "Want to Read" sorted by priority
 - Prioritize books with High priority
@@ -260,6 +371,7 @@ All requirements maintain traceability to:
 #### FR-040: Generate Invitation Tokens
 **Description:** Curator shall generate invitation tokens for new users  
 **Priority:** Must Have  
+**Release Target:** MVP 1  
 **Source:** intent.md - Multi-user, invite-only  
 **Acceptance Criteria:**
 - Curator can create invitation link
@@ -271,6 +383,7 @@ All requirements maintain traceability to:
 #### FR-041: Register via Invitation
 **Description:** Users shall register via invitation link only  
 **Priority:** Must Have  
+**Release Target:** MVP 1  
 **Source:** intent.md - Private application, curator-controlled  
 **Acceptance Criteria:**
 - Registration page only accessible via valid invitation link
@@ -283,6 +396,7 @@ All requirements maintain traceability to:
 #### FR-042: Authenticate with Email/Password
 **Description:** Users shall authenticate with email/password  
 **Priority:** Must Have  
+**Release Target:** MVP 0 (simplified - curator only), MVP 1 (full multi-user)  
 **Source:** Design decision - authentication approach  
 **Acceptance Criteria:**
 - Login page accepts email and password
@@ -295,6 +409,7 @@ All requirements maintain traceability to:
 #### FR-043: Enforce Role-Based Permissions
 **Description:** System shall enforce role-based permissions (Curator vs Reader)  
 **Priority:** Must Have  
+**Release Target:** MVP 1  
 **Source:** design-decisions.md #2 - Curated Collection Ownership  
 **Acceptance Criteria:**
 - Curator role can: add/edit/remove books, approve recommendations, generate invitations
@@ -303,7 +418,135 @@ All requirements maintain traceability to:
 - UI hides actions user cannot perform
 - First user in system is automatically curator
 
+### 1.6 User Experience Requirements
+
+This section specifies user experience requirements to support the core principle of "excellent usability" (vision.md). These requirements ensure the application is intuitive, accessible, and easier to use than Excel for managing the reading collection.
+
+#### UX-001: Information Architecture
+**Requirement:** Application shall organize functionality into distinct, clearly defined views  
+**Priority:** Must Have  
+**Release Target:** MVP 0  
+**Rationale:** Clear information architecture enables users to navigate efficiently and find features without confusion  
+**Views:**
+- **Collection View:** Browse, search, filter, sort all books in canonical collection
+- **Book Detail View:** Display full metadata and personal data for single book
+- **Reading Dashboard:** Show "Currently Reading" books and provide quick actions
+- **Statistics View:** Display personal reading statistics (counts, completed books)
+- **Settings View:** User preferences, logout (curator: add user management in MVP 1)
+
+#### UX-002: Navigation and Wayfinding
+**Requirement:** Application shall provide persistent navigation and preserve context  
+**Priority:** Must Have  
+**Release Target:** MVP 0  
+**Rationale:** Users must be able to move between views without losing their place  
+**Acceptance Criteria:**
+- Persistent navigation menu visible across all views
+- Browser back button returns to previous view with preserved state (filters, scroll position, selected book)
+- Current view clearly indicated in navigation
+- Breadcrumbs or clear page titles show user's location in application
+
+#### UX-003: Primary Interactions
+**Requirement:** Application shall support quick status changes without leaving current view  
+**Priority:** Must Have  
+**Release Target:** MVP 0  
+**Rationale:** Updating reading status should be faster than Excel (success criterion SC-003)  
+**Acceptance Criteria:**
+- Collection view: Inline controls to change reading status without opening detail view
+- Book detail view: Status dropdown or buttons with immediate save
+- Completion action: Optional prompt to add rating and notes (all optional)
+- Destructive actions (delete book): Require confirmation dialog with clear consequences
+- All interactions provide immediate visual feedback
+
+#### UX-004: Empty States
+**Requirement:** Application shall display helpful empty states when no data is present  
+**Priority:** Must Have  
+**Release Target:** MVP 0  
+**Rationale:** Empty states guide users toward productive actions  
+**Acceptance Criteria:**
+- Empty collection: "Add your first book" with prominent add button
+- No books matching filter: "No books match these criteria" with option to clear filters
+- Zero books currently reading: "Start reading a book" with link to collection or filtered view
+- No completed books: "You haven't finished any books yet" with encouraging message
+
+#### UX-005: Feedback and Confirmation
+**Requirement:** Application shall provide immediate feedback for state changes  
+**Priority:** Must Have  
+**Release Target:** MVP 0  
+**Rationale:** Users need confirmation that actions succeeded  
+**Acceptance Criteria:**
+- Status changes: Immediate visual update (color change, icon change, or inline success indicator)
+- Destructive actions (delete book): Confirmation dialog stating consequences
+- Long operations (migration, bulk updates): Progress indicator showing current step
+- Errors: Clear error messages with recovery suggestions
+- Success messages: Visible but non-intrusive (toast notifications or inline messages)
+
+#### UX-006: Keyboard Navigation
+**Requirement:** Application shall support keyboard navigation for all interactive elements  
+**Priority:** Should Have  
+**Release Target:** MVP 0  
+**Rationale:** Keyboard navigation improves efficiency for power users and is essential for accessibility  
+**Acceptance Criteria:**
+- Tab key navigates through interactive elements in logical order
+- Enter key activates buttons and links
+- Escape key closes dialogs and modals
+- Focus indicators clearly visible on all interactive elements
+- No keyboard traps (user can always navigate away from any element)
+
+#### UX-007: Screen Reader Accessibility
+**Requirement:** Application shall support screen readers for visually impaired users  
+**Priority:** Should Have  
+**Release Target:** MVP 0  
+**Rationale:** Basic accessibility compliance and inclusive design  
+**Acceptance Criteria:**
+- Semantic HTML elements used throughout (headings, lists, forms, buttons)
+- ARIA labels provided for interactive elements where text is not visible
+- Focus management in modals (focus trapped within modal, returned to trigger on close)
+- Status messages announced to screen readers (ARIA live regions)
+- Form validation errors announced and associated with inputs
+- WCAG 2.1 AA color contrast minimum met for all text
+
+#### UX-008: Responsive Behavior
+**Requirement:** Application should remain usable on narrow screens (tablets, large phones)  
+**Priority:** Should Have for MVP 0, Must Have for MVP 1  
+**Release Target:** MVP 0 (nice-to-have), MVP 1 (required)  
+**Rationale:** While MVP 0 is desktop-focused, basic responsive behavior prevents unusability on other devices  
+**Acceptance Criteria:**
+- Navigation collapses to menu icon below 768px width
+- Book list reflows to single column on narrow screens
+- Tables reflow to card layout or stacked rows on narrow screens
+- Touch targets minimum 44x44 pixels for mobile use
+- No horizontal scrolling required
+- Text remains readable (no tiny fonts)
+
+#### UX-009: Performance Perception
+**Requirement:** Application shall indicate loading state for operations that take time  
+**Priority:** Must Have  
+**Release Target:** MVP 0  
+**Rationale:** Users tolerate delays better when they understand system is working  
+**Acceptance Criteria:**
+- Search: Results appear progressively or with loading indicator if delay > 500ms
+- Navigation between views: Loading spinner or skeleton screen if delay > 300ms
+- Long operations (migration): Progress bar with percentage or step indicator
+- Initial page load: Loading state shown until interactive
+- Optimistic UI updates where appropriate (show change immediately, revert if fails)
+
+#### UX-010: Default Sort Order
+**Requirement:** Collection view shall default to chronological sort (year published, oldest first)  
+**Priority:** Must Have  
+**Release Target:** MVP 0  
+**Source:** Decision 6  
+**Rationale:** Appropriate for reading canon focused on classical/significant works - historical/chronological browsing makes sense for this collection  
+**Acceptance Criteria:**
+- When user first opens collection view, books sorted by year published ascending (oldest first)
+- Ancient works (8th century BC) appear first
+- Modern works appear last
+- Books without year_published appear at end (or beginning with clear indicator)
+- User can change sort order (persists during session)
+- Sort order indicator clearly visible to user
+
 ## 2. Data Model Requirements
+
+**Note:** This section describes entities, attributes, and relationships using technology-neutral terms. Specific database technology, data types, and implementation patterns are architecture decisions deferred to ADR phase. Field constraints (max lengths, formats) are illustrative guidelines, not prescriptive implementation requirements.
 
 ### 2.1 Core Entities
 
@@ -311,108 +554,175 @@ All requirements maintain traceability to:
 
 **Purpose:** Central curated collection owned by curator
 
-**Required Fields:**
-- `id` (UUID, primary key)
-- `title` (string, max 500 characters)
-- `author_last_name` (string, max 200 characters)
+**Identity:** Each book must be uniquely identifiable throughout the system
 
-**Optional Fields:**
-- `author_first_name` (string, max 200 characters)
-- `title_original` (string, max 500 characters)
-- `year_published` (string, max 100 characters) - flexible format for "8th century BC", "ca. 1200", "1965-1971"
-- `year_sort` (integer) - normalized for sorting, can be negative for BC
-- `category` (string, max 100 characters) - novel, play, poetry, etc.
-- `genre` (string, max 100 characters)
-- `subject` (string, max 100 characters)
-- `original_language` (string, 2-3 char code) - ISO 639 codes
-- `source` (text) - where book recommendation came from
-- `curator_comment` (text) - shared notes about the book
-- `author_lifespan` (string, max 100 characters) - e.g., "1564-1616"
-- `data_completeness_score` (float 0.0-1.0) - calculated field
+**Required Attributes:**
+- **title:** Book title (text, maximum approximately 500 characters)
+- **author_last_name:** Author's last/family name (text, maximum approximately 200 characters)
 
-**Metadata Fields:**
-- `created_at` (timestamp)
-- `updated_at` (timestamp)
-- `created_by_user_id` (UUID, FK to users)
+**Optional Attributes:**
+- **author_first_name:** Author's first/given name (text, maximum approximately 200 characters)
+- **title_original:** Original title if published in another language (text, maximum approximately 500 characters)
+- **year_published:** Year or period of publication (text to accommodate formats like "8th century BC", "ca. 1200", "1965-1971")
+- **year_sort:** Normalized year value suitable for chronological sorting (numeric, can be negative for BC dates)
+- **primary_category:** Primary classification from controlled vocabulary (text, single value, examples: Novel, Play, Poetry, Philosophy, History, Religion, Politics, Science, Drama, Essay) - see controlled vocabulary below
+- **tags:** Additional flexible classification (multi-valued collection of text strings, optional, examples: "tragedy", "political philosophy", "medieval", "existentialism")
+- **original_language:** Language book was originally written in (short code, 2-3 characters suggested, ISO 639 codes recommended)
+- **source:** Where the book recommendation originated (text, free-form)
+- **curator_comment:** Curator's notes about why book belongs in canon (text, free-form)
+- **author_lifespan:** Author's birth/death years (text, format example: "1564-1616")
+
+**Audit Attributes:**
+- **created_at:** When book was added to collection (timestamp)
+- **updated_at:** When book metadata was last modified (timestamp)
+- **created_by_user_id:** Which user added the book (reference to Users entity)
+
+**Business Rules:**
+- Books are uniquely identified (no duplicate books)
+- Required attributes must be present before book can be added
+- Optional attributes may be absent (progressive enrichment principle)
+- primary_category must be from controlled vocabulary (if present)
+- tags are flexible and user-defined (no controlled vocabulary)
+
+**Primary Category Controlled Vocabulary:**
+The following values are permitted for primary_category:
+- Novel
+- Play / Drama
+- Poetry
+- Philosophy
+- History
+- Religion / Theology
+- Politics / Political Theory
+- Science
+- Essay / Non-fiction
+- Biography / Memoir
+- Anthology / Collection
+
+Additional values may be added by curator as needed. The vocabulary is intentionally broad to accommodate diverse works in the canon.
 
 **Traceability:**
-- Maps to Excel columns: Author, Last Name, First Name, Title (EN), Original Title, Year, Category, Genre, Subject, Original Language, Source, Comment, Author Lifespan
+- Maps to Excel columns: Author, Last Name, First Name, Title (EN), Original Title, Year, Category → primary_category, Genre + Subject → tags, Original Language, Source, Comment, Author Lifespan
+- Simplifies classification per Decision 5: primary_category (controlled) + tags (flexible)
 - Supports progressive enrichment principle (design-decisions.md)
 
 #### User Reading Status (Personal Data)
 
 **Purpose:** User-specific reading data, separate from canonical collection
 
-**Fields:**
-- `id` (UUID, primary key)
-- `user_id` (UUID, FK to users) - NOT NULL
-- `book_id` (UUID, FK to books) - NOT NULL
-- `reading_status` (enum: not_started, want_to_read, reading, paused, finished, abandoned) - default not_started
-- `personal_priority` (enum: high, medium, low) - nullable
-- `recommendation_score` (integer 1-5) - nullable
-- `ownership_status` (enum: not_owned, ordered, owned_physical, owned_digital, borrowed) - default not_owned
-- `personal_notes` (text) - nullable
-- `personal_rating` (integer 1-5) - nullable
-- `started_at` (timestamp) - nullable, set when status becomes "reading"
-- `completed_at` (timestamp) - nullable, set when status becomes "finished"
-- `created_at` (timestamp)
-- `updated_at` (timestamp)
+**Identity:** Each user-book pair must be uniquely identifiable
 
-**Constraints:**
-- UNIQUE (user_id, book_id) - one status record per user per book
+**Relationships:**
+- Belongs to one User
+- Refers to one Book from canonical collection
+
+**Attributes:**
+- **reading_status:** Current reading state (enumerated: not_started, want_to_read, reading, paused, finished, abandoned; default: not_started)
+- **personal_priority:** Reading priority (enumerated: high, medium, low; optional)
+- **ownership_status:** Book ownership state (enumerated: not_owned, ordered, owned_physical, owned_digital, borrowed; default: not_owned)
+- **personal_notes:** Private notes and reflections (text, free-form, optional)
+- **personal_rating:** Rating from 1-5 (numeric scale 1-5, optional) - represents both enjoyment/value AND recommendation strength (see FR-025)
+- **started_at:** When user first marked book as "reading" (timestamp, optional, auto-set)
+- **completed_at:** When user marked book as "finished" (timestamp, optional, auto-set)
+- **created_at:** When this record was created (timestamp, auto-set)
+- **updated_at:** When this record was last modified (timestamp, auto-set)
+
+**Business Rules:**
+- One reading status record per user per book (unique constraint on user + book pair)
+- Personal data is private to the user (see NFR-021)
+- User can have multiple books with status "reading" simultaneously
 
 **Traceability:**
-- Maps to Excel columns: Lib (ownership), Prio (priority + recommendation mixed), Read (reading status)
+- Maps to Excel columns: Lib (ownership), Prio (priority + rating + status, per Decision 3), Read (reading status)
 - Separates personal from canonical data (design-decisions.md #3)
 
 #### Users
 
 **Purpose:** User accounts with role-based access
 
-**Fields:**
-- `id` (UUID, primary key)
-- `email` (string, max 255, unique) - NOT NULL
-- `password_hash` (string) - NOT NULL, bcrypt or argon2
-- `display_name` (string, max 100) - NOT NULL
-- `role` (enum: curator, reader) - NOT NULL, default reader
-- `invited_by_user_id` (UUID, FK to users) - nullable
-- `created_at` (timestamp)
-- `last_login_at` (timestamp)
+**Release Target:** MVP 1 (MVP 0 has single curator user with simplified authentication)
+
+**Identity:** Each user must be uniquely identifiable
+
+**Required Attributes:**
+- **email:** User's email address (text, must be unique across all users, maximum approximately 255 characters)
+- **password_hash:** Securely hashed password (text, one-way hash per NFR-023, never plaintext)
+- **display_name:** User's display name shown in interface (text, maximum approximately 100 characters)
+- **role:** User's role (enumerated: curator, reader; default: reader)
+
+**Optional Attributes:**
+- **invited_by_user_id:** Which user invited this user (reference to Users entity, optional)
+
+**Audit Attributes:**
+- **created_at:** When account was created (timestamp, auto-set)
+- **last_login_at:** Most recent login time (timestamp, auto-updated)
+
+**Business Rules:**
+- Email addresses must be unique (no two users with same email)
+- First user in system is automatically assigned curator role
+- Password must be stored securely hashed, never in plaintext (see NFR-023)
+- Users authenticate via email + password (see FR-042)
 
 **Traceability:**
 - Supports multi-user with curator control (design-decisions.md #2, #3)
 
-#### Invitation Tokens (Optional MVP Scope)
+#### Invitation Tokens
 
+**Release Target:** MVP 1  
 **Purpose:** Manage user invitations
 
-**Fields:**
-- `id` (UUID, primary key)
-- `token` (string, unique) - secure random token
-- `created_by_user_id` (UUID, FK to users)
-- `invited_email` (string, max 255) - optional pre-fill
-- `expires_at` (timestamp)
-- `used_at` (timestamp) - nullable
-- `used_by_user_id` (UUID, FK to users) - nullable
-- `revoked_at` (timestamp) - nullable
+**Identity:** Each invitation token must be uniquely identifiable
 
-#### Book Recommendations (Optional MVP Scope)
+**Relationships:**
+- Created by one User (curator)
+- Optionally used by one User (becomes new user account)
 
+**Attributes:**
+- **token:** Secure random token value (text, must be unique, cryptographically random)
+- **created_by_user_id:** Which curator created this invitation (reference to Users entity)
+- **invited_email:** Optional pre-filled email for recipient (text, optional)
+- **expires_at:** When invitation expires (timestamp)
+- **used_at:** When invitation was used (timestamp, optional, auto-set)
+- **used_by_user_id:** Which user account was created from this invitation (reference to Users entity, optional, auto-set)
+- **revoked_at:** When invitation was revoked by curator (timestamp, optional, auto-set)
+
+**Business Rules:**
+- Tokens must be cryptographically secure random values
+- Tokens must be unique across all invitations
+- Each invitation can only be used once
+- Expired invitations cannot be used
+- Revoked invitations cannot be used
+- Only curators can create invitations
+
+#### Book Recommendations
+
+**Release Target:** Post-MVP  
 **Purpose:** User suggestions for canonical collection
 
-**Fields:**
-- `id` (UUID, primary key)
-- `proposed_by_user_id` (UUID, FK to users)
-- `title` (string)
-- `author_last_name` (string)
-- `author_first_name` (string) - nullable
-- `justification` (text) - why should this be added
-- `status` (enum: pending, approved, rejected)
-- `reviewed_by_user_id` (UUID, FK to users) - nullable
-- `reviewed_at` (timestamp) - nullable
-- `rejection_reason` (text) - nullable
-- `approved_book_id` (UUID, FK to books) - nullable, set if approved
-- `created_at` (timestamp)
+**Identity:** Each recommendation must be uniquely identifiable
+
+**Relationships:**
+- Proposed by one User (reader or curator)
+- Reviewed by one User (curator, optional)
+- If approved, linked to one Book in canonical collection
+
+**Attributes:**
+- **proposed_by_user_id:** Which user submitted this recommendation (reference to Users entity)
+- **title:** Proposed book title (text)
+- **author_last_name:** Proposed author last name (text)
+- **author_first_name:** Proposed author first name (text, optional)
+- **justification:** Why this book should be added to canon (text, free-form)
+- **status:** Current state (enumerated: pending, approved, rejected; default: pending)
+- **reviewed_by_user_id:** Which curator reviewed this (reference to Users entity, optional)
+- **reviewed_at:** When curator reviewed this (timestamp, optional, auto-set)
+- **rejection_reason:** Why curator rejected (text, optional)
+- **approved_book_id:** If approved, the created Book (reference to Books entity, optional, auto-set)
+- **created_at:** When recommendation was submitted (timestamp, auto-set)
+
+**Business Rules:**
+- Any authenticated user can submit recommendations
+- Only curators can review/approve/reject recommendations
+- Approved recommendations create new Books in canonical collection
+- Rejected recommendations remain in system for audit (with reason)
 
 ### 2.2 Data Migration Mapping
 
@@ -427,48 +737,51 @@ All requirements maintain traceability to:
 | Original Title | books.title_original | Direct mapping, nullable |
 | Year | books.year_published | Keep as string for display |
 | Sort Time | books.year_sort | Use for chronological sorting |
-| Category | books.category | Direct mapping, nullable |
-| Genre | books.genre | Direct mapping, nullable |
-| Subject | books.subject | Direct mapping, nullable |
+| Category | books.primary_category | Map to controlled vocabulary value (Decision 5) |
+| Genre | books.tags | Convert to tag (multi-value) |
+| Subject | books.tags | Convert to tag (multi-value) |
 | Original Language | books.original_language | Direct mapping, nullable |
 | Source | books.source | Direct mapping, nullable |
 | Comment | books.curator_comment | Direct mapping, nullable |
 | Author Lifespan | books.author_lifespan | Direct mapping, nullable |
 | Lib | user_reading_status.ownership_status | 'X' → owned_physical, blank → not_owned |
-| Prio | user_reading_status.personal_priority | '1-2' → high, '3' → medium, '4-5' → low, 'x' → NULL |
+| Prio | user_reading_status.personal_priority + personal_rating + reading_status | Complex: 'x' → priority=high; '1-5' → rating=1-5; '-' → status=reading; blank → NULL. See Decision 3. |
 | Read | user_reading_status.reading_status | 'X' → finished, blank → not_started |
 
+**Prio Column Migration Detail (Decision 3):**
+The Excel "Prio" column historically mixed three concepts. Migration logic:
+- 'x' → personal_priority = High
+- '1-5' (numeric) → personal_rating = 1-5 stars (also implies recommendation strength per FR-025)
+- '-' → reading_status = Reading
+- blank → All fields NULL/default
+
+**Category/Genre/Subject Migration Detail (Decision 5):**
+The Excel columns Category, Genre, and Subject are consolidated:
+- Excel "Category" → books.primary_category (validate against controlled vocabulary)
+- Excel "Genre" + "Subject" → books.tags (combined into multi-valued tags collection)
+- If Category value not in controlled vocabulary, add to tags and leave primary_category NULL for curator review
+
 **Data Quality Preservation:**
-- Store original Excel values in metadata JSONB field
+- Store original Excel values for audit
 - Flag records with unusual values for curator review
-- Track data completeness score per book
-- Generate migration report with warnings
+- Generate migration report with warnings and validation summary
 
 ### 2.3 Progressive Enrichment Design
 
-**Principle:** System must work with incomplete data
+**Principle:** System must work with incomplete data (design-decisions.md)
 
-**Implementation:**
-- All optional fields nullable at database level
-- UI shows placeholder text for missing fields
-- Book detail page shows data completeness percentage
-- Curator dashboard shows "books needing enrichment"
-- Prioritize enrichment: high-priority books, frequently viewed books, books with partial data
+**Requirements:**
+- System shall accept and store books with only required attributes (title, author_last_name)
+- System shall gracefully display books with missing optional attributes
+- UI shall clearly indicate which optional attributes are missing
+- System shall allow curator to add optional attributes at any time
+- Adding optional attributes shall not disrupt existing functionality
 
-**Completeness Score Calculation:**
-```
-score = (filled_fields / total_optional_fields) × 0.7 + (has_required_fields ? 0.3 : 0)
+**Rationale:**
+The canonical collection contains books from diverse sources and time periods. Complete metadata may not always be available at the time of entry. The system must remain functional and useful even when only minimal information is present.
 
-Where filled_fields counts non-null, non-empty optional fields:
-- author_first_name
-- title_original
-- year_published
-- category
-- genre
-- original_language
-- curator_comment
-- author_lifespan
-```
+**Deferred to Post-MVP:**
+Data completeness scoring, enrichment dashboards, and prioritized enrichment workflows. For MVP, curator enriches books opportunistically as information becomes available.
 
 ## 3. Non-Functional Requirements
 
@@ -530,26 +843,30 @@ Where filled_fields counts non-null, non-empty optional fields:
 #### NFR-021: Personal Data Privacy
 **Requirement:** Users can only access and modify their own personal data  
 **Priority:** Must Have  
+**Release Target:** MVP 1 (MVP 0 has single user)  
 **Rationale:** Reading data is private  
-**Implementation:** Row-level security or application-level authorization
+**Verification:** Authorization mechanism prevents users from viewing or modifying other users' personal reading data
 
 #### NFR-022: Curator-Only Collection Modification
 **Requirement:** Only curator can modify canonical collection  
 **Priority:** Must Have  
+**Release Target:** MVP 1 (MVP 0 has single curator user)  
 **Rationale:** Maintain editorial control (vision.md)  
-**Implementation:** Role-based access control
+**Verification:** Authorization mechanism prevents non-curator users from adding, editing, or removing books from canonical collection
 
 #### NFR-023: Password Security
-**Requirement:** Passwords must be securely hashed  
+**Requirement:** Passwords must not be stored in recoverable form  
 **Priority:** Must Have  
+**Release Target:** MVP 0  
 **Rationale:** Basic security hygiene  
-**Implementation:** bcrypt or argon2, never store plaintext
+**Verification:** Passwords are stored using industry-standard one-way cryptographic hashing (not reversible, not plaintext)
 
 #### NFR-024: HTTPS Required
-**Requirement:** HTTPS required for production deployment  
+**Requirement:** Production deployment must use encrypted transport  
 **Priority:** Must Have  
+**Release Target:** MVP 1 (production deployment)  
 **Rationale:** Protect credentials and session tokens  
-**Implementation:** TLS certificate, force HTTPS redirect
+**Verification:** All HTTP requests redirected to HTTPS, valid TLS certificate in place
 
 ### 3.4 Data Quality
 
@@ -560,16 +877,18 @@ Where filled_fields counts non-null, non-empty optional fields:
 **Implementation:** Store original values in metadata, audit log
 
 #### NFR-031: Track Quality Scores
-**Requirement:** System must track data quality scores per book  
+**Requirement:** System should track data quality scores per book  
 **Priority:** Should Have  
-**Rationale:** Support progressive enrichment  
-**Implementation:** Calculated completeness score field
+**Release Target:** Post-MVP  
+**Rationale:** Support progressive enrichment (nice-to-have, not essential for MVP)  
+**Deferral Rationale:** For MVP, curator enriches books opportunistically without scoring system. Algorithmic guidance deferred.
 
 #### NFR-032: Flag Incomplete Records
-**Requirement:** System must flag incomplete records for enrichment  
+**Requirement:** System should flag incomplete records for enrichment  
 **Priority:** Should Have  
-**Rationale:** Guide curator's enrichment efforts  
-**Implementation:** Curator dashboard shows books needing data
+**Release Target:** Post-MVP  
+**Rationale:** Guide curator's enrichment efforts (nice-to-have, not essential for MVP)  
+**Deferral Rationale:** For MVP, curator identifies gaps through direct observation while using the system. Enrichment dashboard deferred.
 
 ### 3.5 Maintainability
 
@@ -592,10 +911,11 @@ Where filled_fields counts non-null, non-empty optional fields:
 **Implementation:** Reference requirement IDs in code comments/commits
 
 #### NFR-043: Type Safety
-**Requirement:** System must use TypeScript for type safety  
+**Requirement:** Codebase must support compile-time type checking  
 **Priority:** Should Have  
-**Rationale:** Catch errors at compile time, better IDE support  
-**Implementation:** TypeScript for all application code
+**Release Target:** Architecture decision (ADR)  
+**Rationale:** Catch type errors before runtime, improve code maintainability and IDE support  
+**Verification:** Type checker runs successfully as part of build process, catches type mismatches before execution
 
 ## 4. User Stories
 
@@ -618,9 +938,8 @@ As a curator, I want to quickly mark a book as 'Finished' and record my thoughts
 
 **Acceptance:**
 - Change status to "Finished" with one click
-- Optionally add rating (1-5 stars)
+- Optionally add rating (1-5 stars, implies recommendation strength per FR-025)
 - Optionally add personal notes
-- Optionally add recommendation score
 - See completion date automatically recorded
 - View in "Completed" list immediately
 
@@ -650,6 +969,8 @@ As a curator, I want to add new books to the collection as I discover them, so t
 ---
 
 **US-005: Identify Gaps**  
+**Release Target:** Post-MVP  
+**Rationale:** Enrichment dashboard deferred. MVP curator enriches opportunistically.  
 As a curator, I want to see which books need more metadata, so I can gradually enrich the collection.
 
 **Acceptance:**
@@ -685,6 +1006,8 @@ As a reader, I want to track my reading progress separately from the curator, so
 ---
 
 **US-008: Recommend Addition**  
+**Release Target:** Post-MVP  
+**Rationale:** Recommendation workflow deferred per Decision 1. MVP curator can add books suggested informally.  
 As a reader, I want to recommend books for inclusion, so I can contribute to the canon.
 
 **Acceptance:**
@@ -757,8 +1080,7 @@ As a reader, I want personalized suggestions for what to read next, so I don't f
 1. User navigates to book detail page
 2. User clicks "Mark as Finished" or changes status to "Finished"
 3. System shows completion dialog with optional fields:
-   - Personal rating (1-5 stars)
-   - Recommendation score (1-5)
+   - Personal rating (1-5 stars, implies recommendation strength)
    - Personal notes/reflection
 4. User fills in desired fields (all optional)
 5. User confirms completion
@@ -794,9 +1116,8 @@ As a reader, I want personalized suggestions for what to read next, so I don't f
    - Author First Name
    - Original Title
    - Year Published
-   - Category
-   - Genre
-   - Subject
+   - Primary Category (dropdown from controlled vocabulary)
+   - Tags (multi-entry)
    - Original Language
    - Source
    - Curator Comment
@@ -805,20 +1126,19 @@ As a reader, I want personalized suggestions for what to read next, so I don't f
 4. Curator fills in as many optional fields as available
 5. Curator submits form
 6. System validates required fields
-7. System calculates data completeness score
-8. System saves book to database
-9. System displays success message with completeness score
+7. System validates primary_category against controlled vocabulary (if provided)
+8. System saves book to collection
+9. System displays success message
 10. System shows book in collection
-11. If completeness < 0.7, system adds to "Needs Enrichment" queue
 
 **Alternative Flow 6a:** Validation fails
 - System highlights missing/invalid fields
 - Curator corrects and resubmits
 
-**Alternative Flow 5a:** Curator only has minimal info
+**Alternative Flow 4a:** Curator only has minimal info
 - Curator enters just title and author
-- Submits as "draft" or "minimal entry"
-- System accepts and flags for later enrichment
+- System accepts with only required fields
+- Optional fields can be added later (progressive enrichment)
 
 **Postcondition:** New book exists in canonical collection, visible to all users
 
@@ -827,44 +1147,49 @@ As a reader, I want personalized suggestions for what to read next, so I don't f
 ### UC-004: Migrate Excel Data
 
 **Actor:** System Administrator (Curator)  
-**Precondition:** Fresh database, Excel file available  
+**Precondition:** New system, Excel workbook available  
 **Trigger:** Initial system setup
 
 **Main Flow:**
-1. Administrator runs migration script with Excel file path
-2. Script reads Excel file, loads 648 rows
-3. Script performs three-tier validation on each row:
-   - Tier 1: Hard constraints (must have title or author)
-   - Tier 2: Soft validation (priority values, year formats)
-   - Tier 3: Enrichment checks (optional fields present)
-4. Script generates data quality report showing:
-   - Total books to import
-   - Books with warnings
-   - Books with errors
-   - Fields with missing data
-5. Script displays summary to administrator
-6. Administrator reviews warnings (priority 'x' mapped to NULL, etc.)
-7. Administrator confirms migration
-8. Script creates canonical books in database
-9. Script creates user_reading_status entries for curator's personal data
-10. Script generates final report:
-    - Books imported successfully
-    - Data completeness scores
-    - Books flagged for enrichment
-11. Script outputs enrichment priority list
-12. Administrator reviews report
+1. Administrator initiates migration with Excel file path
+2. System reads Excel workbook and validates each row:
+   - Validates required fields (title, author) are present
+   - Identifies unusual or unexpected values
+   - Reports missing optional fields
+3. System generates pre-migration report showing:
+   - Total rows to import
+   - Validation warnings
+   - Validation errors (if any)
+   - Summary of missing optional fields
+4. Administrator reviews warnings and errors
+5. Administrator either:
+   - Confirms migration (if acceptable), or
+   - Cancels migration to correct source data
+6. If confirmed, system imports data:
+   - Creates Books entities from Excel book data
+   - Creates User Reading Status entities from curator's personal data (Lib, Prio, Read columns per Decision 3)
+   - Preserves original Excel values for audit
+7. System generates post-migration report:
+   - Number of books successfully imported
+   - Number of user reading status records created
+   - Summary of data preservation
+8. Administrator reviews final report
 
-**Alternative Flow 6a:** Administrator finds issues
-- Administrator cancels migration
-- Corrects Excel data or validation rules
-- Re-runs migration script
+**Alternative Flow 5a:** Administrator cancels migration
+- Administrator corrects Excel data or reviews validation rules
+- Administrator re-runs migration from step 1
 
-**Alternative Flow 8a:** Database transaction fails
-- Script rolls back all changes
-- Administrator investigates error
-- Fixes issue and re-runs
+**Alternative Flow 6a:** Import fails
+- System reverses any partial changes
+- System reports error to administrator
+- Administrator investigates error, fixes issue, re-runs migration
 
-**Postcondition:** All Excel books imported, curator's personal data migrated, quality report generated
+**Postcondition:** All Excel books and curator's personal reading data successfully imported
+
+**Notes:**
+- See Section 2.2 for Excel-to-entity mapping details
+- See Decision 3 for Prio column mapping logic
+- Migration is idempotent: safe to re-run on fresh system
 
 ---
 
@@ -965,33 +1290,24 @@ As a reader, I want personalized suggestions for what to read next, so I don't f
 
 ### Q2: Priority Value Mapping Strategy
 
+**Status:** RESOLVED - See Decision 3
+
 **Question:** How should we map Excel priority values to new data model?
 
-**Current Excel Values:**
-- 1-5 (numeric priority, 1 = highest)
-- 'x' (88 occurrences - meaning unclear)
-- '-' (1 occurrence)
-- blank (405 occurrences)
+**Excel Prio Column Values:**
+The Excel "Prio" column historically contained mixed semantic values requiring interpretation during migration.
 
-**Design Decision Context:** Priority and Recommendation should be separate concepts
+**Resolution (Decision 3):**
+Excel "Prio" column mixed three concepts:
+- 'x' → personal_priority = High (want to read soon)
+- '1-5' (numeric) → personal_rating = 1-5 stars
+- '-' → reading_status = Reading
+- blank → All fields NULL/default
 
-**Proposed Mapping:**
+See Section 2.2 "Prio Column Migration Detail" for implementation guidance.
 
-**Priority (Personal, "When do I want to read this?")**
-- Excel 1-2 → High
-- Excel 3 → Medium
-- Excel 4-5 → Low
-- Excel 'x', '-', blank → NULL (not yet prioritized)
-
-**Recommendation (Social, "How strongly would I recommend this?")**
-- New field, starts as NULL for all migrated books
-- User can optionally set 1-5 after reading
-
-**Alternative:** Map Excel Prio to Recommendation instead of Priority
-- If Excel Prio actually meant "how important is this book" rather than "when do I want to read it"
-- Would need to confirm with curator
-
-**Decision Needed:** Confirm Excel Prio semantic meaning with curator before migration
+**Additional Context (Decision 2):**
+Recommendation Score removed as separate field. Personal Rating now implies recommendation strength (FR-025).
 
 ---
 
@@ -1011,7 +1327,7 @@ As a reader, I want personalized suggestions for what to read next, so I don't f
    - Work: War and Peace (the abstract work)
    - Edition: Penguin 2007 edition, ISBN XXX, 1320 pages
    - Pros: More accurate model, supports edition-specific data
-   - Cons: More complex, may be overkill for 648 classical books
+   - Cons: More complex, may be overkill for canonical reading collection focused on works rather than specific editions
 
 **Recommendation for MVP:** Single entity with optional edition fields
 - Add `edition_info` text field for notes like "Penguin Classics 2007"
@@ -1132,7 +1448,8 @@ The following capabilities are explicitly deferred and should not drive early ar
 
 ### Explicitly Deferred
 - Public social networking
-- Unrestricted user-created books (readers can recommend, not add directly)
+- Book recommendation submission/approval workflow (FR-013, FR-014, US-008) - deferred to Post-MVP per Decision 1
+- Unrestricted user-created books (only curator can add to canonical collection)
 - Real-time chat
 - Mobile applications (responsive mobile is nice-to-have, but native apps are out)
 - E-reader integrations
