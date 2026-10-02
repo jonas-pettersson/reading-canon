@@ -17,6 +17,7 @@ These ADRs document the key architectural decisions made during the design phase
 | [ADR-005](./ADR-005-hosting-and-deployment.md) | Hosting and Deployment | ACCEPTED | 2026-10-02 | Vercel |
 | [ADR-006](./ADR-006-data-access-layer.md) | Data Access Layer | ACCEPTED | 2026-10-02 | Supabase Client + TypeScript |
 | [ADR-007](./ADR-007-testing-strategy.md) | Testing Strategy | ACCEPTED | 2026-10-02 | Vitest + React Testing Library |
+| [ADR-008](./ADR-008-data-migration-strategy.md) | Data Migration Strategy | ACCEPTED | 2026-10-02 | Local Node.js Script |
 
 ## Complete Architecture Stack
 
@@ -26,12 +27,13 @@ Based on the decisions above, the Reading Canon application architecture is:
 ┌─────────────────────────────────────────────────────────────────┐
 │                          FRONTEND                               │
 │  React 18 + TypeScript + Vite                                   │
-│  - React Hook Form (forms)                                      │
-│  - Radix UI + Tailwind CSS (UI components)                      │
-│  - React Query (state management)                               │
+│  - Supabase JavaScript Client (@supabase/supabase-js)           │
+│  - TanStack Query (optional but recommended for server state)   │
 │  - Vitest + React Testing Library (testing)                     │
+│  - Form/UI libraries selected during implementation             │
 │                                                                 │
-│  Hosted on: Vercel (global CDN, automatic HTTPS)                │
+│  Hosted on: Vercel (production target for MVP 1)                │
+│              Localhost (acceptable for MVP 0 validation)        │
 └─────────────────────────────────────────────────────────────────┘
                               │
                               │ HTTPS API calls
@@ -71,22 +73,31 @@ Based on the decisions above, the Reading Canon application architecture is:
 1. **Separation of Concerns**: Frontend (React) handles presentation, backend (Supabase) handles data and business logic
 2. **Type Safety**: End-to-end TypeScript with generated types from database schema
 3. **Security**: Database-level authorization via Row-Level Security (RLS)
-4. **Simplicity**: Zero backend code for MVP, leveraging Supabase's auto-generated APIs
+4. **Simplicity**: Minimal backend code for MVP 0 (SQL migrations + RLS policies), leveraging Supabase's auto-generated APIs
 5. **Performance**: Global CDN (Vercel) + PostgreSQL indexing + client-side caching (React Query)
 6. **Developer Experience**: Modern tooling, automatic deployments, fast feedback loops
-7. **Cost Efficiency**: Free tiers sufficient for 1-10 users (Vercel 100GB bandwidth, Supabase 500MB DB)
+7. **Cost Efficiency**: Free tiers of hosting providers typically sufficient for 1-10 users at expected usage (verify current limits)
 
 ## Technology Choices Summary
 
 ### Frontend
-- **Framework**: React 18 (mature, large ecosystem)
-- **Language**: TypeScript (type safety, NFR-043)
+
+**Accepted Architectural Decisions:**
+- **Framework**: React 18 (mature ecosystem, accessibility tooling)
+- **Language**: TypeScript (type safety per NFR-043)
 - **Build Tool**: Vite (fast dev server, optimized builds)
-- **Forms**: React Hook Form (best-in-class, low re-renders)
-- **UI Components**: Radix UI (accessible primitives) + Tailwind CSS (utility-first styling)
-- **State**: React Query (server state) + Context/Zustand (client state)
-- **Testing**: Vitest (fast) + React Testing Library (user-centric)
-- **Accessibility**: jest-axe (automated) + manual testing (WCAG 2.1 AA)
+- **Testing**: Vitest + React Testing Library (see ADR-007)
+
+**Recommended for MVP 0 Implementation:**
+- **Forms**: React Hook Form (low re-renders, good validation)
+- **UI Components**: Radix UI or similar for accessible primitives
+- **Styling**: Tailwind CSS or CSS Modules (team preference)
+- **Server State**: TanStack Query (recommended, see ADR-006) or direct Supabase client
+- **Client State**: React Context + hooks (sufficient for MVP 0)
+- **Accessibility Testing**: jest-axe for automated checks, manual testing for WCAG 2.1 AA compliance
+
+**Minimal Dependency Principle for MVP 0:**
+Add libraries when they solve a demonstrated need. Defer Zustand/Jotai unless React Context proves insufficient. Routing library only needed when multi-page navigation is implemented.
 
 ### Backend
 - **Architecture**: Backend-as-a-Service (Supabase)
@@ -104,30 +115,54 @@ Based on the decisions above, the Reading Canon application architecture is:
 
 ## Cost Estimate
 
-**MVP 0 & MVP 1 (1-10 users):**
-- Vercel: **$0/month** (free tier: 100GB bandwidth)
-- Supabase: **$0/month** (free tier: 500MB DB, 50K MAU)
-- Domain (optional): **~$12/year**
+**MVP 0 & MVP 1 (1-10 users) as of 2026-10-02:**
+- Vercel: Free tier sufficient for expected traffic
+- Supabase: Free tier sufficient for database size and user count
+- Domain (optional): ~$12/year
 
-**Total: $0-1/month** for expected usage
+**Total:** Likely $0-1/month for expected usage, not including optional domain
 
-Free tiers are sufficient for years at the expected scale.
+**Important:** Free tier limits and pricing change over time. Verify current Vercel and Supabase pricing before deployment. For 1-10 users with a collection of <1,000 books, free tiers of reputable BaaS providers are typically sufficient, but the specific quotas and limits should be confirmed.
 
-## MVP 0 vs MVP 1 Considerations
+## MVP 0 vs MVP 1 Implementation Scope
 
 **MVP 0 (Single User Validation):**
-- All architecture decisions apply
-- Simplified authentication (single curator user)
-- Local development acceptable initially
-- Deploy to Vercel when remote access needed
 
-**MVP 1 (Multi-User):**
-- Invitation workflow implementation (FR-040, FR-041)
-- Role-based access (curator vs reader)
-- Production deployment with custom domain
-- Full RLS policies for multi-user authorization
+*Goal:* Prove core value - "better than Excel for curator's personal use"
 
-Architecture supports both MVP 0 and MVP 1 without changes.
+*What Must Be Implemented:*
+- Single curator authentication (login/logout)
+- Database schema: books, user_reading_status, external_references
+- Basic RLS policies (authenticated access)
+- Collection management UI (add, edit, delete books)
+- Personal reading management (status, priority, rating, notes, ownership)
+- Search and filtering
+- Excel data migration (one-time)
+- Localhost development sufficient for validation
+
+*What Is Intentionally Deferred:*
+- Multi-user support and invitation workflow
+- `invitation_tokens` table
+- Application `profiles` table (optional for MVP 0)
+- Role-based authorization enforcement
+- Edge Functions for privileged operations
+- Production deployment (optional - localhost acceptable)
+
+**MVP 1 (Multi-User with Roles):**
+
+*Goal:* Enable 2-5 invited readers to use the application
+
+*Adds to MVP 0:*
+- `invitation_tokens` table with secure token management
+- `profiles` table for user roles and display names
+- Edge Function for secure invitation generation
+- Registration flow validating invitation tokens
+- Role-based RLS policies (curator vs reader)
+- User management UI for curator
+- Production deployment on Vercel with HTTPS
+
+*Architectural Continuity:*
+The core architecture (Supabase + React + Vercel) remains unchanged. MVP 1 adds tables, refines RLS policies, and introduces one Edge Function. No fundamental redesign required.
 
 ## Extensibility
 
@@ -145,15 +180,27 @@ The chosen architecture allows for future enhancements:
 If architectural changes are needed:
 
 **Frontend Migration:**
-- Static site is portable (HTML/CSS/JS)
-- Can deploy to Netlify, Cloudflare, or any static host
-- React code is framework-agnostic (no Vercel lock-in)
+- Vite-built static site can be deployed to alternative hosts (Netlify, Cloudflare Pages, any static host)
+- React components themselves are portable
+- Supabase client calls would need replacement if changing backend provider
+- No Vercel-specific dependencies in code
 
 **Backend Migration:**
-- PostgreSQL schema is portable (standard SQL)
-- Can export to self-hosted Supabase
-- Can migrate to traditional backend (Express, tRPC) with schema export
-- Data is exportable (pg_dump or Supabase dashboard)
+- PostgreSQL schema and data are portable via `pg_dump` or Supabase export
+- Can migrate to self-hosted Supabase (open-source)
+- Migrating to a traditional backend (Express, tRPC) requires:
+  - Exporting PostgreSQL schema and data
+  - Rewriting RLS policies as application authorization logic
+  - Replacing Supabase Auth with custom auth or alternative service
+  - Replacing Supabase client queries with new data access layer
+  - Significant development effort, not a trivial change
+- **Vendor lock-in considerations:**
+  - RLS policies are PostgreSQL-specific but not Supabase-specific
+  - Supabase Auth user export is possible but password migration requires user password resets
+  - Real-time subscriptions (if used) would need replacement
+  - Generated types and query patterns are Supabase-specific
+
+**Realistic Assessment:** The application has meaningful Supabase dependency. Migration to another provider is feasible (PostgreSQL and data are portable) but not trivial. It requires rewriting the data access layer and authentication integration. This is a deliberate trade-off: Supabase provides rapid MVP development in exchange for platform-specific integration patterns.
 
 ## Trade-offs Summary
 
@@ -162,7 +209,7 @@ If architectural changes are needed:
 1. **Less Backend Learning** → But gains: weeks of development time, secure auth, modern BaaS patterns
 2. **Vendor Dependency** → But mitigated: open-source, PostgreSQL portable, static frontend portable
 3. **React Complexity** → But gains: mature ecosystem, accessibility tooling, form libraries
-4. **Supabase-Specific APIs** → But gains: zero backend code, type-safe, RLS authorization
+4. **Supabase-Specific APIs** → But gains: minimal backend code (SQL + RLS), type-safe client, database-enforced authorization
 
 **Rejected Alternatives:**
 - Custom backend (Express, Go, Python) - too much code for single developer

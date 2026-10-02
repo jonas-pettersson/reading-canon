@@ -101,13 +101,31 @@ const { data: books, error } = await supabase
 // books is typed as Database['public']['Tables']['books']['Row'][]
 ```
 
-**Full-text search:**
+**Search (MVP 0 - ILIKE-based):**
 ```typescript
 const { data: results, error } = await supabase
   .from('books')
   .select('*')
-  .or(`title.ilike.%${query}%,author_display_name.ilike.%${query}%,inclusion_rationale.ilike.%${query}%`)
+  .or(`title.ilike.%${query}%,title_original.ilike.%${query}%,author_display_name.ilike.%${query}%,inclusion_rationale.ilike.%${query}%`)
 ```
+
+**Note on Search Strategy:** 
+
+For MVP 0, search uses PostgreSQL's `ILIKE` operator (case-insensitive pattern matching) across four fields:
+- `title` (required by FR-002)
+- `title_original` (included per specification Q6)
+- `author_display_name` (required by FR-002)
+- `inclusion_rationale` (required by FR-002)
+
+This approach is deliberately simplified for rapid MVP 0 validation with up to 1,000 books. With appropriate indexes on these columns (e.g., `CREATE INDEX idx_books_title_trgm ON books USING gin (title gin_trgm_ops)`), this strategy meets the <1 second search requirement (NFR-002) at expected scale.
+
+**Migration Path:** If search quality or performance becomes inadequate, migrate to PostgreSQL full-text search using `tsvector` columns and `ts_query`. ADR-003 selected PostgreSQL partly for its full-text search capabilities, which remain available when needed. The migration would involve:
+1. Add a generated `tsvector` column combining search fields
+2. Create a GIN index on the search vector
+3. Update queries to use `@@` operator instead of `ILIKE`
+4. Optionally add ranking and relevance scoring
+
+For MVP 0, the simpler approach avoids premature optimization while preserving a clear upgrade path.
 
 **Fetch book with external references (join):**
 ```typescript
@@ -149,6 +167,47 @@ const { data, error } = await supabase
   })
 ```
 
+### Search, Filter, and Sort Responsibility
+
+**Decision for MVP 0:** Perform all search, filter, and sort operations in PostgreSQL via Supabase queries
+
+**Rationale:**
+- Performance requirements (NFR-002: search <1 second) are achievable with indexed database queries
+- Maintains single source of truth in database
+- Leverages PostgreSQL's query optimization
+- Reduces data transfer (send filtered results, not full collection)
+- Supports future multi-user scenarios without client-side data exposure risks
+- Collection size (<1,000 books) is well within PostgreSQL's efficient range
+
+**Operations in Database:**
+- **Search:** `ILIKE` queries across indexed text fields (see search strategy above)
+- **Filter:** `WHERE` clauses on category, tags (array overlap), language, status, ownership
+- **Sort:** `ORDER BY` with indexed columns (year_sort, title, author_display_name, priority, rating)
+- **Pagination:** `LIMIT` and `OFFSET` if needed (likely unnecessary for <1,000 books)
+
+**Operations in Browser:**
+- **Filter/sort state management:** Track active filters and sort order in React state
+- **Data presentation:** Transform database results for display
+- **Optimistic updates:** TanStack Query provides client-side caching for perceived performance
+
+**Example Query with Filters:**
+```typescript
+const { data: books, error } = await supabase
+  .from('books')
+  .select('*')
+  .eq('primary_category', 'Philosophy')
+  .overlaps('tags', ['ancient'])
+  .order('year_sort', { ascending: true })
+```
+
+**Why Not Client-Side Filtering:**
+- Would require fetching all books on every page load (wasteful for mobile users)
+- Browser filtering would duplicate database filtering logic
+- Database indexes provide better performance
+- Filter state preserved in URL query params or React state, not through client-side data manipulation
+
+For MVP 0, all query operations go through Supabase API to database. Client-side filtering is not needed and would add unnecessary complexity.
+
 ### Custom React Hooks
 
 Create reusable hooks for common operations:
@@ -158,15 +217,37 @@ Create reusable hooks for common operations:
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 
-export function useBooks() {
+export function useBooks(filters?: {
+  category?: string
+  tags?: string[]
+  search?: string
+  sortBy?: string
+  sortOrder?: 'asc' | 'desc'
+}) {
   return useQuery({
-    queryKey: ['books'],
+    queryKey: ['books', filters],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('books')
-        .select('*')
-        .order('year_sort', { ascending: true })
+      let query = supabase.from('books').select('*')
       
+      // Apply filters in database
+      if (filters?.category) {
+        query = query.eq('primary_category', filters.category)
+      }
+      if (filters?.tags && filters.tags.length > 0) {
+        query = query.overlaps('tags', filters.tags)
+      }
+      if (filters?.search) {
+        query = query.or(
+          `title.ilike.%${filters.search}%,title_original.ilike.%${filters.search}%,author_display_name.ilike.%${filters.search}%,inclusion_rationale.ilike.%${filters.search}%`
+        )
+      }
+      
+      // Apply sorting in database
+      const sortField = filters?.sortBy || 'year_sort'
+      const ascending = filters?.sortOrder === 'asc'
+      query = query.order(sortField, { ascending })
+      
+      const { data, error } = await query
       if (error) throw error
       return data
     }
@@ -195,17 +276,30 @@ export function useBook(bookId: string) {
 
 ### State Management
 
-Recommended approach:
-- **React Query** (`@tanstack/react-query`) for server state (books, user data)
-- **React Context** or **Zustand** for client state (UI state, filters)
-- Supabase client for data fetching and mutations
+**Recommended Implementation for MVP 0:**
 
-React Query provides:
-- Automatic caching
-- Background refetching
-- Optimistic updates
-- Loading and error states
-- Request deduplication
+Server state (books, reading status, user data) management can use one of:
+
+1. **TanStack Query (React Query)** - *Recommended for MVP 0*
+   - Automatic caching and background refetching
+   - Built-in loading and error states
+   - Request deduplication
+   - Optimistic updates
+   - Proven patterns for Supabase integration
+   - Well-suited for this application's data-fetching patterns
+
+2. **Direct Supabase client with React hooks** - *Alternative*
+   - Manual state management using `useState`/`useEffect`
+   - Simpler dependency tree but more boilerplate
+   - Suitable if minimizing dependencies is a priority
+
+**Client State (UI filters, form state, navigation):**
+- React's built-in `useState` and `Context` for MVP 0
+- Zustand or similar only if shared client state becomes complex
+
+**Recommendation Rationale:** TanStack Query is recommended because it solves concrete problems at this application's scale (caching 1,000 book records, handling loading states, managing mutations) without requiring a learning curve disproportionate to its benefits. However, it is an *implementation choice*, not an architectural dependency — the Supabase client could be used directly if preferred.
+
+For MVP 0, start with TanStack Query. If its abstraction proves unnecessary, it can be removed in favor of direct Supabase calls without changing the underlying architecture.
 
 ## Alternatives Considered
 
@@ -247,18 +341,18 @@ Would require building custom backend (see ADR-002 Express/tRPC options). Supaba
 
 ## Related Tools
 
-**Recommended Additions:**
+**Supporting Tools:**
 
-1. **React Query** (`@tanstack/react-query`)
-   - Server state management
-   - Automatic caching and refetching
-   - Optimistic updates
+1. **TanStack Query** (`@tanstack/react-query`) - *Recommended for MVP 0*
+   - Server state management with caching
+   - See State Management section above for rationale and alternatives
 
-2. **Supabase Auth Helpers for React** (`@supabase/auth-helpers-react`)
+2. **Supabase Auth Helpers for React** (`@supabase/auth-helpers-react`) - *Optional*
    - React hooks for auth state
-   - Session management
+   - Convenience wrapper for session management
+   - Can be replaced with direct `supabase.auth` calls if preferred
 
-3. **Type Regeneration Script**
+3. **Type Regeneration** - *Required*
    ```json
    {
      "scripts": {
@@ -266,6 +360,7 @@ Would require building custom backend (see ADR-002 Express/tRPC options). Supaba
      }
    }
    ```
+   Run after schema changes to keep TypeScript types synchronized with database.
 
 ## References
 

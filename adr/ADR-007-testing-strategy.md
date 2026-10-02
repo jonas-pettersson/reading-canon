@@ -119,6 +119,10 @@ describe('BookCard', () => {
     const results = await axe(container)
     expect(results).toHaveNoViolations()
   })
+  
+  // Note: Run axe checks on representative components and interaction-heavy components,
+  // not mechanically on every component. Prioritize forms, modals, navigation, and
+  // complex interactive elements.
 
   it('supports keyboard navigation', async () => {
     render(<BookCard book={mockBook} />)
@@ -134,7 +138,43 @@ describe('BookCard', () => {
 })
 ```
 
-**Coverage Target**: 70-80% for components, 90%+ for utility functions
+**Coverage Philosophy:**
+
+Coverage targets are *guidance*, not absolute quality gates. Confidence in critical behavior takes precedence over coverage percentages.
+
+- **Target guidelines:** 70-80% for components, 90%+ for utility functions
+- **What matters more than coverage:**
+  - Critical user journeys are tested (authentication, CRUD, status updates, search)
+  - Risky logic is tested (data transformations, validation, authorization checks)
+  - Accessibility is verified (automated checks + manual testing)
+  - Edge cases in complex components are covered
+- **Acceptable gaps:**
+  - Trivial pass-through components
+  - Static content rendering
+  - Styling-only variations
+  - Third-party library wrappers with minimal logic
+
+**Accessibility Testing Approach:**
+
+Run jest-axe on:
+- Representative components from each category (form, list, detail, navigation)
+- Interaction-heavy components (dropdowns, modals, dialogs, multi-step flows)
+- Custom accessible patterns
+
+Do NOT mechanically run jest-axe on every component. Focus automated checks where they add value. Complement with manual testing (see Finding 22 below).
+
+**Requirements Traceability:** Test names and metadata should reference requirement IDs where applicable to support NFR-042 (traceable implementation). Example:
+
+```typescript
+describe('Book Search (FR-002)', () => {
+  it('should search title case-insensitively (FR-002)', () => { ... })
+  it('should search author_display_name (FR-002)', () => { ... })
+  it('should search inclusion_rationale (FR-002)', () => { ... })
+  it('should return results within 1 second (NFR-002)', () => { ... })
+})
+```
+
+Requirement IDs in test names create a lightweight traceability mechanism without administrative overhead.
 
 ---
 
@@ -205,26 +245,74 @@ describe('Add Book Flow', () => {
 
 **Coverage Target**: Major user flows covered
 
+**Critical Requirements Verification:** Integration tests should map to high-priority use cases:
+- UC-001: Browse and discover books → `BookList.integration.test.tsx`
+- UC-002: Search and filter collection → `SearchFlow.integration.test.tsx`
+- UC-003: Update reading status → `ReadingStatus.integration.test.tsx`
+- UC-004: Excel migration → Manual verification + migration report
+
+Each critical requirement should have at least one verification method (automated test, manual test, or documented validation procedure).
+
 ---
 
-### Layer 3: End-to-End Tests (Playwright - Deferred)
+### Layer 3: End-to-End Tests (Playwright)
 
 **Tool**: Playwright
 
 **Purpose**: Test full application in real browser with real Supabase test instance
 
 **What to Test:**
-- Critical user journeys (register → login → add book → update status → logout)
-- Cross-browser compatibility (Chromium, Firefox, WebKit)
-- Mobile viewport testing
+- Critical user journeys (login → add book → update status → search → logout)
+- Cross-browser compatibility (Chromium at minimum, Firefox/WebKit if time permits)
+- Mobile viewport smoke tests for essential workflows (UX-011)
 - Authentication flows
 
-**Deferral Rationale**: 
-- E2E tests are slowest and most brittle
-- For MVP 0 validation, manual testing is sufficient
-- Add E2E tests after core functionality is validated
+**MVP 0 E2E Testing Decision:**
 
-**When to Add**: After MVP 0 validation, before MVP 1 (multi-user)
+**Option 1: Minimal Smoke Test Suite (Recommended)**
+
+Implement 3-5 critical smoke tests before considering MVP 0 complete:
+
+1. **Authentication:** Login → verify dashboard → logout
+2. **Add Book:** Login → add book with required fields → verify appears in list
+3. **Update Status:** Login → change book status to "Reading" → verify in Reading list
+4. **Search:** Login → search by title → verify results
+5. **Mobile Essential:** Login on mobile viewport (375px) → view reading list → mark as finished
+
+**Rationale for Inclusion:**
+- MVP 0 includes integrated workflows (login → CRUD → search → status updates)
+- Manual testing of these flows is tedious and error-prone
+- Migration validation benefits from repeatable E2E tests
+- Mobile testing on real viewports catches responsive issues
+- Small test count (5 tests) is maintainable for single developer
+
+**Option 2: Manual Acceptance Testing with Documented Checklist (Alternative)**
+
+If E2E automation proves too time-consuming, defer Playwright and use documented manual testing:
+
+Create `ACCEPTANCE_TESTS.md` checklist:
+- [ ] Login with valid credentials succeeds
+- [ ] Login with invalid credentials shows error
+- [ ] Add book with required fields (title, author) saves successfully
+- [ ] Book appears in collection list after creation
+- [ ] Editing book metadata persists changes
+- [ ] Deleting book removes it from collection (with confirmation)
+- [ ] Changing reading status to "Reading" updates status indicator
+- [ ] Book appears in "Currently Reading" filtered view
+- [ ] Marking book as "Finished" records completion
+- [ ] Search finds books by title (partial, case-insensitive)
+- [ ] Search finds books by author (partial, case-insensitive)
+- [ ] Filter by category shows only matching books
+- [ ] Filter by tag shows only books with that tag
+- [ ] Sort by year (oldest first) orders chronologically
+- [ ] Mobile (375px width): Can view reading list, update status, mark as finished
+- [ ] Logout clears session and returns to login
+
+Execute checklist before each MVP 0 validation milestone.
+
+**Recommended Approach:** Start with Option 2 (manual checklist) during initial development. Add Option 1 (minimal smoke tests) once core features stabilize and before final MVP 0 validation. This balances rapid iteration with quality assurance.
+
+**Full E2E Suite:** Defer comprehensive cross-browser and extensive E2E testing until after MVP 0 validation and before MVP 1 (multi-user).
 
 ---
 
@@ -262,22 +350,100 @@ describe('Add Book Flow', () => {
 ### Layer 5: Accessibility Testing
 
 **Tools**: 
-- jest-axe (automated)
-- Manual testing with screen reader (NVDA/JAWS/VoiceOver)
-- Keyboard-only navigation testing
+- jest-axe (automated accessibility checks)
+- Manual keyboard-only navigation testing
+- Manual screen reader testing (NVDA/JAWS/VoiceOver)
+- Browser DevTools accessibility audits
 
-**What to Test**:
-- No automated accessibility violations (jest-axe)
-- All interactive elements keyboard accessible
-- Screen reader announces content correctly
-- Focus management in modals
-- Form labels and error associations
-- Color contrast (WCAG 2.1 AA)
+**Specification Requirements:**
+- UX-006: Keyboard navigation support
+- UX-007: Screen reader accessibility (WCAG 2.1 AA)
+- UX-008, UX-011: Responsive and mobile-essential workflows
 
-**Testing Schedule**:
-- Automated (jest-axe): Every component test
-- Manual screen reader: Weekly during development
-- Keyboard navigation: Every feature before merge
+**MVP 0 Accessibility Verification Strategy**
+
+The application must meet basic accessibility compliance before MVP 0 is considered complete. This section defines the minimum verification required for release.
+
+#### Automated Checks (Integrated into Development)
+
+**jest-axe in Component Tests:**
+- Run on representative components: forms, navigation, interactive lists, modals/dialogs, dropdowns
+- Run on new accessibility patterns (custom controls, complex interactions)
+- Do NOT run mechanically on every component
+
+**Continuous:**
+- TypeScript enforces semantic HTML through component props
+- ESLint with jsx-a11y plugin catches common issues
+
+#### Manual Checks (Before MVP 0 Release)
+
+**Keyboard Navigation (Required):**
+- [ ] Tab key navigates through all interactive elements in logical order
+- [ ] Enter/Space activates buttons and links
+- [ ] Escape closes modals and dropdowns
+- [ ] Focus indicators clearly visible on all interactive elements
+- [ ] No keyboard traps (can navigate away from any element)
+- [ ] Modal dialogs trap focus appropriately and restore focus on close
+
+Test on:
+- Login flow
+- Add/edit book form
+- Book list with status controls
+- Search and filter controls
+- Reading status dropdown/selector
+
+**Screen Reader (Critical Flows):**
+- [ ] Login form announces labels, errors, and success
+- [ ] Book list announces book count and list structure
+- [ ] Status change announces new status
+- [ ] Form validation errors announced and associated with fields
+- [ ] Modal/dialog open/close announced appropriately
+- [ ] Search results count announced
+
+Test with:
+- **Windows:** NVDA (free) with Chrome/Firefox
+- **macOS:** VoiceOver (built-in) with Safari
+- **Mobile:** VoiceOver on iOS or TalkBack on Android for essential workflows (UX-011)
+
+**Visual and Color (Before Release):**
+- [ ] Color contrast meets WCAG 2.1 AA minimum (4.5:1 for normal text, 3:1 for large text)
+- [ ] Information not conveyed by color alone (e.g., error states have icons + text)
+- [ ] Focus indicators meet 3:1 contrast against background
+
+Use browser DevTools accessibility audit or [WebAIM Contrast Checker](https://webaim.org/resources/contrastchecker/)
+
+**Mobile Accessibility (UX-011 Essential Workflows):**
+- [ ] Touch targets minimum 44x44 pixels for interactive elements
+- [ ] Essential workflows navigable with screen reader on mobile viewport
+- [ ] No horizontal scrolling required
+- [ ] Pinch-to-zoom not disabled
+
+#### MVP 0 Release Gate
+
+Before MVP 0 is considered complete:
+
+1. **Automated checks pass** on representative components
+2. **Keyboard navigation works** for all critical flows (checklist above)
+3. **Screen reader testing completed** for critical flows (checklist above)
+4. **Color contrast verified** for text and interactive elements
+5. **Mobile essential workflows verified** with screen reader on phone-sized viewport
+
+#### Deferred to Post-MVP 0
+
+- Comprehensive screen reader testing across all features
+- Exhaustive keyboard shortcut support
+- Advanced ARIA patterns (unless required for specific feature)
+- Third-party accessibility audit
+- Accessibility conformance report (VPAT)
+
+#### Accessibility Testing Schedule During Development
+
+- **Weekly:** Keyboard navigation smoke test of new features
+- **Per Feature:** Targeted screen reader test of new interactive patterns
+- **Before Release:** Complete manual checklist above
+- **Continuous:** jest-axe in component tests, linting
+
+This approach ensures MVP 0 meets WCAG 2.1 AA basics without requiring exhaustive manual testing during rapid development.
 
 ---
 

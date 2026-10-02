@@ -17,8 +17,8 @@ The Reading Canon application requires hosting infrastructure for the React fron
 - **NFR-011**: Modern browser support (desktop + mobile)
 
 **MVP Scope:**
-- **MVP 0**: Local deployment (localhost) acceptable for validation
-- **MVP 1**: Production deployment with proper hosting required
+- **MVP 0**: Local development (localhost via `npm run dev`) is the default starting point for validation. Optional early Vercel deployment if remote access is useful.
+- **MVP 1**: Production deployment on Vercel required (HTTPS, custom domain, multi-user support)
 
 **Cost Considerations:**
 - Small user base (1-10 users)
@@ -65,7 +65,7 @@ The Reading Canon application requires hosting infrastructure for the React fron
 **Pros:**
 - ✅ Excellent Vite/React support (built by Next.js creators)
 - ✅ Automatic deployments from Git (GitHub, GitLab, Bitbucket)
-- ✅ Free tier: 100GB bandwidth, unlimited projects
+- ✅ Free tier available with sufficient bandwidth for expected scale (verify current limits before deployment)
 - ✅ HTTPS automatic (Let's Encrypt)
 - ✅ Global CDN (fast worldwide)
 - ✅ Preview deployments for branches
@@ -280,7 +280,7 @@ The Reading Canon application requires hosting infrastructure for the React fron
 
 ## Decision
 
-**PROPOSED: Vercel**
+**Vercel**
 
 ### Rationale
 
@@ -294,7 +294,7 @@ Vercel is the recommended choice for frontend hosting because:
 
 4. **HTTPS Automatic**: SSL certificate provisioned automatically (NFR-024). Zero configuration required.
 
-5. **Free Tier Sufficient**: 100GB bandwidth/month is more than sufficient for 1-10 users. Unlimited projects and deployments.
+5. **Free Tier Sufficient**: As of decision date (2026-10-02), Vercel's free tier provided sufficient bandwidth for 1-10 users. Verify current plan limits before relying on free tier for production use.
 
 6. **Environment Variables**: Secure management of Supabase credentials (URL, anon key) per environment (preview, production).
 
@@ -363,9 +363,18 @@ All three are excellent choices. Vercel is recommended because:
    ```
 
 3. **Configure Environment Variables**
-   - `VITE_SUPABASE_URL`: Supabase project URL
-   - `VITE_SUPABASE_ANON_KEY`: Supabase anonymous key
+   - `VITE_SUPABASE_URL`: Supabase project URL (browser-visible configuration)
+   - `VITE_SUPABASE_ANON_KEY`: Supabase public/anonymous key (browser-visible, RLS-protected)
    - Set separately for Preview and Production environments
+
+**Environment Variable Security Clarification:**
+
+The Supabase URL and anon key are *browser-visible configuration values*, not secrets. They appear in the built JavaScript bundle. The anon key is designed to be public — it grants limited access controlled by RLS policies.
+
+**Do NOT expose:**
+- `SUPABASE_SERVICE_ROLE_KEY`: This is a server secret, never for browsers. Use only in Edge Functions or trusted server environments.
+
+Vite environment variables prefixed with `VITE_` are explicitly included in the browser bundle. This is intentional for the anon key but would be catastrophic for the service role key.
 
 4. **Configure Custom Domain** (optional)
    - Add custom domain in Vercel dashboard
@@ -401,15 +410,30 @@ npm run preview
 
 ### MVP 0 Deployment Strategy
 
-For MVP 0 validation:
-1. Can use local development (`npm run dev`) initially
-2. Deploy to Vercel when ready for curator to access remotely
-3. Use Vercel's preview deployment for testing
+**Default Approach:**
+1. Start with local development (`npm run dev` connecting to cloud Supabase instance)
+2. Validate core functionality on localhost
+3. Optionally deploy to Vercel when remote access becomes useful (testing on mobile, sharing with stakeholder)
 
-For MVP 1 (multi-user):
-1. Production deployment on custom domain (optional)
-2. HTTPS required (automatic with Vercel)
-3. Preview deployments for testing new features
+**Rationale:** The specification explicitly permits localhost deployment for MVP 0 validation. Deploying to Vercel before validating core functionality adds unnecessary complexity.
+
+**When to Deploy MVP 0 to Vercel:**
+- Curator needs to access application from multiple devices
+- Testing mobile browser workflows in real environments
+- Demonstrating to stakeholders without local setup
+
+### MVP 1 Deployment Requirements
+
+**Production Deployment:**
+1. Deploy to Vercel with custom domain (optional but recommended)
+2. HTTPS enforced (automatic with Vercel, satisfies NFR-024)
+3. Separate preview deployments for feature testing
+4. Appropriate environment variables per environment
+
+**Why MVP 1 Requires Production Hosting:**
+- Multi-user requires stable, accessible URL for invitation links
+- HTTPS required for secure authentication (NFR-024)
+- Global CDN improves multi-user experience
 
 ## Alternative: Netlify Implementation
 

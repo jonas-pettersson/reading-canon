@@ -89,7 +89,7 @@ Deployment: Supabase Cloud (free tier) or self-hosted
 - ✅ Row-level security (RLS) for authorization (NFR-021, NFR-022)
 - ✅ Auto-generated REST API (or GraphQL) from database schema
 - ✅ TypeScript types can be generated from database schema
-- ✅ Free tier: 500MB database, 50,000 monthly active users (more than enough)
+- ✅ Free tier available (sufficient for 1-10 users as of decision date; verify current limits before deployment)
 - ✅ Real-time subscriptions if needed later
 - ✅ Migration tooling built-in (SQL migrations)
 - ✅ Dashboard for data inspection and management
@@ -325,13 +325,13 @@ Deployment: Docker container (VPS or PaaS)
 
 ## Decision
 
-**PROPOSED: Supabase (Backend-as-a-Service)**
+**Supabase (Backend-as-a-Service)**
 
 ### Rationale
 
 Supabase is the recommended choice for the Reading Canon application because:
 
-1. **Fastest Path to MVP 0**: No backend code required initially. Define database schema, set up Row-Level Security policies, and connect from React. Can validate core product value in days instead of weeks.
+1. **Fastest Path to MVP 0**: Minimal backend code required initially. Define database schema, set up Row-Level Security policies, and connect from React. Can validate core product value in days instead of weeks.
 
 2. **Authentication Built-In**: Supabase Auth solves the security challenge identified in Q1. Email/password, magic links, and OAuth work out of the box. No risk of implementing auth incorrectly.
 
@@ -347,7 +347,39 @@ Supabase is the recommended choice for the Reading Canon application because:
 
 8. **Operational Simplicity**: Single developer doesn't need to manage servers, databases, auth infrastructure, or SSL certificates. Focus on application logic.
 
-9. **Escape Hatch**: If Supabase becomes limiting, can add Edge Functions (serverless) or migrate to self-hosted Supabase or traditional backend. PostgreSQL schema is portable.
+9. **Escape Hatch**: Can add Edge Functions for privileged operations (required for secure invitation management in MVP 1). If Supabase becomes limiting, can migrate to self-hosted Supabase or traditional backend. PostgreSQL schema is portable.
+
+### Business Logic Execution Model
+
+**Where Logic Runs:**
+
+1. **Browser (React + Supabase Client):**
+   - Ordinary CRUD operations under RLS protection
+   - Form validation (client-side only, UX convenience)
+   - UI state management
+   - Data presentation and transformation
+   - Search, filter, sort queries to Supabase API
+
+2. **Database (PostgreSQL):**
+   - Data integrity: foreign keys, unique constraints, check constraints
+   - Authorization: RLS policies enforce who can access what
+   - Indexes for query performance
+   - Triggers for automated record creation (e.g., profile on user signup)
+   - Database functions for complex queries or computed values
+
+3. **Edge Functions (Supabase/Deno):**
+   - Privileged operations requiring service-role access
+   - Invitation token generation (curator-only, MVP 1)
+   - Operations that must not expose service-role key to browser
+   - Complex business logic unsuitable for database functions
+
+**"Minimal Backend Code" Clarification:**
+
+For MVP 0, there is effectively no application backend code — only SQL migrations defining schema and RLS policies. The database itself enforces authorization and integrity.
+
+For MVP 1, a small Edge Function (10-50 lines) is required for secure invitation generation. This is a focused, trusted operation, not a general-purpose backend server.
+
+**Security Principle:** Privileged operations (those requiring service-role key) MUST run server-side. Never expose the Supabase service-role key to browser code, even in environment variables. The anonymous (public) key is safe for browser use; it is limited by RLS policies.
 
 10. **Migration Support**: SQL migrations and dashboard make Excel data import straightforward (UC-004).
 
@@ -411,23 +443,64 @@ Architecture:
 └── Deployment: Supabase Cloud (free tier)
 ```
 
-### Initial Setup Steps
+### MVP 0 vs MVP 1 Implementation Scope
 
-1. Create Supabase project (free tier)
-2. Define database schema (migrations):
-   - Books table with canonical fields
-   - Users table (managed by Supabase Auth)
-   - UserReadingStatus table with foreign keys
-   - ExternalReferences table
-   - InvitationTokens table (MVP 1)
-3. Set up Row-Level Security policies:
-   - Books: readable by all authenticated users, writable by curator only
-   - UserReadingStatus: users can only see/modify their own records
-   - InvitationTokens: curator only
-4. Generate TypeScript types from schema
-5. Integrate Supabase client in React app
-6. Implement authentication UI (login, register via invitation)
-7. Create data migration script for Excel import (UC-004)
+**MVP 0 Scope (Single Curator Validation):**
+
+*What Must Be Implemented:*
+- Supabase project with PostgreSQL database
+- Email/password authentication (single curator login/logout)
+- Database schema: `books`, `user_reading_status`, `external_references`
+- Basic RLS policies (authenticated user access)
+- Excel data migration (one-time import creating curator's personal data)
+- Supabase client integration in React
+
+*What Is Intentionally Simplified or Deferred:*
+- No `invitation_tokens` table (deferred to MVP 1)
+- No application `users`/`profiles` table (Supabase `auth.users` sufficient for single user)
+- No role-based authorization enforcement (single user is implicitly curator)
+- No multi-user RLS complexity
+- No invitation generation or validation
+- No Edge Functions
+
+*Architectural Foundations Established:*
+- Database supports multiple users (schema includes user_id foreign keys)
+- RLS framework exists (will be refined, not redesigned)
+- Authentication infrastructure supports adding users
+
+**MVP 1 Additions (Multi-User with Roles):**
+
+*New Requirements:*
+- `invitation_tokens` table with secure token management
+- Application `profiles` table for role storage and display names
+- Edge Function for secure invitation generation (curator-only, server-side)
+- Registration flow validating invitation tokens
+- Refined RLS policies enforcing curator vs reader permissions
+- User management UI
+
+*Migration from MVP 0:*
+1. Add `invitation_tokens` and `profiles` tables
+2. Migrate single curator to `profiles` table with role='curator'
+3. Implement Edge Function for invitation creation
+4. Refine RLS policies to check roles
+5. Build registration and user management UI
+
+### Initial Setup Steps for MVP 0
+
+1. Create Supabase project (free tier or localhost development)
+2. Define database schema (SQL migrations):
+   - `books` table with canonical metadata fields
+   - `user_reading_status` table with foreign key to authenticated user
+   - `external_references` table linked to books
+3. Set up basic RLS policies:
+   - `books`: authenticated users can read, single curator can write (simplified enforcement)
+   - `user_reading_status`: users can only access their own records
+   - `external_references`: readable by authenticated users, writable by curator
+4. Bootstrap curator account (see ADR-004 for mechanism)
+5. Generate TypeScript types from schema
+6. Integrate Supabase client in React app
+7. Implement login/logout UI
+8. Create Excel migration script (secure, one-time, curator-run)
 
 ### Database Schema (SQL Migrations)
 

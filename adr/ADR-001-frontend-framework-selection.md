@@ -262,7 +262,7 @@ The Reading Canon application requires a frontend framework to implement the use
 
 ## Decision
 
-**PROPOSED: React + TypeScript with Vite**
+**React + TypeScript with Vite**
 
 ### Rationale
 
@@ -310,12 +310,14 @@ React with TypeScript is the recommended choice for the Reading Canon applicatio
 
 ### Neutral
 
-- Need to decide on additional libraries:
-  - Form handling: React Hook Form (recommended)
-  - UI components: Radix UI + Tailwind (recommended) or shadcn/ui
-  - Routing: React Router (when needed)
-  - State management: React Context + hooks (MVP), potentially Zustand/Jotai later
-- Testing: Vitest + React Testing Library
+- Additional libraries to be selected during implementation (see ADR-006, ADR-007):
+  - Form handling: React Hook Form recommended for complex forms
+  - UI components: Radix UI or similar for accessible primitives
+  - Styling: Tailwind CSS or alternative CSS approach
+  - Routing: React Router when multi-page navigation needed
+  - Server state: TanStack Query recommended but not architecturally required (see ADR-006)
+  - Client state: React Context + hooks sufficient for MVP 0
+- Testing: Vitest + React Testing Library (see ADR-007)
 
 ## Implementation Notes
 
