@@ -2,10 +2,10 @@
 
 ## Document Status
 
-**Version:** 1.3  
-**Date:** 2026-10-01  
-**Status:** Draft  
-**Revision Summary:** v1.3 changes: added context-of-use requirements (desktop vs mobile workflows), strengthened mobile-browser support for essential reading workflows, updated responsive design requirements. Previous v1.2 changes: improved author model (author_display_name + optional given_name/family_name), renamed curator_comment to inclusion_rationale, added external_references entity. Previous v1.1 changes: clarified MVP scope (MVP 0/1), simplified concepts (removed recommendation score), removed technology prescriptions, added UX requirements, improved data model (primary_category + tags), deferred data completeness scoring
+**Version:** 1.4  
+**Date:** 2026-10-02  
+**Status:** Release Candidate  
+**Revision Summary:** v1.4 changes: normalized reading status terminology across entire specification (Not Started, Want to Read, Reading, Paused, Finished, Abandoned), resolved audit log inconsistency (replaced with timestamp-based approach), final consistency review. Previous v1.3 changes: added context-of-use requirements (desktop vs mobile workflows), strengthened mobile-browser support for essential reading workflows, updated responsive design requirements. Previous v1.2 changes: improved author model (author_display_name + optional given_name/family_name), renamed curator_comment to inclusion_rationale, added external_references entity. Previous v1.1 changes: clarified MVP scope (MVP 0/1), simplified concepts (removed recommendation score), removed technology prescriptions, added UX requirements, improved data model (primary_category + tags), deferred data completeness scoring
 
 ## Document Purpose
 
@@ -196,12 +196,13 @@ These features add value but are not essential to prove the core proposition: th
 #### FR-011: Edit Book Metadata
 **Description:** Curator shall be able to edit canonical book metadata  
 **Priority:** Must Have  
+**Release Target:** MVP 0  
 **Source:** intent.md - Collection Curation  
 **Acceptance Criteria:**
 - Curator can edit any canonical field
-- Changes are saved with updated_at timestamp
+- System shall maintain created_at and updated_at timestamps for managed records
 - Editing book metadata does not affect users' personal data
-- System maintains audit log of changes (future: detailed history)
+- Detailed audit history is deferred to a future release
 
 #### FR-012: Remove Book
 **Description:** Curator shall be able to remove books from the collection  
@@ -347,7 +348,7 @@ These features add value but are not essential to prove the core proposition: th
 **Source:** intent.md - Statistics  
 **Acceptance Criteria:**
 - Show count: Want to Read
-- Show count: Currently Reading
+- Show count: Reading
 - Show count: Paused
 - Show count: Finished
 - Show count: Abandoned
@@ -451,7 +452,7 @@ This section specifies user experience requirements to support the core principl
 **Views:**
 - **Collection View:** Browse, search, filter, sort all books in canonical collection
 - **Book Detail View:** Display full metadata and personal data for single book
-- **Reading Dashboard:** Show "Currently Reading" books and provide quick actions
+- **Reading Dashboard:** Show books with status "Reading" and provide quick actions
 - **Statistics View:** Display personal reading statistics (counts, completed books)
 - **Settings View:** User preferences, logout (curator: add user management in MVP 1)
 
@@ -486,8 +487,8 @@ This section specifies user experience requirements to support the core principl
 **Acceptance Criteria:**
 - Empty collection: "Add your first book" with prominent add button
 - No books matching filter: "No books match these criteria" with option to clear filters
-- Zero books currently reading: "Start reading a book" with link to collection or filtered view
-- No completed books: "You haven't finished any books yet" with encouraging message
+- Zero books with status "Reading": "Start reading a book" with link to collection or filtered view
+- No books with status "Finished": "You haven't finished any books yet" with encouraging message
 
 #### UX-005: Feedback and Confirmation
 **Requirement:** Application shall provide immediate feedback for state changes  
@@ -573,11 +574,11 @@ This section specifies user experience requirements to support the core principl
 **Release Target:** MVP 0  
 **Rationale:** High-frequency reading activities occur in mobile contexts (bookstores, libraries, travel) where desktop access is unavailable  
 **Essential Workflows (mobile-optimized):**
-- View current reading list ("Currently Reading" books)
+- View current reading list (books with status "Reading")
 - View reading priorities (filtered by priority: High/Medium/Low)
-- View next reading candidates ("Want to Read" filtered by priority)
-- Mark book as currently reading (status change)
-- Mark book as completed (status change with optional rating/notes)
+- View next reading candidates (books with status "Want to Read" filtered by priority)
+- Mark book as currently reading (status change to "Reading")
+- Mark book as completed (status change to "Finished" with optional rating/notes)
 - Update ownership status (mark as Owned, Ordered, etc.)
 - View book details (title, author, inclusion rationale, external references)
 - Quick search by title or author
@@ -766,7 +767,7 @@ Additional values may be added by curator as needed. The vocabulary is intention
 **Business Rules:**
 - One reading status record per user per book (unique constraint on user + book pair)
 - Personal data is private to the user (see NFR-021)
-- User can have multiple books with status "reading" simultaneously
+- User can have multiple books with status "Reading" simultaneously
 
 **Traceability:**
 - Maps to Excel columns: Lib (ownership), Prio (priority + rating + status, per Decision 3), Read (reading status)
@@ -1133,7 +1134,7 @@ As a curator, I want to quickly mark a book as 'Finished' and record my thoughts
 - Optionally add rating (1-5 stars, implies recommendation strength per FR-025)
 - Optionally add personal notes
 - See completion date automatically recorded
-- View in "Completed" list immediately
+- View in list of books with status "Finished" immediately
 
 ---
 
@@ -1215,10 +1216,10 @@ As a reader, I want to see my reading statistics, so I can track my progress.
 
 **Acceptance:**
 - See count: books read this year
-- See count: books currently reading
-- See count: books in "Want to Read"
+- See count: books with status "Reading"
+- See count: books with status "Want to Read"
 - See count: books owned
-- See timeline of completed books
+- See timeline of books with status "Finished"
 
 ---
 
@@ -1248,7 +1249,7 @@ As a reader, I want personalized suggestions for what to read next, so I don't f
 6. User selects a book
 7. User changes status to "Reading"
 8. System records started_at timestamp
-9. System adds book to "Currently Reading" section
+9. System adds book to reading list (books with status "Reading")
 
 **Alternative Flow 3a:** No priority set
 - System shows all "Want to Read" books unsorted
