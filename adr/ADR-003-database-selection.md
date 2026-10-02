@@ -90,12 +90,88 @@ Brief comparison:
   - Indexable with GIN index for efficient tag-based filtering
   - No need for normalized tags table at expected scale (<1,000 books, limited tag vocabulary)
   - Migration-ready: Excel Genre + Subject columns combine into tags array
-- Indexes for performance:
-  - B-tree indexes on search fields for ILIKE queries (title, title_original, author_display_name, inclusion_rationale)
-  - GIN index on tags for array overlap queries
-  - Indexes on sort fields (year_sort, title, author_display_name)
-  - Indexes on filter fields (primary_category, reading_status, ownership_status)
 - Timestamps (created_at, updated_at) for managed records
+
+**Database Indexes:**
+
+The following indexes are required for meeting performance requirements (NFR-001: book list load <2s, NFR-002: search <1s):
+
+```sql
+-- Books table: Core sorting and filtering
+CREATE INDEX idx_books_year_sort ON books (year_sort);
+CREATE INDEX idx_books_title ON books (title);
+CREATE INDEX idx_books_author_display_name ON books (author_display_name);
+CREATE INDEX idx_books_primary_category ON books (primary_category);
+
+-- Books table: Tags filtering (array overlap queries)
+CREATE INDEX idx_books_tags ON books USING gin (tags);
+
+-- Books table: Search performance (ILIKE for MVP 0)
+-- Option 1: B-tree pattern indexes (supports prefix LIKE queries)
+CREATE INDEX idx_books_title_pattern ON books (title text_pattern_ops);
+CREATE INDEX idx_books_author_pattern ON books (author_display_name text_pattern_ops);
+
+-- Option 2: Trigram indexes (better for arbitrary substring search, recommended)
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+CREATE INDEX idx_books_title_trgm ON books USING gin (title gin_trgm_ops);
+CREATE INDEX idx_books_author_trgm ON books USING gin (author_display_name gin_trgm_ops);
+CREATE INDEX idx_books_rationale_trgm ON books USING gin (inclusion_rationale gin_trgm_ops);
+
+-- User reading status: Core queries
+CREATE INDEX idx_user_reading_status_user_id ON user_reading_status (user_id);
+CREATE INDEX idx_user_reading_status_book_id ON user_reading_status (book_id);
+CREATE INDEX idx_user_reading_status_reading_status ON user_reading_status (reading_status);
+CREATE INDEX idx_user_reading_status_ownership_status ON user_reading_status (ownership_status);
+CREATE INDEX idx_user_reading_status_personal_priority ON user_reading_status (personal_priority);
+
+-- User reading status: Composite index for common filter pattern
+CREATE INDEX idx_user_reading_status_user_status 
+  ON user_reading_status (user_id, reading_status);
+
+-- External references: Foreign key lookup
+CREATE INDEX idx_external_references_book_id ON external_references (book_id);
+
+-- Profiles: Role checks (if using MVP 1 role-based RLS)
+CREATE INDEX idx_profiles_role ON profiles (role);
+```
+
+**Search Strategy Notes:**
+- MVP 0 uses ILIKE-based search with trigram indexes (gin_trgm_ops recommended)
+- If search performance is insufficient, migrate to full-text search (tsvector/tsquery)
+- See ADR-006 for search implementation and migration path
+
+**When to Migrate from ILIKE to Full-Text Search:**
+
+Trigger migration when any of these conditions occur:
+
+1. **Performance Violation**: Search response time exceeds 1 second (NFR-002 violation)
+   - Measure via Supabase performance monitoring
+   - Measure via browser performance timing (Navigation Timing API)
+   - Track user feedback on search speed
+
+2. **Scale Threshold**: Collection size approaches 2,000-5,000 books
+   - ILIKE with trigram indexes typically degrades at this scale
+   - Full-text search scales better to larger collections
+
+3. **Quality Issues**: Search quality complaints from users
+   - ILIKE doesn't handle typos or fuzzy matching
+   - No relevance ranking (all matches equal weight)
+   - Full-text search provides ranking and better match quality
+
+**Testing During MVP 0:**
+Measure search performance at collection size milestones:
+- 100 books (initial)
+- 500 books (mid-scale)
+- 1,000 books (MVP 0 target)
+
+If performance meets NFR-002 at 1,000 books, ILIKE is sufficient for MVP 0 and MVP 1.
+
+**Migration Effort Estimate**: 4-8 hours
+- Add tsvector generated column combining search fields
+- Create GIN index on tsvector column
+- Update queries to use `@@` operator instead of ILIKE
+- Add ranking with `ts_rank` for relevance sorting
+- Test performance and quality
 
 **Tags Implementation Decision:**
 

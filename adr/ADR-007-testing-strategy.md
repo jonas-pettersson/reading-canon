@@ -253,6 +253,127 @@ describe('Add Book Flow', () => {
 
 Each critical requirement should have at least one verification method (automated test, manual test, or documented validation procedure).
 
+**Row-Level Security (RLS) Policy Testing:**
+
+RLS policies enforce critical security requirements (NFR-021: users access only their data, NFR-022: only curator modifies collection). Policy bugs can lead to unauthorized data access, data modification, or privilege escalation.
+
+**Testing Approach:**
+
+1. **Integration Tests with MSW**: Mock Supabase responses to simulate RLS policy enforcement
+
+```typescript
+// RLSPolicies.test.tsx
+import { createClient } from '@supabase/supabase-js'
+import { setupServer } from 'msw/node'
+import { http, HttpResponse } from 'msw'
+
+const server = setupServer(
+  // Mock unauthorized book update (RLS denies)
+  http.patch('/rest/v1/books', () => {
+    return HttpResponse.json(
+      { message: 'new row violates row-level security policy', code: '42501' },
+      { status: 403 }
+    )
+  })
+)
+
+describe('RLS Policies - Books Table', () => {
+  it('prevents readers from modifying books', async () => {
+    // Simulate reader user attempting book update
+    const { error } = await supabaseClient
+      .from('books')
+      .update({ title: 'Hacked' })
+      .eq('id', 'some-book-id')
+    
+    expect(error).toBeDefined()
+    expect(error?.code).toBe('42501') // insufficient_privilege
+    expect(error?.message).toContain('row-level security')
+  })
+})
+
+describe('RLS Policies - User Reading Status', () => {
+  it('prevents users from reading other users\' reading status', async () => {
+    // Simulate user attempting to read another user's data
+    const { data, error } = await supabaseClient
+      .from('user_reading_status')
+      .select('*')
+      .eq('user_id', 'different-user-id')
+    
+    // Should return empty array (RLS filters out unauthorized rows)
+    expect(data).toEqual([])
+  })
+  
+  it('prevents users from inserting reading status for other users', async () => {
+    const { error } = await supabaseClient
+      .from('user_reading_status')
+      .insert({
+        user_id: 'different-user-id', // Attempting to insert for another user
+        book_id: 'some-book-id',
+        reading_status: 'reading'
+      })
+    
+    expect(error).toBeDefined()
+    expect(error?.code).toBe('42501')
+  })
+})
+```
+
+2. **Manual Testing with Test Database**: Test actual RLS policies in development Supabase instance
+
+Create test users with different roles:
+```sql
+-- Create test curator
+INSERT INTO auth.users (id, email) VALUES ('curator-id', 'curator@test.com');
+INSERT INTO profiles (id, role) VALUES ('curator-id', 'curator');
+
+-- Create test reader
+INSERT INTO auth.users (id, email) VALUES ('reader-id', 'reader@test.com');
+INSERT INTO profiles (id, role) VALUES ('reader-id', 'reader');
+```
+
+Test unauthorized operations using Supabase SQL editor or API:
+```sql
+-- As reader, attempt to insert book (should fail)
+SET request.jwt.claim.sub = 'reader-id';
+INSERT INTO books (title, author_display_name) VALUES ('Test', 'Test Author');
+-- Expected: ERROR: new row violates row-level security policy
+
+-- As reader, attempt to read another user's reading status (should return empty)
+SET request.jwt.claim.sub = 'reader-id';
+SELECT * FROM user_reading_status WHERE user_id = 'curator-id';
+-- Expected: 0 rows returned
+
+-- As curator, insert book (should succeed)
+SET request.jwt.claim.sub = 'curator-id';
+INSERT INTO books (title, author_display_name) VALUES ('Test', 'Test Author');
+-- Expected: Success
+```
+
+**Critical RLS Test Cases (MVP 0):**
+- [ ] Authenticated users can read all books
+- [ ] Curator can create/update/delete books
+- [ ] Reader cannot create/update/delete books (if MVP 0 has reader role)
+- [ ] Users can only read their own user_reading_status
+- [ ] Users cannot insert user_reading_status with another user's ID
+- [ ] Users cannot update user_reading_status user_id to another user
+- [ ] Users can read all external_references
+- [ ] Only curator can create/update/delete external_references
+
+**Additional Test Cases (MVP 1):**
+- [ ] Users can read all profiles (needed for role checks)
+- [ ] Users can update only their own display_name (not role)
+- [ ] Curator can see all invitation_tokens
+- [ ] Readers cannot see invitation_tokens
+- [ ] Only curator can revoke invitation_tokens
+
+**Testing Schedule:**
+- During development: Test RLS policies manually after creating/modifying policies
+- Before MVP 0 validation: Run critical test cases checklist
+- CI/CD: Add integration tests for most critical policies (prevent regressions)
+
+**Why it matters:**  
+Untested RLS policies are a critical security risk. Authorization bugs can expose private data or allow unauthorized modifications (NFR-021, NFR-022).
+
 ---
 
 ### Layer 3: End-to-End Tests (Playwright)

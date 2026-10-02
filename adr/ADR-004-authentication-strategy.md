@@ -267,9 +267,118 @@ For MVP 1, an Edge Function (or equivalent trusted server function) is required 
 
 This is a departure from "zero backend code" but necessary for secure invitation management. The Edge Function is a small, focused piece of logic, not a general-purpose backend.
 
+### Edge Function Development Workflow (MVP 1)
+
+**Repository Structure:**
+```
+supabase/
+├── migrations/
+│   └── ...
+└── functions/
+    └── generate-invitation/
+        ├── index.ts          # Main function
+        └── index.test.ts     # Unit tests (optional)
+```
+
+**Local Development:**
+```bash
+# Serve function locally
+supabase functions serve generate-invitation
+
+# Test with curl
+curl -i --location --request POST 'http://localhost:54321/functions/v1/generate-invitation' \
+  --header 'Authorization: Bearer <anon-key>' \
+  --header 'Content-Type: application/json' \
+  --data '{"invited_email":"user@example.com","expires_in_days":7}'
+```
+
+**Function Implementation:**
+```typescript
+// supabase/functions/generate-invitation/index.ts
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+
+serve(async (req) => {
+  const supabaseClient = createClient(
+    Deno.env.get('SUPABASE_URL') ?? '',
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '', // Service role for privileged access
+    { auth: { persistSession: false } }
+  )
+
+  // Verify caller is curator
+  const authHeader = req.headers.get('Authorization')!
+  const jwt = authHeader.replace('Bearer ', '')
+  const { data: { user } } = await supabaseClient.auth.getUser(jwt)
+  
+  if (!user) return new Response('Unauthorized', { status: 401 })
+  
+  const { data: profile } = await supabaseClient
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+  
+  if (profile?.role !== 'curator') {
+    return new Response('Forbidden: Curator access required', { status: 403 })
+  }
+
+  // Generate secure random token
+  const token = crypto.randomUUID()
+  const { invited_email, expires_in_days = 7 } = await req.json()
+  
+  // Insert invitation token
+  const { data, error } = await supabaseClient
+    .from('invitation_tokens')
+    .insert({
+      token,
+      created_by_user_id: user.id,
+      invited_email,
+      expires_at: new Date(Date.now() + expires_in_days * 24 * 60 * 60 * 1000).toISOString()
+    })
+    .select()
+    .single()
+  
+  if (error) return new Response(JSON.stringify({ error }), { status: 500 })
+  
+  const invitationUrl = `${Deno.env.get('APP_URL')}/register?token=${token}`
+  return new Response(JSON.stringify({ invitation_url: invitationUrl, ...data }), {
+    headers: { 'Content-Type': 'application/json' }
+  })
+})
+```
+
+**Deployment:**
+```bash
+# Deploy to Supabase
+supabase functions deploy generate-invitation
+
+# Set environment variables in Supabase dashboard
+# - SUPABASE_URL (auto-set)
+# - SUPABASE_SERVICE_ROLE_KEY (auto-set)
+# - APP_URL (manually set to your Vercel deployment URL)
+```
+
+**Testing:**
+- **Unit tests**: Test function logic with mocked Supabase client
+- **Integration tests**: Test deployed function with staging database
+- **Manual testing**: Use Supabase dashboard function logs for debugging
+
+**When to Use Edge Functions:**
+- Operations requiring service-role access (invitation generation, role changes)
+- Operations that must not expose logic to browser (rate limiting, privileged queries)
+- Background jobs (future: email notifications, data aggregation)
+
 ### User Profile and Role Storage Model
 
 **Decision:** Two-table model separating authentication from application profiles
+
+**Specification Mapping:**
+
+The specification (section 2.1) defines a "Users" entity with email, password_hash, display_name, role, invited_by_user_id, and timestamps. This is implemented using a two-table pattern:
+- `auth.users` (Supabase-managed) stores email and password_hash
+- `public.profiles` (application-managed) stores display_name, role, invited_by_user_id, and timestamps
+
+This separation follows Supabase's architecture where authentication data is managed by the auth service, while application-specific user data lives in application tables. The two tables are linked by user ID (foreign key from profiles.id to auth.users.id).
 
 **Source of Truth:**
 
@@ -396,9 +505,119 @@ CREATE POLICY "user_reading_status_delete"
   ON user_reading_status FOR DELETE
   TO authenticated
   USING (user_id = auth.uid());
+
+-- ExternalReferences: Readable by all authenticated users, writable by curator only
+CREATE POLICY "external_references_select_authenticated"
+  ON external_references FOR SELECT
+  TO authenticated
+  USING (true);
+
+CREATE POLICY "external_references_insert_curator"
+  ON external_references FOR INSERT
+  TO authenticated
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE profiles.id = auth.uid()
+      AND profiles.role = 'curator'
+    )
+  );
+
+CREATE POLICY "external_references_update_curator"
+  ON external_references FOR UPDATE
+  TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE profiles.id = auth.uid()
+      AND profiles.role = 'curator'
+    )
+  )
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE profiles.id = auth.uid()
+      AND profiles.role = 'curator'
+    )
+  );
+
+CREATE POLICY "external_references_delete_curator"
+  ON external_references FOR DELETE
+  TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE profiles.id = auth.uid()
+      AND profiles.role = 'curator'
+    )
+  );
+
+-- Profiles: Readable by all authenticated users, writable only by owner (display_name only, not role)
+CREATE POLICY "profiles_select_authenticated"
+  ON profiles FOR SELECT
+  TO authenticated
+  USING (true);
+
+-- INSERT: Only triggered/service-role (created during signup)
+-- No policy needed - INSERT restricted to trigger or service role
+
+CREATE POLICY "profiles_update_own_display_name"
+  ON profiles FOR UPDATE
+  TO authenticated
+  USING (id = auth.uid())
+  WITH CHECK (
+    id = auth.uid() 
+    AND role = (SELECT role FROM profiles WHERE id = auth.uid()) -- Prevent role change
+  );
+
+-- DELETE: No one can delete profiles (permanent records)
+-- No policy needed
+
+-- InvitationTokens (MVP 1): Curator can manage, anon can validate during registration
+CREATE POLICY "invitation_tokens_select"
+  ON invitation_tokens FOR SELECT
+  TO authenticated, anon
+  USING (
+    -- Curator can see all tokens
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE profiles.id = auth.uid()
+      AND profiles.role = 'curator'
+    )
+    OR
+    -- Anonymous users validating registration can see tokens
+    (auth.uid() IS NULL)
+  );
+
+-- INSERT: Only via Edge Function (service role)
+-- No RLS policy - controlled by Edge Function
+
+CREATE POLICY "invitation_tokens_update_revoke"
+  ON invitation_tokens FOR UPDATE
+  TO authenticated
+  USING (
+    -- Curator can revoke unused tokens
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE profiles.id = auth.uid()
+      AND profiles.role = 'curator'
+    )
+    AND used_at IS NULL
+  )
+  WITH CHECK (
+    -- Can only set revoked_at
+    revoked_at IS NOT NULL
+  );
+
+-- Separate policy for marking token as used (during registration)
+-- This would typically be done via a service-role Edge Function or trigger
+-- If done client-side during registration, needs careful constraint
+
+-- DELETE: No one can delete tokens (audit trail)
+-- No policy needed
 ```
 
-**Note:** These examples separate INSERT, UPDATE, DELETE, and SELECT policies with appropriate `USING` and `WITH CHECK` clauses. This prevents users from inserting or updating records with another user's ID and ensures only curators can modify canonical book data.
+**Note:** These policies separate INSERT, UPDATE, DELETE, and SELECT operations with appropriate `USING` and `WITH CHECK` clauses. This prevents users from inserting or updating records with another user's ID and ensures only curators can modify canonical book data. The `profiles` table UPDATE policy prevents users from changing their own role (privilege escalation). The `invitation_tokens` policies allow anonymous access for validation during registration but restrict management to curators.
 
 ### React Integration
 
