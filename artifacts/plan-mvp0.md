@@ -349,7 +349,7 @@ Before considering MVP 0 complete, these must be validated:
 ---
 
 #### Task 0.2.4: Create Row-Level Security (RLS) Policies - MVP 0
-**Effort:** M (4 hours)  
+**Effort:** L (6 hours)  
 **Dependencies:** 0.2.1, 0.2.2, 0.2.3  
 **TDD:** Security-first testing (test immediately)
 
@@ -415,18 +415,60 @@ Before considering MVP 0 complete, these must be validated:
      to authenticated
      using (true);
    ```
-3. Write RLS tests using Supabase test users:
-   - Test authenticated user can read/write books
-   - Test user can only access own reading status
-   - Test user cannot access another user's reading status
-   - Test unauthenticated requests are denied
+3. Write comprehensive RLS tests using Supabase test users:
+   
+   **Required Test Scenarios:**
+   
+   a. **Books Table Tests:**
+   - ✅ Authenticated user can read books
+   - ✅ Authenticated user can insert books (MVP 0)
+   - ✅ Authenticated user can update books (MVP 0)
+   - ✅ Authenticated user can delete books (MVP 0)
+   - ✅ Anonymous (unauthenticated) user CANNOT read books
+   - ✅ Anonymous user CANNOT insert/update/delete books
+   
+   b. **User Reading Status Tests:**
+   - ✅ User A can read their own reading_status records
+   - ✅ User A CANNOT read User B's reading_status records
+   - ✅ User A can insert reading_status for themselves
+   - ✅ User A CANNOT insert reading_status for User B
+   - ✅ User A can update their own reading_status
+   - ✅ User A CANNOT update User B's reading_status
+   - ✅ User A can delete their own reading_status
+   - ✅ User A CANNOT delete User B's reading_status
+   - ✅ Anonymous user CANNOT access any reading_status
+   
+   c. **External References Tests:**
+   - ✅ Authenticated user can read external_references
+   - ✅ Authenticated user can manage external_references (MVP 0)
+   - ✅ Anonymous user CANNOT access external_references
+   
+   **Test Implementation Example:**
+   ```typescript
+   // Create two test users
+   const userA = await createTestUser('user-a@test.com')
+   const userB = await createTestUser('user-b@test.com')
+   
+   // Test: User A cannot read User B's reading status
+   const statusForUserB = await insertReadingStatus(userB.id, bookId, 'reading')
+   const resultAsUserA = await supabaseClientA
+     .from('user_reading_status')
+     .select('*')
+     .eq('id', statusForUserB.id)
+   
+   expect(resultAsUserA.data).toHaveLength(0) // Should not see User B's data
+   ```
 
 **Done Criteria:**
 - [ ] RLS enabled on all tables
 - [ ] Policies created and applied
-- [ ] RLS tests written and passing
+- [ ] Comprehensive RLS test suite written with mock users
+- [ ] All books table policies tested (authenticated + anonymous)
+- [ ] All user_reading_status isolation tests passing (User A vs User B)
+- [ ] All external_references policies tested
+- [ ] Anonymous requests blocked for ALL tables
 - [ ] Security verified: users can only see their own personal data
-- [ ] Anonymous requests blocked
+- [ ] Test coverage includes both positive (allowed) and negative (blocked) cases
 
 ---
 
@@ -464,11 +506,83 @@ Before considering MVP 0 complete, these must be validated:
 
 ---
 
+#### Task 0.2.6: Create Shared Constants
+**Effort:** S (2 hours)  
+**Dependencies:** 0.2.5  
+**TDD:** Test alongside
+
+**Steps:**
+1. Create `src/constants/categories.ts` with controlled vocabulary from spec:
+   ```typescript
+   /**
+    * Controlled vocabulary for primary_category field
+    * Based on Specification v1.4 Section 2.1.3
+    */
+   export const PRIMARY_CATEGORIES = [
+     'Philosophy',
+     'Religion & Theology',
+     'History',
+     'Social Sciences',
+     'Natural Sciences',
+     'Arts & Literature',
+     'Psychology',
+     'Political Science',
+     'Economics',
+     'Mathematics & Logic',
+     'Technology & Applied Sciences',
+     'Medicine & Health',
+     'Law',
+     'Education',
+     'Linguistics',
+     'Other'
+   ] as const
+   
+   export type PrimaryCategory = typeof PRIMARY_CATEGORIES[number]
+   ```
+2. Create `src/constants/index.ts` for other shared constants:
+   ```typescript
+   export * from './categories'
+   
+   // Reading status values (matching database enum)
+   export const READING_STATUSES = [
+     'not_started',
+     'want_to_read',
+     'reading',
+     'paused',
+     'finished',
+     'abandoned'
+   ] as const
+   
+   // Ownership status values (matching database enum)
+   export const OWNERSHIP_STATUSES = [
+     'not_owned',
+     'ordered',
+     'owned_physical',
+     'owned_digital',
+     'borrowed'
+   ] as const
+   
+   // Priority values (matching database enum)
+   export const PRIORITIES = ['high', 'medium', 'low'] as const
+   ```
+3. Write tests to verify constants match database enums
+4. Tests → Green
+
+**Done Criteria:**
+- [ ] Constants file created with primary categories from spec
+- [ ] Type-safe exports using `as const`
+- [ ] Constants match database enums
+- [ ] Tests validate consistency
+- [ ] Ready for use in forms, filters, validation
+
+---
+
 ### Phase 0 Done Criteria
 - [ ] Development environment fully configured
 - [ ] Database schema deployed (books, user_reading_status, external_references)
 - [ ] RLS policies tested and enforced
 - [ ] TypeScript types generated
+- [ ] Shared constants created with controlled vocabulary
 - [ ] CI/CD pipeline running
 - [ ] Pre-commit hooks preventing bad commits
 
@@ -684,17 +798,23 @@ Before considering MVP 0 complete, these must be validated:
 
 #### Task 2.1.1: Create Book Query Hooks
 **Effort:** M (5 hours)  
-**Dependencies:** 0.2.5, 1.1.1  
+**Dependencies:** 0.2.6, 1.1.1  
 **TDD:** Test-first for business logic
 
 **Steps:**
 1. **Write tests first** (`src/features/books/hooks/useBooks.test.ts`):
    - Test fetches all books
    - Test search by title
+   - Test search by title_original (NEW)
    - Test search by author
+   - Test search by inclusion_rationale (NEW)
+   - Test search matches across all search fields
    - Test filter by category
    - Test filter by tags
-   - Test sort by title, author, year
+   - Test filter by original_language
+   - Test filter by reading_status
+   - Test filter by ownership_status
+   - Test sort by title, author, year, priority
    - Test handles empty results
    - Test handles errors
 2. Create `src/features/books/hooks/useBooks.ts`:
@@ -707,7 +827,10 @@ Before considering MVP 0 complete, these must be validated:
      search?: string
      category?: string
      tags?: string[]
-     sortBy?: 'title' | 'author' | 'year'
+     originalLanguage?: string
+     readingStatus?: string
+     ownershipStatus?: string
+     sortBy?: 'title' | 'author' | 'year' | 'priority'
      sortOrder?: 'asc' | 'desc'
    }
    
@@ -717,19 +840,47 @@ Before considering MVP 0 complete, these must be validated:
        queryFn: async () => {
          let query = supabase.from('books').select('*')
          
-         // Apply filters
+         // Apply search across multiple fields (FR-002)
          if (params.search) {
-           query = query.or(`title.ilike.%${params.search}%,author_display_name.ilike.%${params.search}%`)
+           // Search in: title, title_original, author_display_name, inclusion_rationale
+           query = query.or(
+             `title.ilike.%${params.search}%,` +
+             `title_original.ilike.%${params.search}%,` +
+             `author_display_name.ilike.%${params.search}%,` +
+             `inclusion_rationale.ilike.%${params.search}%`
+           )
          }
          
+         // Apply filters (FR-003)
          if (params.category) {
            query = query.eq('primary_category', params.category)
          }
          
-         // Apply sorting
+         if (params.tags && params.tags.length > 0) {
+           query = query.contains('tags', params.tags)
+         }
+         
+         if (params.originalLanguage) {
+           query = query.eq('original_language', params.originalLanguage)
+         }
+         
+         if (params.readingStatus) {
+           // Join with user_reading_status
+           query = query.eq('user_reading_status.reading_status', params.readingStatus)
+         }
+         
+         if (params.ownershipStatus) {
+           // Join with user_reading_status
+           query = query.eq('user_reading_status.ownership_status', params.ownershipStatus)
+         }
+         
+         // Apply sorting (FR-004)
          if (params.sortBy) {
            const column = params.sortBy === 'year' ? 'year_sort' : params.sortBy
            query = query.order(column, { ascending: params.sortOrder === 'asc' })
+         } else {
+           // Default sort: year (oldest first) per UX-010
+           query = query.order('year_sort', { ascending: true })
          }
          
          const { data, error } = await query
@@ -739,16 +890,19 @@ Before considering MVP 0 complete, these must be validated:
      })
    }
    ```
-3. Implement query function
+3. Implement query function with expanded search scope
 4. Run tests → Green
 5. Refactor
 
 **Done Criteria:**
 - [ ] Tests written and passing
-- [ ] All filter/search/sort combinations tested
+- [ ] Search works across title, title_original, author_display_name, inclusion_rationale
+- [ ] All filter combinations tested (category, tags, language, status)
+- [ ] All sort options tested (title, author, year, priority)
 - [ ] Error handling tested
 - [ ] React Query integration working
 - [ ] Type-safe query parameters
+- [ ] FR-002 search scope complete ✅
 
 ---
 
@@ -833,41 +987,135 @@ Before considering MVP 0 complete, these must be validated:
 ---
 
 #### Task 2.2.3: Create Search/Filter Controls
-**Effort:** L (6 hours)  
+**Effort:** XL (8 hours)  
 **Dependencies:** 2.1.1  
 **TDD:** Test alongside
 
 **Steps:**
 1. Write tests:
    - Test search input updates query
-   - Test category filter updates query
+   - Test category filter updates query (dropdown)
    - Test tag filter updates query (multi-select)
+   - Test original language filter updates query (dropdown or text)
+   - Test reading status filter updates query (dropdown)
+   - Test ownership status filter updates query (dropdown)
+   - Test multiple filters work together
    - Test sort controls update query
    - Test clear filters resets state
    - Test debounced search input
 2. Create `src/features/books/components/BookFilters.tsx`:
-   - Search input (debounced)
-   - Category dropdown
-   - Tag multi-select
-   - Sort dropdown (title, author, year)
+   
+   **Search Component:**
+   - Search input (debounced, searches: title, title_original, author, inclusion_rationale)
+   
+   **Filter Components (FR-003 - ALL filters):**
+   - Primary Category dropdown (use PRIMARY_CATEGORIES from constants)
+   - Tags multi-select (allow selecting multiple tags)
+   - Original Language dropdown or text input (flexible)
+   - Reading Status dropdown (Not Started, Want to Read, Reading, Paused, Finished, Abandoned)
+   - Ownership Status dropdown (Not Owned, Ordered, Owned Physical, Owned Digital, Borrowed)
+   
+   **Sort Controls (FR-004):**
+   
+   **MVP 0 Sort Options:**
+   - Title (alphabetically)
+   - Author (alphabetically)
+   - Year (chronologically) - default per UX-010
+   - Priority (for personal reading view)
    - Sort order toggle (asc/desc)
-   - Clear filters button
-3. Wire up to useBooks hook
-4. Tests → Green
+   
+   **Explicitly Deferred to Post-MVP:**
+   - Primary Category sort (not critical for MVP 0 validation)
+   - Rating sort (not critical for MVP 0 validation)
+   - Date Added sort (not critical for MVP 0 validation)
+   
+   **Note:** Deferred sort options are not essential for validating core workflows (UC-001, UC-002, UC-003). They can be added post-MVP 0 if curator feedback indicates they're needed.
+   
+   **Other Controls:**
+   - Clear all filters button
+   
+3. Implement each filter with proper state management
+4. Wire up to useBooks hook
+5. Tests → Green
 
 **Done Criteria:**
 - [ ] Tests passing
-- [ ] Search working with debounce
-- [ ] All filters functional
-- [ ] Sort working
-- [ ] Clear filters resets state
-- [ ] Accessible form controls
+- [ ] Search working with debounce across all fields
+- [ ] ALL filters from FR-003 implemented explicitly:
+  - [ ] Primary category filter (dropdown with controlled vocabulary)
+  - [ ] Tags filter (multi-select)
+  - [ ] Original language filter (dropdown or text)
+  - [ ] Reading status filter (dropdown)
+  - [ ] Ownership status filter (dropdown)
+- [ ] MVP 0 sort options working (title, author, year, priority)
+- [ ] Deferred sort options documented (category, rating, date_added)
+- [ ] Multiple filters work together correctly
+- [ ] Clear filters resets all state
+- [ ] Accessible form controls (labels, ARIA)
+- [ ] FR-003 complete ✅
+- [ ] FR-004 MVP subset complete ✅
 
 ---
 
-#### Task 2.2.4: Create Collection Page
+#### Task 2.2.4: Create Application Layout and Navigation
+**Effort:** M (5 hours)  
+**Dependencies:** 1.1.1 (auth context)  
+**TDD:** Test alongside
+
+**Steps:**
+1. Write tests:
+   - Test AppLayout renders navigation menu
+   - Test active route highlighting works
+   - Test navigation links work
+   - Test mobile hamburger menu toggles
+   - Test logout button works
+   - Test page titles update per route
+2. Create `src/components/AppLayout.tsx`:
+   - Persistent navigation header/sidebar
+   - Navigation menu with links:
+     * Collection (/)
+     * Reading Dashboard (/reading)
+     * Statistics (/stats)
+     * Settings (/settings)
+   - Active route highlighting
+   - Mobile: Hamburger menu that opens/closes
+   - Page title/breadcrumbs display
+   - User info display (email or name)
+   - Logout button
+   - Main content area (children)
+3. Setup React Router with layout:
+   ```typescript
+   <Route path="/" element={<AppLayout />}>
+     <Route index element={<CollectionPage />} />
+     <Route path="collection" element={<CollectionPage />} />
+     <Route path="reading" element={<ReadingDashboardPage />} />
+     <Route path="stats" element={<StatsPage />} />
+     <Route path="settings" element={<SettingsPage />} />
+     <Route path="books/:id" element={<BookDetailPage />} />
+     <Route path="books/new" element={<AddBookPage />} />
+     <Route path="books/:id/edit" element={<EditBookPage />} />
+   </Route>
+   ```
+4. Style navigation (basic styling acceptable for MVP 0)
+5. Tests → Green
+
+**Done Criteria:**
+- [ ] Tests passing
+- [ ] AppLayout renders with persistent navigation
+- [ ] All navigation links present and working
+- [ ] Active route highlighted
+- [ ] Mobile hamburger menu functional
+- [ ] Page titles/breadcrumbs display
+- [ ] Logout button works
+- [ ] Responsive navigation (desktop full menu, mobile hamburger)
+- [ ] Accessible navigation (semantic nav element, keyboard support)
+- [ ] UX-002 navigation foundation ✅
+
+---
+
+#### Task 2.2.5: Create Collection Page (formerly 2.2.4)
 **Effort:** M (4 hours)  
-**Dependencies:** 2.2.2, 2.2.3  
+**Dependencies:** 2.2.2, 2.2.3, 2.2.4  
 **TDD:** Test alongside
 
 **Steps:**
@@ -877,11 +1125,11 @@ Before considering MVP 0 complete, these must be validated:
    - Test search updates displayed books
    - Test sort updates book order
 2. Create `src/pages/CollectionPage.tsx`:
-   - Page layout
+   - Page layout (within AppLayout)
    - BookFilters component
    - BookList component
    - Handle query state from useBooks
-3. Add route to router
+3. Add route to router (already done in 2.2.4)
 4. Tests → Green
 
 **Done Criteria:**
@@ -949,10 +1197,11 @@ Before considering MVP 0 complete, these must be validated:
 ---
 
 ### Phase 2 Done Criteria
+- [ ] Application layout with persistent navigation (UX-002 foundation ✅)
 - [ ] Book collection displays correctly (FR-001 ✅)
-- [ ] Search working (FR-002 ✅)
-- [ ] Filters working (FR-003 ✅)
-- [ ] Sort working (FR-004 ✅)
+- [ ] Search working across all fields: title, title_original, author, inclusion_rationale (FR-002 ✅)
+- [ ] All filters working: category, tags, language, reading_status, ownership_status (FR-003 ✅)
+- [ ] MVP sort options working: title, author, year, priority (FR-004 MVP subset ✅)
 - [ ] Book details display (FR-005 ✅)
 - [ ] Default sort by year (oldest first) per UX-010 ✅
 - [ ] All Phase 2 tests passing
@@ -990,7 +1239,7 @@ Before considering MVP 0 complete, these must be validated:
    - Family name (optional)
    - Original title (optional)
    - Year published (text input, accept "8th century BC", "ca. 1200", etc.)
-   - Primary category (dropdown with controlled vocab)
+   - Primary category (dropdown with controlled vocab from PRIMARY_CATEGORIES constant in src/constants/categories.ts)
    - Tags (multi-entry, flexible)
    - Original language (text input)
    - Source (text)
@@ -1008,7 +1257,7 @@ Before considering MVP 0 complete, these must be validated:
 - [ ] Tests passing
 - [ ] All fields present and functional
 - [ ] Validation working (required fields)
-- [ ] Category dropdown limited to controlled vocabulary
+- [ ] Category dropdown limited to controlled vocabulary (uses PRIMARY_CATEGORIES from constants)
 - [ ] Tags input allows flexible entry
 - [ ] External references repeatable and validated
 - [ ] Form submits and creates book
@@ -1017,9 +1266,58 @@ Before considering MVP 0 complete, these must be validated:
 
 ---
 
-#### Task 3.1.2: Create Add Book Page
+#### Task 3.1.2: Add Duplicate Detection
+**Effort:** M (4 hours)  
+**Dependencies:** 3.1.1, 2.1.1  
+**TDD:** Test alongside
+
+**Steps:**
+1. Write tests:
+   - Test duplicate detection triggers as user types title
+   - Test duplicate detection triggers as user types author
+   - Test displays list of potential duplicates
+   - Test allows curator to proceed anyway (soft warning)
+   - Test similarity matching works correctly
+   - Test no false positives for clearly different books
+2. Create `src/features/books/hooks/useDuplicateDetection.ts`:
+   ```typescript
+   export function useDuplicateDetection(title: string, author: string) {
+     // Debounced query that searches for similar books
+     // Use fuzzy matching or simple substring matching
+     // Return list of potential duplicates
+   }
+   ```
+3. Update AddBookForm component:
+   - Call useDuplicateDetection hook as title/author change
+   - Display warning panel if potential duplicates found:
+     * "Similar books found in your collection:"
+     * List of similar books (title, author, year)
+     * Links to view those books
+     * "Continue anyway" button to proceed with add
+   - Soft warning only (not a blocker)
+4. Update tests for AddBookForm with duplicate scenarios
+5. Tests → Green
+
+**Implementation Notes:**
+- Lightweight implementation (no strict DB constraints)
+- Curator has final say (can add duplicate if intentional)
+- Helps prevent accidental duplicates during data entry
+- Simple similarity: case-insensitive substring match on title + author
+
+**Done Criteria:**
+- [ ] Tests passing
+- [ ] Duplicate detection working as user types
+- [ ] Warning displays potential duplicates with links
+- [ ] Curator can proceed anyway (soft warning)
+- [ ] No blocking constraints (curator has control)
+- [ ] Debounced to avoid excessive queries
+- [ ] Helps prevent accidental duplicates ✅
+
+---
+
+#### Task 3.1.3: Create Add Book Page (formerly 3.1.2)
 **Effort:** S (2 hours)  
-**Dependencies:** 3.1.1  
+**Dependencies:** 3.1.2  
 **TDD:** Test alongside
 
 **Steps:**
@@ -1045,6 +1343,8 @@ Before considering MVP 0 complete, these must be validated:
 **Effort:** M (5 hours)  
 **Dependencies:** 3.1.1, 2.1.2  
 **TDD:** Test alongside
+
+**Note:** Edit form does NOT need duplicate detection (book already exists)
 
 **Steps:**
 1. Write tests:
@@ -1147,9 +1447,11 @@ Before considering MVP 0 complete, these must be validated:
 
 ### Phase 3 Done Criteria
 - [ ] Add book working (FR-010 ✅)
+- [ ] Duplicate detection helping prevent accidental duplicates ✅
 - [ ] Edit book working (FR-011 ✅)
 - [ ] Delete book working (FR-012 ✅)
 - [ ] External references manageable (FR-012a ✅)
+- [ ] Category dropdown uses controlled vocabulary from constants ✅
 - [ ] All CRUD operations tested
 - [ ] Coverage ≥70%
 
@@ -1310,6 +1612,70 @@ Before considering MVP 0 complete, these must be validated:
 
 ---
 
+#### Task 4.2.4: Create Reading Dashboard Page
+**Effort:** L (6 hours)  
+**Dependencies:** 4.1.1, 4.2.1  
+**TDD:** Test alongside
+
+**Steps:**
+1. Write tests:
+   - Test displays books with status "Reading"
+   - Test displays "Want to Read" books with priorities
+   - Test quick status update actions work
+   - Test filtering by priority works
+   - Test empty states display
+   - Test mobile-optimized per UX-011
+2. Create `src/pages/ReadingDashboardPage.tsx`:
+   
+   **Currently Reading Section:**
+   - List of books with reading_status = "Reading"
+   - Display: title, author, year, started_at timestamp
+   - Quick actions: Mark as Finished, Mark as Paused
+   - Link to full book detail
+   
+   **Want to Read Section:**
+   - List of books with reading_status = "Want to Read"
+   - Sorted by personal_priority (High → Medium → Low)
+   - Display: title, author, year, priority badge
+   - Quick actions: Mark as Reading, Change Priority
+   - Link to full book detail
+   
+   **Mobile Optimization (UX-011):**
+   - Cards stack vertically on mobile
+   - Touch-friendly action buttons (≥44x44px)
+   - Swipe gestures optional (nice-to-have)
+   - Essential workflow: view reading list and update status
+   
+3. Create `src/features/reading/hooks/useReadingDashboard.ts`:
+   ```typescript
+   export function useReadingBooks() {
+     // Query books with status "Reading" for current user
+   }
+   
+   export function useWantToReadBooks() {
+     // Query books with status "Want to Read" for current user
+     // Sorted by priority
+   }
+   ```
+4. Style dashboard (cards or list layout)
+5. Add route to router (`/reading`) - already added in 2.2.4
+6. Tests → Green
+
+**Done Criteria:**
+- [ ] Tests passing
+- [ ] Reading Dashboard accessible at `/reading`
+- [ ] Currently Reading section displays books with status "Reading"
+- [ ] Want to Read section displays books with priorities
+- [ ] Quick status update actions working
+- [ ] Mobile-optimized per UX-011 (essential workflow)
+- [ ] Empty states for no books in each section
+- [ ] Links to full book details
+- [ ] Becomes primary navigation destination for reader workflow
+- [ ] UC-001 (Decide what to read next) workflow optimized ✅
+- [ ] UC-002 (Complete a book) workflow accessible ✅
+
+---
+
 ### 4.3: Statistics Dashboard
 
 #### Task 4.3.1: Create StatsCard Component
@@ -1371,7 +1737,11 @@ Before considering MVP 0 complete, these must be validated:
 - [ ] Personal notes (FR-024 ✅)
 - [ ] Personal rating (FR-025 ✅)
 - [ ] Timestamps displayed (FR-026 ✅)
+- [ ] Reading Dashboard page with "Reading" and "Want to Read" views ✅
+- [ ] Quick status update actions on dashboard ✅
+- [ ] Mobile-optimized reading dashboard (UX-011 ✅)
 - [ ] Reading stats (FR-030, FR-031 ✅)
+- [ ] Primary navigation destination for reader workflow ✅
 - [ ] All Phase 4 tests passing
 - [ ] Coverage ≥70%
 
@@ -1380,6 +1750,12 @@ Before considering MVP 0 complete, these must be validated:
 ## Phase 5: Excel Data Migration (2-3 days)
 
 **Goal:** One-time import of existing Excel data
+
+**Phase Ordering Note:** Migration (Phase 5) could potentially be executed before CRUD (Phase 3) if the curator wants to validate the application with real data first. This approach has tradeoffs:
+- **Migration First (before Phase 3):** Allows curator to browse/search/filter real data immediately. Good for validation. However, cannot manually fix data issues without CRUD.
+- **CRUD First (recommended):** Allows testing CRUD workflows with sample data, and provides tools to fix any migration issues. More flexible.
+
+Choose the order that best fits the curator's validation priorities.
 
 ### 5.1: Migration Script
 
@@ -1681,33 +2057,86 @@ Before considering MVP 0 complete, these must be validated:
 ---
 
 #### Task 6.1.4: Responsive Design Testing
-**Effort:** M (4 hours)  
+**Effort:** M (5 hours)  
 **Dependencies:** All previous phases  
 **TDD:** Manual testing + automated viewport tests
 
 **Steps:**
-1. Test essential workflows on mobile (UX-008, UX-011):
-   - View reading list (books with status "Reading")
-   - View priorities (filtered by priority)
-   - Mark book as reading
-   - Mark book as finished (with optional rating)
-   - Update ownership status
-   - View book details
-   - Quick search
+1. **Test essential workflows on mobile (UX-008, UX-011) with explicit checklist:**
+   
+   **Mobile Essential Workflows Checklist (UX-011):**
+   - [ ] View reading list (Reading Dashboard at /reading)
+   - [ ] View books with status "Reading" (mobile-optimized cards)
+   - [ ] View "Want to Read" filtered by priority
+   - [ ] Mark book as Reading (quick action from dashboard)
+   - [ ] Mark book as Finished (with optional rating)
+   - [ ] Update ownership status (from book detail or dashboard)
+   - [ ] View book details (full metadata display)
+   - [ ] Quick search (search bar accessible, debounced input works)
+   - [ ] Navigate between pages (hamburger menu works)
+   - [ ] Update personal notes (textarea accessible and usable)
+   
+   **Non-Essential Workflows (acceptable degradation on mobile):**
+   - Complex filtering (may require scrolling or collapsible UI)
+   - Bulk operations (not implemented in MVP 0)
+   - Adding new books (usable but form may be long)
+   - Statistics dashboard (may reflow, but readable)
+   
 2. Test on viewports: 375px (phone), 768px (tablet), 1024px (desktop)
 3. Fix layout issues:
-   - Navigation collapses on mobile
-   - Touch targets ≥44x44px
+   - Navigation collapses on mobile (hamburger menu)
+   - Touch targets ≥44x44px for all interactive elements
    - No horizontal scroll
    - Tables reflow or become cards
+   - Form inputs sized appropriately for touch
+   - Dropdowns and selects work on mobile browsers
 4. Document any non-essential workflows with reduced mobile experience
 
 **Done Criteria:**
-- [ ] Essential workflows fully functional on mobile (UX-011 ✅)
+- [ ] All essential workflows from checklist fully functional on mobile (UX-011 ✅)
 - [ ] Responsive design working 375px to 1920px (UX-008 ✅)
-- [ ] Touch targets appropriately sized
-- [ ] No horizontal scroll
+- [ ] Touch targets appropriately sized (≥44x44px)
+- [ ] No horizontal scroll on any page
+- [ ] Reading Dashboard is mobile-optimized (primary mobile destination)
 - [ ] Desktop-optimized workflows still usable on mobile (acceptable degradation)
+- [ ] Mobile testing checklist completed and documented
+
+---
+
+#### Task 6.1.5: Create Settings Page
+**Effort:** S (3 hours)  
+**Dependencies:** 1.1.1 (auth context)  
+**TDD:** Test alongside
+
+**Steps:**
+1. Write tests:
+   - Test page displays user profile info
+   - Test logout button works
+   - Test page is accessible
+2. Create `src/pages/SettingsPage.tsx`:
+   
+   **Minimal Settings for MVP 0:**
+   - User profile display:
+     * Email address
+     * User ID (for debugging)
+   - Logout button
+   - Future placeholders (not implemented):
+     * Profile editing (post-MVP)
+     * Preferences (theme, defaults)
+     * Data export
+   
+3. Style settings page (simple layout acceptable)
+4. Add route to router (`/settings`) - already added in 2.2.4
+5. Tests → Green
+
+**Done Criteria:**
+- [ ] Tests passing
+- [ ] Settings page accessible at `/settings`
+- [ ] User profile info displayed
+- [ ] Logout button functional
+- [ ] Responsive layout
+- [ ] Accessible
+- [ ] Placeholder sections for future features documented
 
 ---
 
@@ -1808,6 +2237,8 @@ Before considering MVP 0 complete, these must be validated:
 - [ ] Feedback and loading states complete (UX-005, UX-009 ✅)
 - [ ] Accessibility validated (UX-006, UX-007 ✅)
 - [ ] Responsive design validated (UX-008, UX-011 ✅)
+- [ ] Mobile essential workflows checklist completed ✅
+- [ ] Settings page with user profile and logout ✅
 - [ ] Performance targets met (NFR-001, NFR-002 ✅)
 - [ ] Curator acceptance testing complete
 - [ ] Critical bugs fixed
@@ -1915,16 +2346,21 @@ Before considering MVP 0 complete, these must be validated:
 
 ## Appendix A: Effort Summary
 
-**Total Estimated Effort for MVP 0:** ~20-25 days (160-200 hours)
+**Total Estimated Effort for MVP 0:** ~22-28 days (176-224 hours)
 
 **Breakdown by Phase:**
-- Phase 0: Project Foundation → 3-4 days
+- Phase 0: Project Foundation → 3.5-4.5 days (added: shared constants, enhanced RLS testing)
 - Phase 1: Authentication → 2-3 days
-- Phase 2: Book Collection Display → 3-4 days
-- Phase 3: Book Curation (CRUD) → 2-3 days
-- Phase 4: Personal Reading Management → 3-4 days
+- Phase 2: Book Collection Display → 4-5 days (added: application layout/navigation, expanded search/filters)
+- Phase 3: Book Curation (CRUD) → 2.5-3.5 days (added: duplicate detection)
+- Phase 4: Personal Reading Management → 4-5 days (added: reading dashboard page)
 - Phase 5: Excel Data Migration → 2-3 days
-- Phase 6: Polish & Validation → 2-3 days
+- Phase 6: Polish & Validation → 2.5-3.5 days (added: settings page, mobile testing checklist)
+
+**Changes from Original Estimate:**
+- Added 5 new tasks based on comprehensive review
+- Enhanced scope of existing tasks (search, filters, RLS testing)
+- Total increase: ~2-3 days
 
 **Note:** Estimates include test writing and assume a single developer familiar with the tech stack. First-time setup and learning may add 20-30% to initial phases.
 
