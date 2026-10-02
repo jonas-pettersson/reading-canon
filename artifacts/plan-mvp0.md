@@ -4,7 +4,33 @@
 **Phase:** MVP 0 - Single User Validation  
 **Goal:** Prove it's better than Excel for curator's personal use  
 **Target:** Working localhost application with Excel data migrated  
-**Date Created:** 2026-10-02
+**Date Created:** 2026-10-02  
+**Last Updated:** 2026-10-02 (Alignment with spec.md v1.4 and ADRs)
+
+---
+
+## Recent Changes (2026-10-02)
+
+**Alignment Update:** Resolved final inconsistencies with spec.md v1.4 and ADRs.
+
+**Key Changes:**
+1. **Category Vocabulary (Task 0.2.6):** Updated PRIMARY_CATEGORIES to match spec.md v1.4 Section 2.1 exactly (Novel, Play / Drama, Poetry, Philosophy, History, Religion / Theology, Politics / Political Theory, Science, Essay / Non-fiction, Biography / Memoir, Anthology / Collection)
+
+2. **Search Indexing (Task 0.2.1):** Replaced to_tsvector full-text search with pg_trgm trigram indexes per ADR-003 recommendation for MVP0 (ILIKE-based search with migration path to full-text if needed)
+
+3. **Reading Status Filtering (Task 2.1.1):** Clarified that reading_status/ownership_status filtering uses client-side approach (fetch books + fetch user_reading_status separately, join/filter in client with useMemo) - simpler for MVP0, works well for <1000 books
+
+4. **Duplicate Detection (Task 3.1.2):** Simplified to case-insensitive exact match (removed fuzzy matching complexity) - goal is preventing accidental duplicates, not sophisticated record matching. Reduced effort from M (4h) to S (2h).
+
+5. **Priority Sorting Scope (Tasks 2.2.3, 4.2.4):** Clarified that priority sorting does NOT apply to general Collection View (most books don't have priority). Priority sorting is PRIMARY use case in Reading Dashboard (Want to Read section sorted by priority High→Medium→Low→None).
+
+6. **Settings Page (Task 6.1.5):** Confirmed minimal scope for MVP0 per UX-001 (user profile display, logout button only - no preferences/editing). Effort S (2h).
+
+**Consistency Improvements:**
+- All query examples follow ADR-006 patterns (Supabase JavaScript client, React Query, generated TypeScript types)
+- Client-side filtering approach consistently applied for user_reading_status joins
+- Sort options scoped appropriately (Collection View: title/author/year; Reading Dashboard: priority)
+- Test descriptions updated to reflect implementation approach
 
 ---
 
@@ -230,11 +256,21 @@ Before considering MVP 0 complete, these must be validated:
      created_by_user_id uuid references auth.users(id)
    );
    
-   -- Indexes
-   create index books_title_idx on public.books using gin(to_tsvector('english', title));
-   create index books_author_idx on public.books using gin(to_tsvector('english', author_display_name));
+   -- Enable pg_trgm extension for trigram-based search (ADR-003)
+   create extension if not exists pg_trgm;
+   
+   -- Trigram indexes for ILIKE pattern matching (recommended by ADR-003 for MVP0)
+   create index books_title_trgm_idx on public.books using gin (title gin_trgm_ops);
+   create index books_title_original_trgm_idx on public.books using gin (title_original gin_trgm_ops);
+   create index books_author_trgm_idx on public.books using gin (author_display_name gin_trgm_ops);
+   create index books_rationale_trgm_idx on public.books using gin (inclusion_rationale gin_trgm_ops);
+   
+   -- Standard indexes for sorting/filtering
    create index books_year_sort_idx on public.books(year_sort);
    create index books_primary_category_idx on public.books(primary_category);
+   
+   -- Note: Full-text search (to_tsvector) can be added later if ILIKE performance
+   -- becomes inadequate per ADR-003 migration guidance.
    
    -- Updated_at trigger
    create trigger set_books_updated_at before update on public.books
@@ -516,25 +552,22 @@ Before considering MVP 0 complete, these must be validated:
    ```typescript
    /**
     * Controlled vocabulary for primary_category field
-    * Based on Specification v1.4 Section 2.1.3
+    * Based on Specification v1.4 Section 2.1
+    * 
+    * Note: Additional values may be added by curator as needed per spec.
     */
    export const PRIMARY_CATEGORIES = [
+     'Novel',
+     'Play / Drama',
+     'Poetry',
      'Philosophy',
-     'Religion & Theology',
      'History',
-     'Social Sciences',
-     'Natural Sciences',
-     'Arts & Literature',
-     'Psychology',
-     'Political Science',
-     'Economics',
-     'Mathematics & Logic',
-     'Technology & Applied Sciences',
-     'Medicine & Health',
-     'Law',
-     'Education',
-     'Linguistics',
-     'Other'
+     'Religion / Theology',
+     'Politics / Political Theory',
+     'Science',
+     'Essay / Non-fiction',
+     'Biography / Memoir',
+     'Anthology / Collection'
    ] as const
    
    export type PrimaryCategory = typeof PRIMARY_CATEGORIES[number]
@@ -812,14 +845,14 @@ Before considering MVP 0 complete, these must be validated:
    - Test filter by category
    - Test filter by tags
    - Test filter by original_language
-   - Test filter by reading_status
-   - Test filter by ownership_status
-   - Test sort by title, author, year, priority
+   - Test filter by reading_status (client-side)
+   - Test filter by ownership_status (client-side)
+   - Test sort by title, author, year (NOT priority - that's in Reading Dashboard)
    - Test handles empty results
    - Test handles errors
 2. Create `src/features/books/hooks/useBooks.ts`:
    ```typescript
-   import { useQuery } from '@tanstack/react-query'
+   import { useQuery, useMemo } from '@tanstack/react-query'
    import { supabase } from '@/lib/supabase'
    import { Book } from '@/types/database'
    
@@ -828,15 +861,23 @@ Before considering MVP 0 complete, these must be validated:
      category?: string
      tags?: string[]
      originalLanguage?: string
-     readingStatus?: string
-     ownershipStatus?: string
-     sortBy?: 'title' | 'author' | 'year' | 'priority'
+     readingStatus?: string  // Client-side filter
+     ownershipStatus?: string  // Client-side filter
+     sortBy?: 'title' | 'author' | 'year'  // Note: priority sorting in Reading Dashboard only
      sortOrder?: 'asc' | 'desc'
    }
    
    export function useBooks(params: BooksQueryParams = {}) {
-     return useQuery({
-       queryKey: ['books', params],
+     // Fetch books from database (with filters that apply to books table)
+     const booksQuery = useQuery({
+       queryKey: ['books', { 
+         search: params.search,
+         category: params.category,
+         tags: params.tags,
+         originalLanguage: params.originalLanguage,
+         sortBy: params.sortBy,
+         sortOrder: params.sortOrder
+       }],
        queryFn: async () => {
          let query = supabase.from('books').select('*')
          
@@ -851,7 +892,7 @@ Before considering MVP 0 complete, these must be validated:
            )
          }
          
-         // Apply filters (FR-003)
+         // Apply filters that exist on books table (FR-003)
          if (params.category) {
            query = query.eq('primary_category', params.category)
          }
@@ -862,16 +903,6 @@ Before considering MVP 0 complete, these must be validated:
          
          if (params.originalLanguage) {
            query = query.eq('original_language', params.originalLanguage)
-         }
-         
-         if (params.readingStatus) {
-           // Join with user_reading_status
-           query = query.eq('user_reading_status.reading_status', params.readingStatus)
-         }
-         
-         if (params.ownershipStatus) {
-           // Join with user_reading_status
-           query = query.eq('user_reading_status.ownership_status', params.ownershipStatus)
          }
          
          // Apply sorting (FR-004)
@@ -888,21 +919,80 @@ Before considering MVP 0 complete, these must be validated:
          return data as Book[]
        }
      })
+     
+     // Fetch user reading status (for client-side filtering)
+     const statusQuery = useQuery({
+       queryKey: ['user-reading-status'],
+       queryFn: async () => {
+         const { data, error } = await supabase
+           .from('user_reading_status')
+           .select('*')
+         if (error) throw error
+         return data
+       },
+       // Only fetch if we need status filtering
+       enabled: Boolean(params.readingStatus || params.ownershipStatus)
+     })
+     
+     // Combine and filter client-side (for reading_status/ownership_status)
+     const filteredBooks = useMemo(() => {
+       if (!booksQuery.data) return []
+       
+       let books = booksQuery.data
+       
+       // Apply client-side filters if status data available
+       if (statusQuery.data && (params.readingStatus || params.ownershipStatus)) {
+         const statusMap = new Map(statusQuery.data.map(s => [s.book_id, s]))
+         
+         books = books.filter(book => {
+           const status = statusMap.get(book.id)
+           
+           if (params.readingStatus && status?.reading_status !== params.readingStatus) {
+             return false
+           }
+           
+           if (params.ownershipStatus && status?.ownership_status !== params.ownershipStatus) {
+             return false
+           }
+           
+           return true
+         })
+       }
+       
+       return books
+     }, [booksQuery.data, statusQuery.data, params.readingStatus, params.ownershipStatus])
+     
+     return {
+       data: filteredBooks,
+       isLoading: booksQuery.isLoading || (statusQuery.enabled && statusQuery.isLoading),
+       error: booksQuery.error || statusQuery.error
+     }
    }
    ```
+   
+   **Note on Client-Side Filtering:**
+   The above implementation uses client-side filtering for reading_status and ownership_status since those fields are in the user_reading_status table, not the books table. This approach:
+   - Fetches all books matching search/category/tags/language filters from database
+   - Fetches user's reading status records separately
+   - Joins and filters in client using useMemo
+   - Works well for collections <1000 books (MVP0 target)
+   - Can be optimized with database view in post-MVP if needed
+
 3. Implement query function with expanded search scope
 4. Run tests → Green
 5. Refactor
 
 **Done Criteria:**
 - [ ] Tests written and passing
-- [ ] Search works across title, title_original, author_display_name, inclusion_rationale
-- [ ] All filter combinations tested (category, tags, language, status)
-- [ ] All sort options tested (title, author, year, priority)
+- [ ] Search works across title, title_original, author_display_name, inclusion_rationale (FR-002 ✅)
+- [ ] All filter combinations tested (category, tags, language)
+- [ ] Reading status and ownership status filtering implemented (client-side with useMemo)
+- [ ] Sort options tested (title, author, year) - priority sorting NOT in this hook
 - [ ] Error handling tested
 - [ ] React Query integration working
 - [ ] Type-safe query parameters
-- [ ] FR-002 search scope complete ✅
+- [ ] Client-side filtering approach documented and tested
+- [ ] useMemo optimization for filtered results
 
 ---
 
@@ -1017,12 +1107,18 @@ Before considering MVP 0 complete, these must be validated:
    
    **Sort Controls (FR-004):**
    
-   **MVP 0 Sort Options:**
+   **MVP 0 Sort Options for Collection View:**
    - Title (alphabetically)
    - Author (alphabetically)
    - Year (chronologically) - default per UX-010
-   - Priority (for personal reading view)
    - Sort order toggle (asc/desc)
+   
+   **Note on Priority Sorting:**
+   - Priority is in user_reading_status table, not books table
+   - Priority sorting does NOT apply to general Collection View (most books don't have priority)
+   - Priority sorting IS available in:
+     * Reading Dashboard (Task 4.2.4) - PRIMARY USE CASE
+     * Collection View when filtered by reading status (Want to Read, Reading)
    
    **Explicitly Deferred to Post-MVP:**
    - Primary Category sort (not critical for MVP 0 validation)
@@ -1200,8 +1296,9 @@ Before considering MVP 0 complete, these must be validated:
 - [ ] Application layout with persistent navigation (UX-002 foundation ✅)
 - [ ] Book collection displays correctly (FR-001 ✅)
 - [ ] Search working across all fields: title, title_original, author, inclusion_rationale (FR-002 ✅)
-- [ ] All filters working: category, tags, language, reading_status, ownership_status (FR-003 ✅)
-- [ ] MVP sort options working: title, author, year, priority (FR-004 MVP subset ✅)
+- [ ] All filters working: category, tags, language, reading_status (client-side), ownership_status (client-side) (FR-003 ✅)
+- [ ] Collection View sort options working: title, author, year (FR-004 MVP subset ✅)
+- [ ] Priority sorting scoped to Reading Dashboard (not general Collection View)
 - [ ] Book details display (FR-005 ✅)
 - [ ] Default sort by year (oldest first) per UX-010 ✅
 - [ ] All Phase 2 tests passing
@@ -1267,46 +1364,67 @@ Before considering MVP 0 complete, these must be validated:
 ---
 
 #### Task 3.1.2: Add Duplicate Detection
-**Effort:** M (4 hours)  
+**Effort:** S (2 hours)  
 **Dependencies:** 3.1.1, 2.1.1  
 **TDD:** Test alongside
 
+**Simplified Approach:**
+- Case-insensitive exact match on title AND author_display_name
+- Display warning if match found
+- Allow curator to proceed (soft warning)
+- No fuzzy matching or complex similarity logic
+
+**Rationale:** Goal is preventing accidental duplicates (user enters same book twice), not sophisticated record matching. Case-insensitive exact match catches 90% of duplicates with minimal complexity.
+
 **Steps:**
 1. Write tests:
-   - Test duplicate detection triggers as user types title
-   - Test duplicate detection triggers as user types author
-   - Test displays list of potential duplicates
+   - Test duplicate detection triggers as user types title and author
+   - Test displays list of exact matches
    - Test allows curator to proceed anyway (soft warning)
-   - Test similarity matching works correctly
-   - Test no false positives for clearly different books
+   - Test case-insensitive matching (e.g., "iliad" matches "Iliad")
+   - Test no warning for clearly different books
 2. Create `src/features/books/hooks/useDuplicateDetection.ts`:
    ```typescript
    export function useDuplicateDetection(title: string, author: string) {
-     // Debounced query that searches for similar books
-     // Use fuzzy matching or simple substring matching
-     // Return list of potential duplicates
+     return useQuery({
+       queryKey: ['duplicate-check', title, author],
+       queryFn: async () => {
+         if (!title || !author) return []
+         
+         const { data, error } = await supabase
+           .from('books')
+           .select('id, title, author_display_name, year_published')
+           .ilike('title', title)
+           .ilike('author_display_name', author)
+           .limit(5)
+         
+         if (error) throw error
+         return data || []
+       },
+       enabled: Boolean(title && author),
+       staleTime: 30000 // Cache for 30 seconds
+     })
    }
    ```
 3. Update AddBookForm component:
-   - Call useDuplicateDetection hook as title/author change
+   - Call useDuplicateDetection hook with debounce (500ms)
    - Display warning panel if potential duplicates found:
      * "Similar books found in your collection:"
-     * List of similar books (title, author, year)
+     * List of matching books (title, author, year)
      * Links to view those books
      * "Continue anyway" button to proceed with add
    - Soft warning only (not a blocker)
-4. Update tests for AddBookForm with duplicate scenarios
-5. Tests → Green
+4. Tests → Green
 
 **Implementation Notes:**
 - Lightweight implementation (no strict DB constraints)
 - Curator has final say (can add duplicate if intentional)
 - Helps prevent accidental duplicates during data entry
-- Simple similarity: case-insensitive substring match on title + author
+- Simple case-insensitive exact match on title + author
 
 **Done Criteria:**
 - [ ] Tests passing
-- [ ] Duplicate detection working as user types
+- [ ] Duplicate detection working with case-insensitive exact match
 - [ ] Warning displays potential duplicates with links
 - [ ] Curator can proceed anyway (soft warning)
 - [ ] No blocking constraints (curator has control)
@@ -1635,10 +1753,15 @@ Before considering MVP 0 complete, these must be validated:
    
    **Want to Read Section:**
    - List of books with reading_status = "Want to Read"
-   - Sorted by personal_priority (High → Medium → Low)
+   - **Sorted by personal_priority (High → Medium → Low → None)** - PRIMARY USE CASE for priority sorting
    - Display: title, author, year, priority badge
    - Quick actions: Mark as Reading, Change Priority
    - Link to full book detail
+   
+   **Note on Priority Sorting:**
+   - This is the PRIMARY use case for priority sorting
+   - Query user_reading_status directly, join books for display
+   - Priority sort doesn't make sense in general Collection View (most books don't have priority set)
    
    **Mobile Optimization (UX-011):**
    - Cards stack vertically on mobile
@@ -2104,9 +2227,18 @@ Choose the order that best fits the curator's validation priorities.
 ---
 
 #### Task 6.1.5: Create Settings Page
-**Effort:** S (3 hours)  
+**Effort:** S (2 hours)  
 **Dependencies:** 1.1.1 (auth context)  
 **TDD:** Test alongside
+
+**Decision:** Keep minimal Settings page per UX-001 (Settings View is explicitly listed)
+
+**Rationale:**
+- Explicitly in UX-001 specification
+- Natural place for logout button (better UX than nav menu)
+- Establishes route for MVP1 expansion
+- Very low effort (2 hours)
+- Better UX than logout in nav menu
 
 **Steps:**
 1. Write tests:
@@ -2115,15 +2247,19 @@ Choose the order that best fits the curator's validation priorities.
    - Test page is accessible
 2. Create `src/pages/SettingsPage.tsx`:
    
-   **Minimal Settings for MVP 0:**
-   - User profile display:
+   **Minimal MVP0 Implementation (expanded in MVP1):**
+   - User profile display (read-only):
      * Email address
+     * Name (if available)
      * User ID (for debugging)
    - Logout button
-   - Future placeholders (not implemented):
-     * Profile editing (post-MVP)
-     * Preferences (theme, defaults)
-     * Data export
+   - Simple layout
+   
+   **NOT included in MVP0 (defer to MVP1):**
+   - User profile editing
+   - User preferences (theme, defaults)
+   - Data export
+   - Account management
    
 3. Style settings page (simple layout acceptable)
 4. Add route to router (`/settings`) - already added in 2.2.4
@@ -2132,11 +2268,12 @@ Choose the order that best fits the curator's validation priorities.
 **Done Criteria:**
 - [ ] Tests passing
 - [ ] Settings page accessible at `/settings`
-- [ ] User profile info displayed
+- [ ] User profile info displayed (read-only)
 - [ ] Logout button functional
 - [ ] Responsive layout
 - [ ] Accessible
-- [ ] Placeholder sections for future features documented
+- [ ] Minimal scope maintained (no user preferences in MVP0)
+- [ ] Note in code: "Minimal MVP0 implementation - expanded in MVP1"
 
 ---
 
@@ -2448,6 +2585,7 @@ For every task that produces code:
 
 ---
 
-**Document Version:** 1.0  
+**Document Version:** 1.1  
 **Created:** 2026-10-02  
-**Status:** Ready for Phase 0 kickoff
+**Last Updated:** 2026-10-02  
+**Status:** Ready for Phase 0 kickoff - Aligned with spec.md v1.4 and all ADRs
