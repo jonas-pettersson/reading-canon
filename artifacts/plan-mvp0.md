@@ -1,0 +1,2009 @@
+# MVP 0 Implementation Plan
+
+**Project:** Reading Canon  
+**Phase:** MVP 0 - Single User Validation  
+**Goal:** Prove it's better than Excel for curator's personal use  
+**Target:** Working localhost application with Excel data migrated  
+**Date Created:** 2026-10-02
+
+---
+
+## Success Criteria Reminder
+
+Before considering MVP 0 complete, these must be validated:
+- ✅ SC-001: Curator prefers application over Excel
+- ✅ SC-002: Deciding what to read next is easier
+- ✅ SC-003: Updating reading progress is easier
+- ✅ SC-007: Performance remains acceptable
+
+---
+
+## Testing Strategy Integration
+
+**TDD Approach per Task Type:**
+1. **Business Logic** → Test-first (strict TDD): Write test → Red → Green → Refactor
+2. **React Components** → Test alongside (same session): Component + tests before moving on
+3. **RLS Policies** → Security-first testing: Test immediately after writing policy
+4. **User Flows** → Integration tests after components exist
+5. **Enforcement** → Pre-commit hooks, CI pipeline, coverage thresholds (70%+)
+
+**Rule:** No code merged without tests. Zero "TODO: test later" debt.
+
+---
+
+## Task Tracking Approach
+
+**Recommended Tools:**
+- **GitHub Issues** with labels (phase-0, phase-1, testing, database, etc.)
+- **GitHub Projects** (Kanban board): Backlog → In Progress → In Review → Done
+- **This Document** as the master plan reference
+
+**Task States:**
+- 🟦 **Not Started** - Task defined but not begun
+- 🟨 **In Progress** - Active work happening
+- 🟩 **Done** - Tests passing, code reviewed, merged
+- 🟥 **Blocked** - Waiting on dependency or external factor
+
+---
+
+## Effort Estimation Guide
+
+- **XS (0.5-1 hour)**: Simple config, single test case
+- **S (2-4 hours)**: Small component, simple business logic
+- **M (1 day)**: Complex component, multiple related tests
+- **L (2-3 days)**: Feature with multiple components and integration
+- **XL (1 week)**: Major feature with backend + frontend + comprehensive testing
+
+**Notes:**
+- Estimates include test writing time
+- First-time setup tasks may take longer
+- Buffer 20% for learning and unexpected issues
+
+---
+
+## Phase 0: Project Foundation (3-4 days)
+
+**Goal:** Working development environment with basic infrastructure
+
+### 0.1: Environment Setup
+
+#### Task 0.1.1: Create Supabase Project
+**Effort:** XS (1 hour)  
+**Dependencies:** None  
+**TDD:** N/A (configuration)
+
+**Steps:**
+1. Sign up for Supabase account (if needed)
+2. Create new project: "reading-canon"
+3. Note project URL and anon key
+4. Save database connection string
+5. Configure project settings (timezone, JWT expiry)
+
+**Done Criteria:**
+- [ ] Supabase project created and accessible
+- [ ] Project credentials saved securely (not in git)
+- [ ] Database dashboard accessible
+
+---
+
+#### Task 0.1.2: Initialize Frontend Project
+**Effort:** S (2 hours)  
+**Dependencies:** None  
+**TDD:** N/A (setup), but configure test infrastructure
+
+**Steps:**
+1. Run `npm create vite@latest reading-canon-frontend -- --template react-ts`
+2. Initialize git repository
+3. Create `.gitignore` (node_modules, .env.local, dist)
+4. Configure TypeScript (strict mode, paths)
+5. Install base dependencies:
+   ```bash
+   npm install @supabase/supabase-js
+   npm install react-router-dom
+   npm install @tanstack/react-query
+   ```
+6. Install dev dependencies:
+   ```bash
+   npm install -D vitest @testing-library/react @testing-library/jest-dom
+   npm install -D @testing-library/user-event jsdom
+   npm install -D @vitest/ui
+   ```
+7. Configure Vitest (`vitest.config.ts`)
+8. Create basic folder structure:
+   ```
+   src/
+     components/
+     features/
+     hooks/
+     lib/
+     types/
+     utils/
+     App.tsx
+     main.tsx
+   ```
+
+**Done Criteria:**
+- [ ] Vite project created and running (`npm run dev`)
+- [ ] TypeScript strict mode enabled
+- [ ] Git repository initialized with first commit
+- [ ] Test infrastructure configured (can run `npm test`)
+- [ ] Sample test passing (Hello World component test)
+
+---
+
+#### Task 0.1.3: Configure Supabase Client
+**Effort:** XS (1 hour)  
+**Dependencies:** 0.1.1, 0.1.2  
+**TDD:** N/A (configuration, but test connection)
+
+**Steps:**
+1. Create `.env.local` with Supabase credentials:
+   ```
+   VITE_SUPABASE_URL=your-project-url
+   VITE_SUPABASE_ANON_KEY=your-anon-key
+   ```
+2. Create `src/lib/supabase.ts`:
+   ```typescript
+   import { createClient } from '@supabase/supabase-js'
+   
+   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+   const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+   
+   export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+   ```
+3. Create connection test script
+4. Verify connection works
+
+**Done Criteria:**
+- [ ] Supabase client configured
+- [ ] Environment variables working
+- [ ] Test connection successful
+- [ ] `.env.local` in `.gitignore`
+
+---
+
+#### Task 0.1.4: Setup CI/CD Pipeline
+**Effort:** M (4 hours)  
+**Dependencies:** 0.1.2  
+**TDD:** N/A (infrastructure)
+
+**Steps:**
+1. Create `.github/workflows/ci.yml`:
+   - Run on pull request and push to main
+   - Install dependencies
+   - Run linter (ESLint)
+   - Run type check
+   - Run tests with coverage
+   - Fail if coverage < 70%
+2. Configure pre-commit hooks (husky + lint-staged):
+   - Run ESLint on staged files
+   - Run TypeScript type check
+   - Run tests for changed files
+3. Test pipeline with dummy commit
+
+**Done Criteria:**
+- [ ] GitHub Actions workflow running
+- [ ] Pre-commit hooks preventing bad commits
+- [ ] Coverage threshold enforced
+- [ ] All checks passing on main branch
+
+---
+
+### 0.2: Database Schema (MVP 0 Subset)
+
+#### Task 0.2.1: Create Books Table Migration
+**Effort:** M (4 hours)  
+**Dependencies:** 0.1.1  
+**TDD:** Write test cases for schema constraints
+
+**Steps:**
+1. Install Supabase CLI locally
+2. Initialize Supabase migrations: `supabase init`
+3. Create migration file: `supabase migration new create_books_table`
+4. Write SQL migration for `books` table:
+   ```sql
+   create table public.books (
+     id uuid default gen_random_uuid() primary key,
+     title text not null,
+     author_display_name text not null,
+     given_name text,
+     family_name text,
+     title_original text,
+     year_published text,
+     year_sort integer,
+     primary_category text,
+     tags text[],
+     original_language text,
+     source text,
+     inclusion_rationale text,
+     author_lifespan text,
+     created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+     updated_at timestamp with time zone default timezone('utc'::text, now()) not null,
+     created_by_user_id uuid references auth.users(id)
+   );
+   
+   -- Indexes
+   create index books_title_idx on public.books using gin(to_tsvector('english', title));
+   create index books_author_idx on public.books using gin(to_tsvector('english', author_display_name));
+   create index books_year_sort_idx on public.books(year_sort);
+   create index books_primary_category_idx on public.books(primary_category);
+   
+   -- Updated_at trigger
+   create trigger set_books_updated_at before update on public.books
+     for each row execute function moddatetime(updated_at);
+   ```
+5. Test migration locally: `supabase db reset`
+6. Write schema validation tests (check constraints, indexes exist)
+
+**Done Criteria:**
+- [ ] Migration file created and tested
+- [ ] All required columns present
+- [ ] Indexes created for search/sort performance
+- [ ] Updated_at trigger working
+- [ ] Schema constraints validated with tests
+- [ ] Migration applied to Supabase project
+
+---
+
+#### Task 0.2.2: Create User Reading Status Table Migration
+**Effort:** M (4 hours)  
+**Dependencies:** 0.2.1  
+**TDD:** Write constraint tests
+
+**Steps:**
+1. Create migration: `supabase migration new create_user_reading_status_table`
+2. Write SQL migration for `user_reading_status` table:
+   ```sql
+   create type reading_status_enum as enum (
+     'not_started', 'want_to_read', 'reading', 'paused', 'finished', 'abandoned'
+   );
+   
+   create type ownership_status_enum as enum (
+     'not_owned', 'ordered', 'owned_physical', 'owned_digital', 'borrowed'
+   );
+   
+   create type priority_enum as enum ('high', 'medium', 'low');
+   
+   create table public.user_reading_status (
+     id uuid default gen_random_uuid() primary key,
+     user_id uuid references auth.users(id) on delete cascade not null,
+     book_id uuid references public.books(id) on delete cascade not null,
+     reading_status reading_status_enum default 'not_started' not null,
+     personal_priority priority_enum,
+     ownership_status ownership_status_enum default 'not_owned' not null,
+     personal_notes text,
+     personal_rating integer check (personal_rating >= 1 and personal_rating <= 5),
+     started_at timestamp with time zone,
+     completed_at timestamp with time zone,
+     created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+     updated_at timestamp with time zone default timezone('utc'::text, now()) not null,
+     
+     -- Ensure one record per user per book
+     unique(user_id, book_id)
+   );
+   
+   -- Indexes
+   create index user_reading_status_user_id_idx on public.user_reading_status(user_id);
+   create index user_reading_status_book_id_idx on public.user_reading_status(book_id);
+   create index user_reading_status_reading_status_idx on public.user_reading_status(reading_status);
+   
+   -- Updated_at trigger
+   create trigger set_user_reading_status_updated_at before update on public.user_reading_status
+     for each row execute function moddatetime(updated_at);
+   ```
+3. Test migration locally
+4. Write validation tests (check constraints, unique constraint)
+
+**Done Criteria:**
+- [ ] Migration created and applied
+- [ ] Enums created for controlled values
+- [ ] Unique constraint enforced (user + book)
+- [ ] Rating constraint validated (1-5)
+- [ ] Foreign keys working
+- [ ] Tests validate constraints
+
+---
+
+#### Task 0.2.3: Create External References Table Migration
+**Effort:** S (2 hours)  
+**Dependencies:** 0.2.1  
+**TDD:** Test cascade deletes and unique constraints
+
+**Steps:**
+1. Create migration: `supabase migration new create_external_references_table`
+2. Write SQL migration:
+   ```sql
+   create table public.external_references (
+     id uuid default gen_random_uuid() primary key,
+     book_id uuid references public.books(id) on delete cascade not null,
+     url text not null,
+     link_text text,
+     reference_type text,
+     created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+     created_by_user_id uuid references auth.users(id),
+     
+     -- Prevent duplicate URLs for same book
+     unique(book_id, url)
+   );
+   
+   -- Index
+   create index external_references_book_id_idx on public.external_references(book_id);
+   ```
+3. Test cascade delete (deleting book deletes references)
+4. Test unique constraint (duplicate URL per book fails)
+
+**Done Criteria:**
+- [ ] Migration created and applied
+- [ ] Cascade delete working
+- [ ] Unique constraint enforced
+- [ ] Tests validate behavior
+
+---
+
+#### Task 0.2.4: Create Row-Level Security (RLS) Policies - MVP 0
+**Effort:** M (4 hours)  
+**Dependencies:** 0.2.1, 0.2.2, 0.2.3  
+**TDD:** Security-first testing (test immediately)
+
+**Steps:**
+1. Enable RLS on all tables:
+   ```sql
+   alter table public.books enable row level security;
+   alter table public.user_reading_status enable row level security;
+   alter table public.external_references enable row level security;
+   ```
+2. Create policies for MVP 0 (single authenticated user):
+   ```sql
+   -- Books: Authenticated users can read, insert, update, delete
+   create policy "Authenticated users can view books"
+     on public.books for select
+     to authenticated
+     using (true);
+   
+   create policy "Authenticated users can insert books"
+     on public.books for insert
+     to authenticated
+     with check (true);
+   
+   create policy "Authenticated users can update books"
+     on public.books for update
+     to authenticated
+     using (true);
+   
+   create policy "Authenticated users can delete books"
+     on public.books for delete
+     to authenticated
+     using (true);
+   
+   -- User Reading Status: Users can only access their own data
+   create policy "Users can view their own reading status"
+     on public.user_reading_status for select
+     to authenticated
+     using (auth.uid() = user_id);
+   
+   create policy "Users can insert their own reading status"
+     on public.user_reading_status for insert
+     to authenticated
+     with check (auth.uid() = user_id);
+   
+   create policy "Users can update their own reading status"
+     on public.user_reading_status for update
+     to authenticated
+     using (auth.uid() = user_id);
+   
+   create policy "Users can delete their own reading status"
+     on public.user_reading_status for delete
+     to authenticated
+     using (auth.uid() = user_id);
+   
+   -- External References: Same as books for MVP 0
+   create policy "Authenticated users can view external references"
+     on public.external_references for select
+     to authenticated
+     using (true);
+   
+   create policy "Authenticated users can manage external references"
+     on public.external_references for all
+     to authenticated
+     using (true);
+   ```
+3. Write RLS tests using Supabase test users:
+   - Test authenticated user can read/write books
+   - Test user can only access own reading status
+   - Test user cannot access another user's reading status
+   - Test unauthenticated requests are denied
+
+**Done Criteria:**
+- [ ] RLS enabled on all tables
+- [ ] Policies created and applied
+- [ ] RLS tests written and passing
+- [ ] Security verified: users can only see their own personal data
+- [ ] Anonymous requests blocked
+
+---
+
+#### Task 0.2.5: Generate TypeScript Types
+**Effort:** XS (1 hour)  
+**Dependencies:** 0.2.4  
+**TDD:** N/A (code generation)
+
+**Steps:**
+1. Run Supabase type generation:
+   ```bash
+   npx supabase gen types typescript --project-id YOUR_PROJECT_ID > src/types/supabase.ts
+   ```
+2. Create helper types in `src/types/database.ts`:
+   ```typescript
+   import { Database } from './supabase'
+   
+   export type Book = Database['public']['Tables']['books']['Row']
+   export type BookInsert = Database['public']['Tables']['books']['Insert']
+   export type BookUpdate = Database['public']['Tables']['books']['Update']
+   
+   export type UserReadingStatus = Database['public']['Tables']['user_reading_status']['Row']
+   export type UserReadingStatusInsert = Database['public']['Tables']['user_reading_status']['Insert']
+   export type UserReadingStatusUpdate = Database['public']['Tables']['user_reading_status']['Update']
+   
+   export type ExternalReference = Database['public']['Tables']['external_references']['Row']
+   ```
+3. Verify types compile
+
+**Done Criteria:**
+- [ ] Types generated successfully
+- [ ] Helper types created
+- [ ] TypeScript compilation succeeds
+- [ ] Types match database schema
+
+---
+
+### Phase 0 Done Criteria
+- [ ] Development environment fully configured
+- [ ] Database schema deployed (books, user_reading_status, external_references)
+- [ ] RLS policies tested and enforced
+- [ ] TypeScript types generated
+- [ ] CI/CD pipeline running
+- [ ] Pre-commit hooks preventing bad commits
+
+---
+
+## Phase 1: Authentication (2-3 days)
+
+**Goal:** Single curator can log in/out securely
+
+### 1.1: Authentication Context and Hooks
+
+#### Task 1.1.1: Create Auth Context Provider
+**Effort:** M (4 hours)  
+**Dependencies:** 0.1.3  
+**TDD:** Test-first for auth state management
+
+**Steps:**
+1. **Write tests first** (`src/lib/auth.test.tsx`):
+   - Test initial state is loading
+   - Test successful login updates user state
+   - Test logout clears user state
+   - Test session persistence on page reload
+   - Test auth state change listeners work
+2. Create `src/lib/auth-context.tsx`:
+   ```typescript
+   import { createContext, useContext, useEffect, useState } from 'react'
+   import { User, Session } from '@supabase/supabase-js'
+   import { supabase } from './supabase'
+   
+   interface AuthContextType {
+     user: User | null
+     session: Session | null
+     loading: boolean
+     signIn: (email: string, password: string) => Promise<void>
+     signOut: () => Promise<void>
+   }
+   
+   const AuthContext = createContext<AuthContextType>(undefined!)
+   
+   export function AuthProvider({ children }: { children: React.ReactNode }) {
+     // Implementation
+   }
+   
+   export function useAuth() {
+     const context = useContext(AuthContext)
+     if (!context) throw new Error('useAuth must be used within AuthProvider')
+     return context
+   }
+   ```
+3. Implement provider logic
+4. Run tests → Green
+5. Refactor if needed
+
+**Done Criteria:**
+- [ ] Tests written and passing
+- [ ] Auth context provides user, session, loading state
+- [ ] signIn/signOut methods working
+- [ ] Session persistence tested
+- [ ] Error handling tested
+
+---
+
+#### Task 1.1.2: Create Protected Route Component
+**Effort:** S (3 hours)  
+**Dependencies:** 1.1.1  
+**TDD:** Test alongside component
+
+**Steps:**
+1. Write tests (`src/components/ProtectedRoute.test.tsx`):
+   - Test redirects to login if not authenticated
+   - Test renders children if authenticated
+   - Test shows loading state while checking auth
+2. Create `src/components/ProtectedRoute.tsx`:
+   ```typescript
+   import { Navigate } from 'react-router-dom'
+   import { useAuth } from '../lib/auth-context'
+   
+   export function ProtectedRoute({ children }: { children: React.ReactNode }) {
+     const { user, loading } = useAuth()
+     
+     if (loading) return <div>Loading...</div>
+     if (!user) return <Navigate to="/login" replace />
+     
+     return <>{children}</>
+   }
+   ```
+3. Run tests → Green
+
+**Done Criteria:**
+- [ ] Tests passing
+- [ ] Protected routes redirect unauthenticated users
+- [ ] Loading state handled
+- [ ] Component renders children when authenticated
+
+---
+
+### 1.2: Login UI
+
+#### Task 1.2.1: Create Login Form Component
+**Effort:** M (5 hours)  
+**Dependencies:** 1.1.1  
+**TDD:** Test alongside component
+
+**Steps:**
+1. Write component tests (`src/features/auth/LoginForm.test.tsx`):
+   - Test form renders with email and password fields
+   - Test validation (required fields, email format)
+   - Test successful login calls signIn method
+   - Test error handling (wrong credentials)
+   - Test loading state during login
+   - Test accessibility (labels, ARIA attributes)
+2. Create `src/features/auth/LoginForm.tsx`:
+   - Email input (type=email, required)
+   - Password input (type=password, required)
+   - Submit button
+   - Error display
+   - Loading state
+   - Basic validation
+3. Style component (basic styling acceptable)
+4. Run tests → Green
+
+**Done Criteria:**
+- [ ] Tests passing (including accessibility checks with jest-axe)
+- [ ] Form validation working
+- [ ] Error messages display correctly
+- [ ] Loading state prevents double-submit
+- [ ] Keyboard navigation works
+- [ ] Screen reader accessible
+
+---
+
+#### Task 1.2.2: Create Login Page
+**Effort:** S (2 hours)  
+**Dependencies:** 1.2.1  
+**TDD:** Test alongside
+
+**Steps:**
+1. Write page tests
+2. Create `src/pages/LoginPage.tsx`:
+   - Page layout
+   - Login form
+   - Redirect to home on successful login
+3. Add route to router
+
+**Done Criteria:**
+- [ ] Tests passing
+- [ ] Login page accessible at `/login`
+- [ ] Successful login redirects to home
+- [ ] Page is responsive
+
+---
+
+### 1.3: Bootstrap Curator Account
+
+#### Task 1.3.1: Create Admin Signup Script
+**Effort:** S (2 hours)  
+**Dependencies:** 0.2.4  
+**TDD:** N/A (one-time script)
+
+**Steps:**
+1. Create `scripts/create-curator.ts`:
+   ```typescript
+   import { createClient } from '@supabase/supabase-js'
+   
+   const supabaseUrl = process.env.SUPABASE_URL!
+   const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY! // Service role key
+   
+   const supabase = createClient(supabaseUrl, supabaseServiceKey)
+   
+   async function createCurator() {
+     const { data, error } = await supabase.auth.admin.createUser({
+       email: 'curator@example.com',
+       password: 'secure-password-here',
+       email_confirm: true
+     })
+     
+     if (error) {
+       console.error('Error creating curator:', error)
+       return
+     }
+     
+     console.log('Curator created:', data.user.email)
+     console.log('User ID:', data.user.id)
+   }
+   
+   createCurator()
+   ```
+2. Run script to create initial curator account
+3. Test login with curator credentials
+
+**Done Criteria:**
+- [ ] Script creates curator account
+- [ ] Curator can log in via UI
+- [ ] Credentials saved securely (not in code)
+
+---
+
+### Phase 1 Done Criteria
+- [ ] Login/logout working
+- [ ] Session persistence working
+- [ ] Protected routes enforcing authentication
+- [ ] Curator account created and functional
+- [ ] All auth tests passing
+- [ ] Coverage ≥70% for auth code
+
+---
+
+## Phase 2: Book Collection Display (3-4 days)
+
+**Goal:** Display, search, filter, sort book collection
+
+### 2.1: Book Data Access Layer
+
+#### Task 2.1.1: Create Book Query Hooks
+**Effort:** M (5 hours)  
+**Dependencies:** 0.2.5, 1.1.1  
+**TDD:** Test-first for business logic
+
+**Steps:**
+1. **Write tests first** (`src/features/books/hooks/useBooks.test.ts`):
+   - Test fetches all books
+   - Test search by title
+   - Test search by author
+   - Test filter by category
+   - Test filter by tags
+   - Test sort by title, author, year
+   - Test handles empty results
+   - Test handles errors
+2. Create `src/features/books/hooks/useBooks.ts`:
+   ```typescript
+   import { useQuery } from '@tanstack/react-query'
+   import { supabase } from '@/lib/supabase'
+   import { Book } from '@/types/database'
+   
+   interface BooksQueryParams {
+     search?: string
+     category?: string
+     tags?: string[]
+     sortBy?: 'title' | 'author' | 'year'
+     sortOrder?: 'asc' | 'desc'
+   }
+   
+   export function useBooks(params: BooksQueryParams = {}) {
+     return useQuery({
+       queryKey: ['books', params],
+       queryFn: async () => {
+         let query = supabase.from('books').select('*')
+         
+         // Apply filters
+         if (params.search) {
+           query = query.or(`title.ilike.%${params.search}%,author_display_name.ilike.%${params.search}%`)
+         }
+         
+         if (params.category) {
+           query = query.eq('primary_category', params.category)
+         }
+         
+         // Apply sorting
+         if (params.sortBy) {
+           const column = params.sortBy === 'year' ? 'year_sort' : params.sortBy
+           query = query.order(column, { ascending: params.sortOrder === 'asc' })
+         }
+         
+         const { data, error } = await query
+         if (error) throw error
+         return data as Book[]
+       }
+     })
+   }
+   ```
+3. Implement query function
+4. Run tests → Green
+5. Refactor
+
+**Done Criteria:**
+- [ ] Tests written and passing
+- [ ] All filter/search/sort combinations tested
+- [ ] Error handling tested
+- [ ] React Query integration working
+- [ ] Type-safe query parameters
+
+---
+
+#### Task 2.1.2: Create Single Book Query Hook
+**Effort:** S (2 hours)  
+**Dependencies:** 2.1.1  
+**TDD:** Test-first
+
+**Steps:**
+1. Write tests for `useBook(id)`:
+   - Test fetches book by ID
+   - Test includes external references
+   - Test handles not found
+   - Test handles errors
+2. Implement `src/features/books/hooks/useBook.ts`
+3. Tests → Green
+
+**Done Criteria:**
+- [ ] Tests passing
+- [ ] Single book query working
+- [ ] Joins external references
+- [ ] Error handling tested
+
+---
+
+### 2.2: Book List UI
+
+#### Task 2.2.1: Create BookListItem Component
+**Effort:** M (4 hours)  
+**Dependencies:** 2.1.1  
+**TDD:** Test alongside
+
+**Steps:**
+1. Write component tests:
+   - Test displays title, author, year
+   - Test displays category and tags
+   - Test click navigates to detail view
+   - Test handles missing optional fields gracefully
+   - Test accessibility
+2. Create `src/features/books/components/BookListItem.tsx`:
+   - Display title, author, year
+   - Display category badge
+   - Display tags
+   - Click to view details
+   - Responsive layout
+3. Run tests → Green
+
+**Done Criteria:**
+- [ ] Tests passing
+- [ ] Component displays all required fields
+- [ ] Gracefully handles missing optional fields
+- [ ] Responsive design
+- [ ] Accessible (semantic HTML, keyboard nav)
+
+---
+
+#### Task 2.2.2: Create BookList Component
+**Effort:** M (4 hours)  
+**Dependencies:** 2.2.1  
+**TDD:** Test alongside
+
+**Steps:**
+1. Write tests:
+   - Test renders list of books
+   - Test empty state when no books
+   - Test loading state
+   - Test error state
+   - Test pagination (if implementing)
+2. Create `src/features/books/components/BookList.tsx`:
+   - Map books to BookListItem components
+   - Loading spinner
+   - Empty state message
+   - Error display
+3. Run tests → Green
+
+**Done Criteria:**
+- [ ] Tests passing
+- [ ] Renders books correctly
+- [ ] All states handled (loading, empty, error)
+- [ ] Accessible list markup (ul/li)
+
+---
+
+#### Task 2.2.3: Create Search/Filter Controls
+**Effort:** L (6 hours)  
+**Dependencies:** 2.1.1  
+**TDD:** Test alongside
+
+**Steps:**
+1. Write tests:
+   - Test search input updates query
+   - Test category filter updates query
+   - Test tag filter updates query (multi-select)
+   - Test sort controls update query
+   - Test clear filters resets state
+   - Test debounced search input
+2. Create `src/features/books/components/BookFilters.tsx`:
+   - Search input (debounced)
+   - Category dropdown
+   - Tag multi-select
+   - Sort dropdown (title, author, year)
+   - Sort order toggle (asc/desc)
+   - Clear filters button
+3. Wire up to useBooks hook
+4. Tests → Green
+
+**Done Criteria:**
+- [ ] Tests passing
+- [ ] Search working with debounce
+- [ ] All filters functional
+- [ ] Sort working
+- [ ] Clear filters resets state
+- [ ] Accessible form controls
+
+---
+
+#### Task 2.2.4: Create Collection Page
+**Effort:** M (4 hours)  
+**Dependencies:** 2.2.2, 2.2.3  
+**TDD:** Test alongside
+
+**Steps:**
+1. Write integration tests:
+   - Test page displays books
+   - Test filters update displayed books
+   - Test search updates displayed books
+   - Test sort updates book order
+2. Create `src/pages/CollectionPage.tsx`:
+   - Page layout
+   - BookFilters component
+   - BookList component
+   - Handle query state from useBooks
+3. Add route to router
+4. Tests → Green
+
+**Done Criteria:**
+- [ ] Tests passing
+- [ ] Collection page accessible at `/collection` or `/`
+- [ ] All features integrated and working
+- [ ] Responsive layout
+- [ ] Performance acceptable (<2s load time for 1000 books per NFR-001)
+
+---
+
+### 2.3: Book Detail View
+
+#### Task 2.3.1: Create BookDetail Component
+**Effort:** L (6 hours)  
+**Dependencies:** 2.1.2  
+**TDD:** Test alongside
+
+**Steps:**
+1. Write tests:
+   - Test displays all canonical metadata
+   - Test displays external references as links
+   - Test handles missing optional fields
+   - Test accessibility (headings, links)
+   - Test back navigation
+2. Create `src/features/books/components/BookDetail.tsx`:
+   - Display all book fields (title, original title, author, year, category, tags, language, source, inclusion rationale, author lifespan)
+   - External references as clickable links
+   - Back to collection button
+   - Edit button (for Phase 3)
+   - Responsive layout
+3. Tests → Green
+
+**Done Criteria:**
+- [ ] Tests passing
+- [ ] All metadata displayed
+- [ ] External links working
+- [ ] Graceful handling of missing fields
+- [ ] Accessible markup
+- [ ] Responsive
+
+---
+
+#### Task 2.3.2: Create Book Detail Page
+**Effort:** S (2 hours)  
+**Dependencies:** 2.3.1  
+**TDD:** Test alongside
+
+**Steps:**
+1. Write tests
+2. Create `src/pages/BookDetailPage.tsx`:
+   - Get book ID from route params
+   - Fetch book with useBook hook
+   - Display BookDetail component
+   - Handle loading/error states
+   - Handle not found
+3. Add route to router (`/books/:id`)
+
+**Done Criteria:**
+- [ ] Tests passing
+- [ ] Detail page accessible
+- [ ] Loading/error/not-found states handled
+- [ ] Route parameter working
+
+---
+
+### Phase 2 Done Criteria
+- [ ] Book collection displays correctly (FR-001 ✅)
+- [ ] Search working (FR-002 ✅)
+- [ ] Filters working (FR-003 ✅)
+- [ ] Sort working (FR-004 ✅)
+- [ ] Book details display (FR-005 ✅)
+- [ ] Default sort by year (oldest first) per UX-010 ✅
+- [ ] All Phase 2 tests passing
+- [ ] Coverage ≥70%
+
+---
+
+## Phase 3: Book Curation (CRUD) (2-3 days)
+
+**Goal:** Curator can add, edit, delete books
+
+### 3.1: Create Book (FR-010)
+
+#### Task 3.1.1: Create AddBookForm Component
+**Effort:** L (7 hours)  
+**Dependencies:** 2.1.1  
+**TDD:** Test alongside
+
+**Steps:**
+1. Write tests:
+   - Test form validation (required fields: title, author)
+   - Test all fields render correctly
+   - Test category dropdown has controlled vocabulary
+   - Test tags input (multi-entry)
+   - Test external references repeatable section
+   - Test submission calls insert mutation
+   - Test success feedback
+   - Test error handling
+   - Test accessibility
+2. Create `src/features/books/components/AddBookForm.tsx`:
+   - Form fields for all book attributes
+   - Title (required)
+   - Author display name (required)
+   - Given name (optional)
+   - Family name (optional)
+   - Original title (optional)
+   - Year published (text input, accept "8th century BC", "ca. 1200", etc.)
+   - Primary category (dropdown with controlled vocab)
+   - Tags (multi-entry, flexible)
+   - Original language (text input)
+   - Source (text)
+   - Inclusion rationale (textarea)
+   - Author lifespan (text)
+   - External references (repeatable: URL + link text + reference type)
+   - Add/remove external reference buttons
+   - Form validation
+   - Submit/cancel buttons
+3. Create mutation hook `useCreateBook`
+4. Wire up form submission
+5. Tests → Green
+
+**Done Criteria:**
+- [ ] Tests passing
+- [ ] All fields present and functional
+- [ ] Validation working (required fields)
+- [ ] Category dropdown limited to controlled vocabulary
+- [ ] Tags input allows flexible entry
+- [ ] External references repeatable and validated
+- [ ] Form submits and creates book
+- [ ] Success feedback shown
+- [ ] Accessible form (labels, ARIA, keyboard nav)
+
+---
+
+#### Task 3.1.2: Create Add Book Page
+**Effort:** S (2 hours)  
+**Dependencies:** 3.1.1  
+**TDD:** Test alongside
+
+**Steps:**
+1. Write tests
+2. Create `src/pages/AddBookPage.tsx`:
+   - Page layout with form
+   - Redirect to book detail on success
+   - Cancel returns to collection
+3. Add route (`/books/new`)
+4. Add "Add Book" button to collection page
+
+**Done Criteria:**
+- [ ] Tests passing
+- [ ] Add book page accessible
+- [ ] Success redirects to new book detail
+- [ ] Cancel returns to collection
+
+---
+
+### 3.2: Edit Book (FR-011)
+
+#### Task 3.2.1: Create EditBookForm Component
+**Effort:** M (5 hours)  
+**Dependencies:** 3.1.1, 2.1.2  
+**TDD:** Test alongside
+
+**Steps:**
+1. Write tests:
+   - Test form pre-populates with existing data
+   - Test updates save correctly
+   - Test validation still enforced
+   - Test external references can be added/edited/removed
+2. Create `src/features/books/components/EditBookForm.tsx`:
+   - Same fields as AddBookForm
+   - Pre-populate with book data
+   - Update mutation instead of insert
+   - Handle external references (existing + new + deleted)
+3. Create mutation hook `useUpdateBook`
+4. Tests → Green
+
+**Done Criteria:**
+- [ ] Tests passing
+- [ ] Form pre-populates correctly
+- [ ] Updates save successfully
+- [ ] Validation working
+- [ ] External references can be managed
+- [ ] Timestamps update correctly
+
+---
+
+#### Task 3.2.2: Create Edit Book Page
+**Effort:** S (2 hours)  
+**Dependencies:** 3.2.1  
+**TDD:** Test alongside
+
+**Steps:**
+1. Write tests
+2. Create `src/pages/EditBookPage.tsx`:
+   - Get book ID from route
+   - Fetch book
+   - Display EditBookForm
+   - Handle loading/error/not-found
+3. Add route (`/books/:id/edit`)
+4. Add "Edit" button to BookDetail component
+
+**Done Criteria:**
+- [ ] Tests passing
+- [ ] Edit page accessible
+- [ ] Success updates book and shows feedback
+- [ ] Cancel returns to detail view
+
+---
+
+### 3.3: Delete Book (FR-012)
+
+#### Task 3.3.1: Create Delete Confirmation Dialog
+**Effort:** S (3 hours)  
+**Dependencies:** None  
+**TDD:** Test alongside
+
+**Steps:**
+1. Write tests:
+   - Test dialog displays consequences
+   - Test cancel closes dialog
+   - Test confirm calls delete mutation
+   - Test accessibility (focus trap, ESC key)
+2. Create `src/components/ConfirmDialog.tsx`:
+   - Generic confirmation dialog
+   - Title, message, confirm/cancel buttons
+   - Focus management
+3. Tests → Green
+
+**Done Criteria:**
+- [ ] Tests passing
+- [ ] Dialog displays and functions correctly
+- [ ] Accessible (focus trap, keyboard nav)
+
+---
+
+#### Task 3.3.2: Implement Delete Book Functionality
+**Effort:** M (4 hours)  
+**Dependencies:** 3.3.1, 2.3.1  
+**TDD:** Test-first for mutation logic
+
+**Steps:**
+1. Write tests:
+   - Test delete mutation removes book
+   - Test cascade deletes user_reading_status and external_references
+   - Test confirmation required
+   - Test redirect after delete
+2. Create mutation hook `useDeleteBook`
+3. Add "Delete" button to BookDetail
+4. Wire up confirmation dialog
+5. Handle redirect to collection after delete
+6. Tests → Green
+
+**Done Criteria:**
+- [ ] Tests passing
+- [ ] Delete requires confirmation
+- [ ] Cascade deletes work correctly
+- [ ] Redirects after successful delete
+- [ ] Error handling if delete fails
+
+---
+
+### Phase 3 Done Criteria
+- [ ] Add book working (FR-010 ✅)
+- [ ] Edit book working (FR-011 ✅)
+- [ ] Delete book working (FR-012 ✅)
+- [ ] External references manageable (FR-012a ✅)
+- [ ] All CRUD operations tested
+- [ ] Coverage ≥70%
+
+---
+
+## Phase 4: Personal Reading Management (3-4 days)
+
+**Goal:** Track reading status, priority, notes, rating, ownership
+
+### 4.1: Reading Status Data Layer
+
+#### Task 4.1.1: Create User Reading Status Hooks
+**Effort:** M (5 hours)  
+**Dependencies:** 0.2.5  
+**TDD:** Test-first for business logic
+
+**Steps:**
+1. Write tests:
+   - Test fetch user's reading status for a book
+   - Test create reading status record
+   - Test update reading status
+   - Test set timestamps when status changes to "reading" or "finished"
+   - Test handles no existing record
+   - Test error handling
+2. Create `src/features/reading/hooks/useReadingStatus.ts`:
+   ```typescript
+   export function useReadingStatus(bookId: string) {
+     // Fetch user's reading status for this book
+   }
+   
+   export function useUpdateReadingStatus() {
+     // Update or insert reading status
+     // Auto-set started_at when status → "reading"
+     // Auto-set completed_at when status → "finished"
+   }
+   ```
+3. Implement hooks
+4. Tests → Green
+
+**Done Criteria:**
+- [ ] Tests passing
+- [ ] Fetches user's reading status correctly
+- [ ] Upsert logic working (insert if not exists, update if exists)
+- [ ] Timestamps auto-set correctly
+- [ ] Error handling tested
+
+---
+
+#### Task 4.1.2: Create Reading Stats Query Hook
+**Effort:** S (3 hours)  
+**Dependencies:** 4.1.1  
+**TDD:** Test-first
+
+**Steps:**
+1. Write tests:
+   - Test counts books by reading status
+   - Test counts books by ownership status
+   - Test handles zero books
+2. Create `src/features/reading/hooks/useReadingStats.ts`:
+   ```typescript
+   export function useReadingStats() {
+     // Query to get counts:
+     // - want_to_read count
+     // - reading count
+     // - finished count
+     // - owned_physical count
+     // - owned_digital count
+   }
+   ```
+3. Implement using Supabase aggregation or fetch + reduce
+4. Tests → Green
+
+**Done Criteria:**
+- [ ] Tests passing
+- [ ] Stats query returning correct counts
+- [ ] Handles edge cases (no data)
+
+---
+
+### 4.2: Reading Status UI
+
+#### Task 4.2.1: Create ReadingStatusSelect Component
+**Effort:** M (4 hours)  
+**Dependencies:** 4.1.1  
+**TDD:** Test alongside
+
+**Steps:**
+1. Write tests:
+   - Test renders all status options
+   - Test current status selected
+   - Test change updates backend
+   - Test optimistic UI update
+   - Test accessibility
+2. Create `src/features/reading/components/ReadingStatusSelect.tsx`:
+   - Dropdown with status options (Not Started, Want to Read, Reading, Paused, Finished, Abandoned)
+   - Current status selected
+   - onChange calls mutation
+   - Optimistic update
+   - Loading state
+3. Tests → Green
+
+**Done Criteria:**
+- [ ] Tests passing
+- [ ] Status changes reflected immediately (optimistic UI)
+- [ ] Backend updated
+- [ ] Accessible select element
+
+---
+
+#### Task 4.2.2: Create PersonalDataPanel Component
+**Effort:** L (6 hours)  
+**Dependencies:** 4.1.1  
+**TDD:** Test alongside
+
+**Steps:**
+1. Write tests:
+   - Test displays all personal data fields
+   - Test inline editing for status, priority, ownership, rating
+   - Test textarea for notes
+   - Test changes save automatically
+   - Test displays timestamps (started_at, completed_at)
+2. Create `src/features/reading/components/PersonalDataPanel.tsx`:
+   - Reading status select
+   - Priority select (High, Medium, Low, None)
+   - Ownership status select
+   - Rating (1-5 stars, clickable)
+   - Personal notes textarea (auto-save on blur)
+   - Display started_at and completed_at (read-only)
+   - All updates auto-save
+3. Tests → Green
+
+**Done Criteria:**
+- [ ] Tests passing
+- [ ] All personal fields editable
+- [ ] Auto-save working
+- [ ] Timestamps displayed correctly
+- [ ] Accessible form controls
+
+---
+
+#### Task 4.2.3: Integrate Personal Data into Book Detail
+**Effort:** S (2 hours)  
+**Dependencies:** 4.2.2, 2.3.1  
+**TDD:** Integration test
+
+**Steps:**
+1. Write test:
+   - Test personal data panel displays on book detail page
+   - Test changes persist
+2. Add PersonalDataPanel to BookDetail component
+3. Style integration
+4. Test → Green
+
+**Done Criteria:**
+- [ ] Personal data panel visible on book detail page
+- [ ] Changes save successfully
+- [ ] Integration test passing
+
+---
+
+### 4.3: Statistics Dashboard
+
+#### Task 4.3.1: Create StatsCard Component
+**Effort:** S (2 hours)  
+**Dependencies:** None  
+**TDD:** Test alongside
+
+**Steps:**
+1. Write tests
+2. Create `src/features/reading/components/StatsCard.tsx`:
+   - Display label and count
+   - Optional icon
+   - Click to filter (optional)
+3. Tests → Green
+
+**Done Criteria:**
+- [ ] Tests passing
+- [ ] Card displays label and count
+- [ ] Styling consistent
+
+---
+
+#### Task 4.3.2: Create Stats Dashboard Page
+**Effort:** M (4 hours)  
+**Dependencies:** 4.1.2, 4.3.1  
+**TDD:** Test alongside
+
+**Steps:**
+1. Write tests:
+   - Test displays reading status counts (FR-030)
+   - Test displays ownership counts (FR-031)
+   - Test handles zero counts
+2. Create `src/pages/StatsPage.tsx`:
+   - Grid of StatsCard components
+   - Want to Read count
+   - Reading count
+   - Paused count
+   - Finished count
+   - Abandoned count
+   - Owned (Physical) count
+   - Owned (Digital) count
+   - Total owned count
+3. Add route (`/stats`)
+4. Add nav link to stats page
+5. Tests → Green
+
+**Done Criteria:**
+- [ ] Tests passing
+- [ ] Stats page displays all counts (FR-030, FR-031 ✅)
+- [ ] Responsive layout
+- [ ] Accessible
+
+---
+
+### Phase 4 Done Criteria
+- [ ] Reading status tracking (FR-020 ✅)
+- [ ] Personal priority (FR-021 ✅)
+- [ ] Ownership tracking (FR-023 ✅)
+- [ ] Personal notes (FR-024 ✅)
+- [ ] Personal rating (FR-025 ✅)
+- [ ] Timestamps displayed (FR-026 ✅)
+- [ ] Reading stats (FR-030, FR-031 ✅)
+- [ ] All Phase 4 tests passing
+- [ ] Coverage ≥70%
+
+---
+
+## Phase 5: Excel Data Migration (2-3 days)
+
+**Goal:** One-time import of existing Excel data
+
+### 5.1: Migration Script
+
+#### Task 5.1.1: Create Excel Parser
+**Effort:** L (6 hours)  
+**Dependencies:** None  
+**TDD:** Test-first for parsing logic
+
+**Steps:**
+1. Install dependencies:
+   ```bash
+   npm install xlsx
+   npm install -D @types/node
+   ```
+2. Write tests (`migration/excel-parser.test.ts`):
+   - Test reads Excel file
+   - Test parses book rows correctly
+   - Test maps columns to database fields
+   - Test handles Author model variations (Author, Last Name + First Name, unknown authors, collective authors)
+   - Test maps Category/Genre/Subject to primary_category + tags
+   - Test parses Prio column (x → high priority, 1-5 → rating, - → reading status, blank → null)
+   - Test maps Lib column to ownership_status
+   - Test maps Read column to reading_status
+   - Test handles missing optional fields
+   - Test validates required fields present
+3. Create `migration/excel-parser.ts`:
+   ```typescript
+   import XLSX from 'xlsx'
+   import { BookInsert, UserReadingStatusInsert } from '../src/types/database'
+   
+   interface ExcelRow {
+     Author?: string
+     'Last Name'?: string
+     'First Name'?: string
+     'Title (EN)': string
+     'Original Title'?: string
+     Year?: string
+     'Sort Time'?: number
+     Category?: string
+     Genre?: string
+     Subject?: string
+     'Original Language'?: string
+     Source?: string
+     Comment?: string
+     'Author Lifespan'?: string
+     'External Links'?: string
+     Lib?: string
+     Prio?: string
+     Read?: string
+   }
+   
+   interface ParsedData {
+     books: BookInsert[]
+     userReadingStatuses: UserReadingStatusInsert[]
+     validationErrors: string[]
+     validationWarnings: string[]
+   }
+   
+   export function parseExcelFile(filePath: string): ParsedData {
+     // Implementation
+   }
+   ```
+4. Implement parser with all mapping logic
+5. Tests → Green
+
+**Done Criteria:**
+- [ ] Tests passing
+- [ ] Parser reads Excel file correctly
+- [ ] All column mappings implemented per spec 2.2
+- [ ] Author model handled correctly
+- [ ] Prio column parsed correctly (priority + rating + status)
+- [ ] Validation errors collected
+- [ ] Warnings collected (e.g., unusual values)
+
+---
+
+#### Task 5.1.2: Create Migration Script
+**Effort:** M (5 hours)  
+**Dependencies:** 5.1.1, 0.2.5  
+**TDD:** Test migration logic (not full E2E)
+
+**Steps:**
+1. Write tests:
+   - Test generates pre-migration report
+   - Test inserts books
+   - Test inserts user_reading_status records
+   - Test handles duplicate prevention (idempotent)
+   - Test rollback on error
+   - Test generates post-migration report
+2. Create `migration/migrate.ts`:
+   ```typescript
+   import { createClient } from '@supabase/supabase-js'
+   import { parseExcelFile } from './excel-parser'
+   
+   async function migrate() {
+     // 1. Parse Excel file
+     const parsed = parseExcelFile('./data/reading-canon.xlsx')
+     
+     // 2. Generate pre-migration report
+     console.log('Pre-migration report:')
+     console.log(`Books to import: ${parsed.books.length}`)
+     console.log(`Reading status records: ${parsed.userReadingStatuses.length}`)
+     console.log(`Validation errors: ${parsed.validationErrors.length}`)
+     console.log(`Warnings: ${parsed.validationWarnings.length}`)
+     
+     if (parsed.validationErrors.length > 0) {
+       console.error('Validation errors found. Fix before proceeding.')
+       console.error(parsed.validationErrors)
+       return
+     }
+     
+     // 3. Confirm to proceed
+     // (Manual confirmation for safety)
+     
+     // 4. Insert books (batch)
+     const { data: books, error: booksError } = await supabase
+       .from('books')
+       .insert(parsed.books)
+       .select()
+     
+     if (booksError) throw booksError
+     
+     // 5. Map reading statuses to created book IDs
+     // (Match by title + author)
+     
+     // 6. Insert user_reading_status (batch)
+     const { error: statusError } = await supabase
+       .from('user_reading_status')
+       .insert(mappedStatuses)
+     
+     if (statusError) throw statusError
+     
+     // 7. Generate post-migration report
+     console.log('Migration complete!')
+     console.log(`Books imported: ${books.length}`)
+     console.log(`Reading statuses created: ${mappedStatuses.length}`)
+   }
+   
+   migrate()
+   ```
+3. Implement script
+4. Tests → Green
+
+**Done Criteria:**
+- [ ] Tests passing
+- [ ] Script generates reports
+- [ ] Script inserts data correctly
+- [ ] Idempotent (safe to re-run on clean DB)
+- [ ] Error handling and rollback
+- [ ] Post-migration report generated
+
+---
+
+### 5.2: Migration Validation
+
+#### Task 5.2.1: Run Migration on Test Data
+**Effort:** S (3 hours)  
+**Dependencies:** 5.1.2  
+**TDD:** Manual validation
+
+**Steps:**
+1. Create test Excel file with 10-20 sample rows
+2. Run migration script on test Supabase project
+3. Manually verify:
+   - All books imported
+   - Titles and authors correct
+   - Categories and tags mapped correctly
+   - Reading statuses correct
+   - Ownership statuses correct
+   - Timestamps preserved or set correctly
+4. Check for data quality issues
+5. Iterate on parser/script if needed
+
+**Done Criteria:**
+- [ ] Test migration completes successfully
+- [ ] Sample data verified correct
+- [ ] No data loss
+- [ ] All edge cases handled (ancient dates, unknown authors, etc.)
+
+---
+
+#### Task 5.2.2: Run Production Migration
+**Effort:** M (4 hours)  
+**Dependencies:** 5.2.1  
+**TDD:** Manual validation
+
+**Steps:**
+1. Backup original Excel file
+2. Review pre-migration report carefully
+3. Run migration on main Supabase project
+4. Review post-migration report
+5. Spot-check data in database:
+   - Sample 20-30 books manually
+   - Verify categories, tags, reading statuses
+   - Check author names formatted correctly
+   - Verify external references imported (if present in Excel)
+6. Load application and browse collection
+7. Verify search, filter, sort working
+8. Document any data quality issues for future enrichment
+
+**Done Criteria:**
+- [ ] Production migration completed
+- [ ] All Excel books imported successfully
+- [ ] Curator's personal data migrated (reading status, priority, ownership)
+- [ ] Data quality acceptable (no major issues)
+- [ ] Application displays migrated data correctly
+- [ ] UC-004 complete ✅
+
+---
+
+### Phase 5 Done Criteria
+- [ ] Excel data migration script complete
+- [ ] Test migration validated
+- [ ] Production migration executed successfully
+- [ ] All data preserved (NFR-030 ✅)
+- [ ] Collection accessible in application
+- [ ] Migration script and reports saved for reference
+
+---
+
+## Phase 6: Polish & MVP 0 Validation (2-3 days)
+
+**Goal:** Fix issues, improve UX, validate with curator
+
+### 6.1: UX Polish
+
+#### Task 6.1.1: Implement Empty States
+**Effort:** S (3 hours)  
+**Dependencies:** All previous phases  
+**TDD:** Test alongside
+
+**Steps:**
+1. Write tests for empty states (UX-004)
+2. Create empty state components/messages:
+   - Empty collection: "Add your first book" with prominent add button
+   - No search results: "No books match" with clear filters button
+   - Zero books with status "Reading": "Start reading a book" with link to collection
+   - No books with status "Finished": "You haven't finished any books yet"
+3. Add to relevant pages
+4. Tests → Green
+
+**Done Criteria:**
+- [ ] All empty states implemented (UX-004 ✅)
+- [ ] Tests passing
+- [ ] Helpful messages guide user to action
+
+---
+
+#### Task 6.1.2: Add Loading States and Feedback
+**Effort:** S (3 hours)  
+**Dependencies:** All previous phases  
+**TDD:** Test alongside
+
+**Steps:**
+1. Review all user actions for feedback (UX-005, UX-009):
+   - Status changes → immediate visual update + toast
+   - Book creation → success toast, navigate to detail
+   - Book update → success toast
+   - Book deletion → success toast, navigate to collection
+   - Long operations (migration) → progress indicator
+   - Errors → clear error messages with recovery suggestions
+2. Implement toast notification system (or use library)
+3. Add loading spinners where needed
+4. Tests → Green
+
+**Done Criteria:**
+- [ ] All state changes have immediate feedback (UX-005 ✅)
+- [ ] Loading states display (UX-009 ✅)
+- [ ] Toast notifications working
+- [ ] Error messages helpful
+
+---
+
+#### Task 6.1.3: Accessibility Audit
+**Effort:** M (4 hours)  
+**Dependencies:** All previous phases  
+**TDD:** Automated + manual testing
+
+**Steps:**
+1. Run automated accessibility tests with jest-axe on all components
+2. Fix any violations
+3. Manual testing (UX-006, UX-007):
+   - Keyboard navigation (tab, enter, escape)
+   - Focus indicators visible
+   - Screen reader testing (NVDA or JAWS)
+   - ARIA labels present where needed
+   - Semantic HTML used
+   - Color contrast meets WCAG 2.1 AA
+4. Document any remaining issues
+5. Fix high-priority issues
+
+**Done Criteria:**
+- [ ] Zero automated accessibility violations
+- [ ] Keyboard navigation works throughout app (UX-006 ✅)
+- [ ] Screen reader announces content correctly (UX-007 ✅)
+- [ ] Color contrast meets WCAG 2.1 AA
+- [ ] High-priority issues fixed
+
+---
+
+#### Task 6.1.4: Responsive Design Testing
+**Effort:** M (4 hours)  
+**Dependencies:** All previous phases  
+**TDD:** Manual testing + automated viewport tests
+
+**Steps:**
+1. Test essential workflows on mobile (UX-008, UX-011):
+   - View reading list (books with status "Reading")
+   - View priorities (filtered by priority)
+   - Mark book as reading
+   - Mark book as finished (with optional rating)
+   - Update ownership status
+   - View book details
+   - Quick search
+2. Test on viewports: 375px (phone), 768px (tablet), 1024px (desktop)
+3. Fix layout issues:
+   - Navigation collapses on mobile
+   - Touch targets ≥44x44px
+   - No horizontal scroll
+   - Tables reflow or become cards
+4. Document any non-essential workflows with reduced mobile experience
+
+**Done Criteria:**
+- [ ] Essential workflows fully functional on mobile (UX-011 ✅)
+- [ ] Responsive design working 375px to 1920px (UX-008 ✅)
+- [ ] Touch targets appropriately sized
+- [ ] No horizontal scroll
+- [ ] Desktop-optimized workflows still usable on mobile (acceptable degradation)
+
+---
+
+### 6.2: Performance Optimization
+
+#### Task 6.2.1: Performance Testing
+**Effort:** S (3 hours)  
+**Dependencies:** Phase 5 (full data loaded)  
+**TDD:** Performance tests
+
+**Steps:**
+1. Test NFR-001: Book list load time
+   - Measure time from page request to interactive book list
+   - Target: <2 seconds for 1000 books
+   - Use Lighthouse or Chrome DevTools
+2. Test NFR-002: Search response time
+   - Measure time from keystroke to results displayed
+   - Target: <1 second
+3. Identify bottlenecks if targets not met
+4. Optimize:
+   - Indexes on database (already done in 0.2.1)
+   - Pagination if needed
+   - Query optimization
+   - React Query caching
+   - Component memoization if needed
+
+**Done Criteria:**
+- [ ] Book list loads in <2s (NFR-001 ✅)
+- [ ] Search results in <1s (NFR-002 ✅)
+- [ ] Performance acceptable per SC-007
+- [ ] Optimization notes documented
+
+---
+
+### 6.3: MVP 0 Validation
+
+#### Task 6.3.1: Curator Acceptance Testing
+**Effort:** M (session with curator, 2-4 hours)  
+**Dependencies:** All previous tasks  
+**TDD:** Manual validation against success criteria
+
+**Steps:**
+1. Prepare testing checklist based on success criteria:
+   - SC-001: Curator prefers app over Excel?
+   - SC-002: Deciding what to read next is easier?
+   - SC-003: Updating reading progress is easier?
+2. Walk curator through key workflows:
+   - Browse collection
+   - Search for a book
+   - Filter by category/tags
+   - View book details
+   - Decide what to read next (filter by Want to Read + priority)
+   - Mark a book as Reading
+   - Mark a book as Finished (add rating and notes)
+   - Add a new book
+   - Edit an existing book
+   - View statistics
+3. Collect feedback:
+   - What works well?
+   - What's confusing or frustrating?
+   - What's missing?
+   - Would you use this over Excel?
+4. Document findings
+
+**Done Criteria:**
+- [ ] Curator has tested all key workflows
+- [ ] Feedback collected and documented
+- [ ] Success criteria evaluated
+- [ ] Action items for fixes identified (if needed)
+
+---
+
+#### Task 6.3.2: Bug Fixes from Validation
+**Effort:** Variable (L, 1-2 days estimated)  
+**Dependencies:** 6.3.1  
+**TDD:** Fix with tests
+
+**Steps:**
+1. Prioritize bugs from curator feedback:
+   - Blocking issues (prevents core workflow)
+   - High priority (major usability issue)
+   - Medium priority (annoyance but workable)
+   - Low priority (nice-to-have)
+2. Fix blocking and high priority issues
+3. Write tests for each bug fix
+4. Re-test with curator if needed
+
+**Done Criteria:**
+- [ ] All blocking issues fixed
+- [ ] High priority issues fixed
+- [ ] Tests added for bug fixes
+- [ ] Curator confirms fixes work
+
+---
+
+### Phase 6 Done Criteria
+- [ ] All empty states implemented (UX-004 ✅)
+- [ ] Feedback and loading states complete (UX-005, UX-009 ✅)
+- [ ] Accessibility validated (UX-006, UX-007 ✅)
+- [ ] Responsive design validated (UX-008, UX-011 ✅)
+- [ ] Performance targets met (NFR-001, NFR-002 ✅)
+- [ ] Curator acceptance testing complete
+- [ ] Critical bugs fixed
+- [ ] Success criteria validated (SC-001, SC-002, SC-003 ✅)
+
+---
+
+## MVP 0 Complete! 🎉
+
+**MVP 0 Validation Checklist:**
+
+### Functional Requirements Complete
+- [ ] FR-001: Display book collection ✅
+- [ ] FR-002: Full-text search ✅
+- [ ] FR-003: Filter books ✅
+- [ ] FR-004: Sort books ✅
+- [ ] FR-005: View book details ✅
+- [ ] FR-010: Add new book ✅
+- [ ] FR-011: Edit book metadata ✅
+- [ ] FR-012: Remove book ✅
+- [ ] FR-012a: Manage external references ✅
+- [ ] FR-020: Maintain reading status ✅
+- [ ] FR-021: Set personal priority ✅
+- [ ] FR-023: Track ownership status ✅
+- [ ] FR-024: Write personal notes ✅
+- [ ] FR-025: Assign personal rating ✅
+- [ ] FR-026: View reading timestamps ✅
+- [ ] FR-030: Show reading status counts ✅
+- [ ] FR-031: Show ownership count ✅
+- [ ] FR-042: Authenticate with email/password ✅
+
+### UX Requirements Complete
+- [ ] UX-001: Information architecture ✅
+- [ ] UX-002: Navigation and wayfinding ✅
+- [ ] UX-003: Primary interactions ✅
+- [ ] UX-004: Empty states ✅
+- [ ] UX-005: Feedback and confirmation ✅
+- [ ] UX-006: Keyboard navigation ✅
+- [ ] UX-007: Screen reader accessibility ✅
+- [ ] UX-008: Responsive behavior ✅
+- [ ] UX-009: Performance perception ✅
+- [ ] UX-010: Default sort order (year, oldest first) ✅
+- [ ] UX-011: Mobile essential workflows ✅
+
+### Non-Functional Requirements Met
+- [ ] NFR-001: Book list loads <2s ✅
+- [ ] NFR-002: Search results <1s ✅
+- [ ] NFR-010: Easier than Excel (validated by curator) ✅
+- [ ] NFR-020: Authentication required ✅
+- [ ] NFR-021: Personal data privacy ✅
+- [ ] NFR-023: Password security (hashed) ✅
+- [ ] NFR-030: Original data preserved (migration) ✅
+- [ ] NFR-043: Type safety (TypeScript) ✅
+
+### Use Cases Complete
+- [ ] UC-001: Decide what to read next ✅
+- [ ] UC-002: Complete a book ✅
+- [ ] UC-003: Add book to collection ✅
+- [ ] UC-004: Migrate Excel data ✅
+
+### Success Criteria Validated
+- [ ] SC-001: Curator prefers app over Excel ✅
+- [ ] SC-002: Deciding what to read next is easier ✅
+- [ ] SC-003: Updating reading progress is easier ✅
+- [ ] SC-007: Performance acceptable ✅
+
+### Technical Quality
+- [ ] All tests passing ✅
+- [ ] Test coverage ≥70% ✅
+- [ ] TypeScript strict mode, no errors ✅
+- [ ] ESLint passing ✅
+- [ ] Pre-commit hooks enforcing quality ✅
+- [ ] CI/CD pipeline passing ✅
+- [ ] RLS policies tested and enforced ✅
+- [ ] No "TODO: test later" debt ✅
+
+---
+
+## Post-MVP 0: What's Next?
+
+### Immediate Next Steps
+1. **Celebrate!** MVP 0 is a significant milestone
+2. **Reflect**: Document lessons learned
+3. **Decide**: Is MVP 0 valuable enough to proceed to MVP 1?
+
+### If Proceeding to MVP 1 (Multi-User)
+1. Add `invitation_tokens` table
+2. Add `profiles` table with roles
+3. Create Edge Function for invitation generation
+4. Build registration flow
+5. Enhance RLS policies for role-based access
+6. Deploy to Vercel for production access
+7. Invite 2-5 readers
+
+### Deferred to Post-MVP
+- Recommendation submission/approval workflow (FR-013, FR-014)
+- Advanced statistics with visualizations (FR-032)
+- Algorithmic reading suggestions (FR-033)
+- Social features (discussions, shared comments)
+- Data export (CSV/Excel)
+- Enhanced search (faceted search, relevance ranking)
+- Bulk operations
+
+---
+
+## Appendix A: Effort Summary
+
+**Total Estimated Effort for MVP 0:** ~20-25 days (160-200 hours)
+
+**Breakdown by Phase:**
+- Phase 0: Project Foundation → 3-4 days
+- Phase 1: Authentication → 2-3 days
+- Phase 2: Book Collection Display → 3-4 days
+- Phase 3: Book Curation (CRUD) → 2-3 days
+- Phase 4: Personal Reading Management → 3-4 days
+- Phase 5: Excel Data Migration → 2-3 days
+- Phase 6: Polish & Validation → 2-3 days
+
+**Note:** Estimates include test writing and assume a single developer familiar with the tech stack. First-time setup and learning may add 20-30% to initial phases.
+
+---
+
+## Appendix B: Task Tracking Template
+
+**Recommended GitHub Issues Labels:**
+- `phase-0` through `phase-6`
+- `database`
+- `frontend`
+- `testing`
+- `authentication`
+- `bug`
+- `enhancement`
+- `ux`
+- `performance`
+- `documentation`
+- `blocked`
+
+**Example Issue Template:**
+```markdown
+## Task: [Task Name]
+
+**Phase:** [Phase Number]
+**Effort:** [XS/S/M/L/XL]
+**Dependencies:** [List of task IDs]
+**TDD Approach:** [Test-first / Test alongside / Security-first / N/A]
+
+### Description
+[Brief description]
+
+### Steps
+1. [Step 1]
+2. [Step 2]
+...
+
+### Done Criteria
+- [ ] [Criterion 1]
+- [ ] [Criterion 2]
+...
+
+### Related Requirements
+- [FR-XXX, UX-XXX, NFR-XXX]
+```
+
+---
+
+## Appendix C: Daily Standup Template
+
+**Daily Check-in Questions:**
+1. What did I complete yesterday?
+2. What am I working on today?
+3. Are there any blockers?
+4. Are my tests passing?
+5. Is my coverage ≥70%?
+
+---
+
+## Appendix D: Testing Checklist Reminder
+
+For every task that produces code:
+
+**Before Starting:**
+- [ ] Understand what I'm building (requirements clear)
+- [ ] Know how I'll test it (TDD approach selected)
+
+**During Development:**
+- [ ] Tests written (before or alongside code per TDD approach)
+- [ ] Tests passing (green)
+- [ ] Code refactored (if needed)
+- [ ] Coverage ≥70% for this code
+
+**Before Merging:**
+- [ ] All tests passing
+- [ ] ESLint passing
+- [ ] TypeScript type check passing
+- [ ] Manual testing done (if UI)
+- [ ] Accessibility checked (if UI)
+- [ ] Responsive design tested (if UI)
+- [ ] Pre-commit hooks satisfied
+- [ ] CI passing
+
+**Zero "TODO: test later" debt!**
+
+---
+
+**Document Version:** 1.0  
+**Created:** 2026-10-02  
+**Status:** Ready for Phase 0 kickoff

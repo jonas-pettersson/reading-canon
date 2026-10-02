@@ -10,15 +10,16 @@ This project is also a learning exercise in practicing an AI-native software dev
 
 ## Project Status
 
-**Phase:** Architecture Complete - Ready for Implementation  
-**Current Activity:** Preparing for MVP 0 development
+**Phase:** Implementation Planning Complete - Ready for Development  
+**Current Activity:** Ready to begin MVP 0 Phase 0 (Project Foundation)
 
 **Completed:**
 - ✅ Requirements Specification v1.4 (stable)
 - ✅ Architecture Decision Records (ADR-001 through ADR-008)
 - ✅ Architecture Review and Enhancement
+- ✅ MVP 0 Implementation Plan (6 phases, 46 tasks)
 
-**Next:** MVP 0 Implementation (single-user validation)
+**Next:** Begin Phase 0 - Environment Setup
 
 ## Document Hierarchy
 
@@ -29,6 +30,7 @@ Documents are organized by authority - later documents must align with earlier o
 3. **`artifacts/design-decisions.md`** - Preliminary product and design decisions from visioning
 4. **`artifacts/spec.md`** - Requirements specification v1.4 (Release Candidate)
 5. **`adr/`** - Architecture Decision Records (ADR-001 through ADR-008)
+6. **`artifacts/plan-mvp0.md`** - MVP 0 implementation plan (6 phases, 46 tasks with TDD integration)
 
 ### Architecture Documents
 
@@ -56,8 +58,8 @@ vision.md
     → design-decisions.md 
       → spec.md (v1.4) ✅
         → architecture (ADRs) ✅
-          → implementation plan (next)
-            → code
+          → implementation plan ✅
+            → code (next)
 ```
 
 ### Architecture Summary
@@ -141,50 +143,64 @@ See `adr/README.md` for complete architecture documentation.
 
 ## Next Steps
 
-### Immediate (MVP 0 Implementation)
-1. **Environment Setup**
-   - Create Supabase project
-   - Initialize Vite + React + TypeScript project
-   - Configure TypeScript strict mode
-   - Set up project structure
+### Immediate: Begin MVP 0 Implementation
 
-2. **Database Schema**
-   - Write SQL migrations for core tables (books, user_reading_status, external_references)
-   - Implement Row-Level Security policies
-   - Create indexes for performance
-   - Generate TypeScript types from schema
+**See `artifacts/plan-mvp0.md` for the complete detailed plan.**
 
-3. **Authentication Setup**
-   - Configure Supabase Auth
-   - Implement login/logout UI
-   - Bootstrap initial curator account
+The implementation plan breaks MVP 0 into 6 phases with 46 specific tasks, including:
 
-4. **Core Features (MVP 0)**
-   - Book list view (display, search, filter, sort)
-   - Book detail view
-   - Add/edit book forms (curator only)
-   - Reading status management
-   - Personal notes and ratings
-   - Basic statistics
+**Phase 0: Project Foundation** (3-4 days)
+- Environment setup (Supabase + Vite + React + TypeScript)
+- Database schema with RLS policies
+- CI/CD pipeline and pre-commit hooks
+- TypeScript type generation
 
-5. **Data Migration**
-   - Implement Excel migration script
-   - Test migration with sample data
-   - Execute production migration
+**Phase 1: Authentication** (2-3 days)
+- Auth context and hooks
+- Login UI
+- Protected routes
+- Curator account bootstrap
 
-6. **Testing & Validation**
-   - Implement component tests
-   - Test RLS policies
-   - Manual acceptance testing
-   - MVP 0 validation with curator
+**Phase 2: Book Collection Display** (3-4 days)
+- Book query hooks with search/filter/sort
+- Book list and detail views
+- Collection page with all features integrated
+
+**Phase 3: Book Curation (CRUD)** (2-3 days)
+- Add/edit/delete books
+- External references management
+- Form validation and error handling
+
+**Phase 4: Personal Reading Management** (3-4 days)
+- Reading status tracking
+- Personal data panel (priority, rating, notes, ownership)
+- Statistics dashboard
+
+**Phase 5: Excel Data Migration** (2-3 days)
+- Migration script with validation
+- Test and production migration execution
+
+**Phase 6: Polish & Validation** (2-3 days)
+- UX polish (empty states, loading states, feedback)
+- Accessibility audit
+- Performance testing
+- Curator acceptance testing
+
+**Estimated Total Effort:** 20-25 days (160-200 hours)
+
+**TDD Integration:** Every task specifies test approach (test-first, test-alongside, or security-first)
+
+**Quality Gates:** Pre-commit hooks, CI/CD with coverage thresholds (≥70%), zero "TODO: test later" debt
+
+**First Task:** Phase 0, Task 0.1.1 - Create Supabase Project
 
 ### Future (MVP 1 - Multi-User)
-- Implement `invitation_tokens` table
-- Implement `profiles` table for user roles
-- Create Edge Function for invitation generation
-- Build registration flow
-- Implement role-based UI variations
-- Deploy to Vercel for production access
+After MVP 0 validation, add multi-user capabilities:
+- Invitation tokens table and generation logic
+- User profiles with roles (curator vs. reader)
+- Registration flow with invitation validation
+- Role-based RLS policies
+- Production deployment to Vercel
 
 ## Development Environment
 
@@ -223,5 +239,5 @@ Private project for personal use.
 ---
 
 **Last Updated**: 2026-10-02  
-**Document Version**: 2.0 (Architecture Complete)  
-**Project Phase**: Ready for Implementation
+**Document Version**: 3.0 (Implementation Plan Complete)  
+**Project Phase**: Ready for Development - Phase 0 Kickoff
