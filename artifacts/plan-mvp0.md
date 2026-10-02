@@ -976,7 +976,15 @@ Before considering MVP 0 complete, these must be validated:
    - Fetches user's reading status records separately
    - Joins and filters in client using useMemo
    - Works well for collections <1000 books (MVP0 target)
-   - Can be optimized with database view in post-MVP if needed
+   
+   **Future Optimization:**
+   If collection size or user count grows significantly, consider replacing client-side filtering with:
+   - Database view joining books + user_reading_status
+   - PostgreSQL materialized view (refreshed periodically)
+   - Server-side RPC function performing the join
+   - More complex RLS policies on a joined view
+   
+   For MVP0, client-side approach is simpler and performs adequately.
 
 3. Implement query function with expanded search scope
 4. Run tests → Green
@@ -1143,7 +1151,8 @@ Before considering MVP 0 complete, these must be validated:
   - [ ] Original language filter (dropdown or text)
   - [ ] Reading status filter (dropdown)
   - [ ] Ownership status filter (dropdown)
-- [ ] MVP 0 sort options working (title, author, year, priority)
+- [ ] Collection View sort options working (title, author, year)
+- [ ] Priority sorting confirmed as Reading Dashboard feature (not in general Collection View)
 - [ ] Deferred sort options documented (category, rating, date_added)
 - [ ] Multiple filters work together correctly
 - [ ] Clear filters resets all state
