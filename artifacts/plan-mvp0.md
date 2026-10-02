@@ -91,25 +91,33 @@ Before considering MVP 0 complete, these must be validated:
 **Dependencies:** None  
 **TDD:** N/A (setup), but configure test infrastructure
 
+**Note:** Working within existing git repository at `C:\dev\reading-canon`
+
 **Steps:**
-1. Run `npm create vite@latest reading-canon-frontend -- --template react-ts`
-2. Initialize git repository
-3. Create `.gitignore` (node_modules, .env.local, dist)
-4. Configure TypeScript (strict mode, paths)
-5. Install base dependencies:
+1. Run `npm create vite@latest . -- --template react-ts` (in repository root, or create a subdirectory if preferred)
+2. Update `.gitignore` to add frontend-specific entries:
+   ```
+   # Frontend
+   node_modules/
+   .env.local
+   dist/
+   .DS_Store
+   ```
+3. Configure TypeScript (strict mode, paths in `tsconfig.json`)
+4. Install base dependencies:
    ```bash
    npm install @supabase/supabase-js
    npm install react-router-dom
    npm install @tanstack/react-query
    ```
-6. Install dev dependencies:
+5. Install dev dependencies:
    ```bash
    npm install -D vitest @testing-library/react @testing-library/jest-dom
    npm install -D @testing-library/user-event jsdom
    npm install -D @vitest/ui
    ```
-7. Configure Vitest (`vitest.config.ts`)
-8. Create basic folder structure:
+6. Configure Vitest (`vitest.config.ts`)
+7. Create basic folder structure:
    ```
    src/
      components/
@@ -125,7 +133,7 @@ Before considering MVP 0 complete, these must be validated:
 **Done Criteria:**
 - [ ] Vite project created and running (`npm run dev`)
 - [ ] TypeScript strict mode enabled
-- [ ] Git repository initialized with first commit
+- [ ] `.gitignore` updated with frontend entries
 - [ ] Test infrastructure configured (can run `npm test`)
 - [ ] Sample test passing (Hello World component test)
 
