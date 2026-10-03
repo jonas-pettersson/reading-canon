@@ -43,7 +43,13 @@ describe('AuthContext', () => {
       })
 
       vi.mocked(supabase.auth.onAuthStateChange).mockReturnValue({
-        data: { subscription: { unsubscribe: vi.fn() } },
+        data: {
+          subscription: {
+            id: 'mock-subscription-id',
+            callback: vi.fn(),
+            unsubscribe: vi.fn(),
+          },
+        },
       })
 
       const { result } = renderHook(() => useAuth(), {
@@ -86,7 +92,13 @@ describe('AuthContext', () => {
       })
 
       vi.mocked(supabase.auth.onAuthStateChange).mockReturnValue({
-        data: { subscription: { unsubscribe: vi.fn() } },
+        data: {
+          subscription: {
+            id: 'mock-subscription-id',
+            callback: vi.fn(),
+            unsubscribe: vi.fn(),
+          },
+        },
       })
 
       const { result } = renderHook(() => useAuth(), {
@@ -130,7 +142,13 @@ describe('AuthContext', () => {
       })
 
       vi.mocked(supabase.auth.onAuthStateChange).mockReturnValue({
-        data: { subscription: { unsubscribe: vi.fn() } },
+        data: {
+          subscription: {
+            id: 'mock-subscription-id',
+            callback: vi.fn(),
+            unsubscribe: vi.fn(),
+          },
+        },
       })
 
       // Mock successful sign in
@@ -163,11 +181,19 @@ describe('AuthContext', () => {
     })
 
     it('should throw error with invalid credentials', async () => {
-      const mockError: AuthError = {
+      const mockError = {
         name: 'AuthApiError',
         message: 'Invalid login credentials',
         status: 400,
-      }
+        code: 'invalid_credentials',
+        __isAuthError: true,
+        toJSON: () => ({
+          name: 'AuthApiError',
+          message: 'Invalid login credentials',
+          status: 400,
+          code: 'invalid_credentials',
+        }),
+      } as unknown as AuthError
 
       // Mock initial state
       vi.mocked(supabase.auth.getSession).mockResolvedValue({
@@ -176,7 +202,13 @@ describe('AuthContext', () => {
       })
 
       vi.mocked(supabase.auth.onAuthStateChange).mockReturnValue({
-        data: { subscription: { unsubscribe: vi.fn() } },
+        data: {
+          subscription: {
+            id: 'mock-subscription-id',
+            callback: vi.fn(),
+            unsubscribe: vi.fn(),
+          },
+        },
       })
 
       // Mock failed sign in
@@ -212,7 +244,13 @@ describe('AuthContext', () => {
       })
 
       vi.mocked(supabase.auth.onAuthStateChange).mockReturnValue({
-        data: { subscription: { unsubscribe: vi.fn() } },
+        data: {
+          subscription: {
+            id: 'mock-subscription-id',
+            callback: vi.fn(),
+            unsubscribe: vi.fn(),
+          },
+        },
       })
 
       // Mock network error
@@ -262,7 +300,13 @@ describe('AuthContext', () => {
       })
 
       vi.mocked(supabase.auth.onAuthStateChange).mockReturnValue({
-        data: { subscription: { unsubscribe: vi.fn() } },
+        data: {
+          subscription: {
+            id: 'mock-subscription-id',
+            callback: vi.fn(),
+            unsubscribe: vi.fn(),
+          },
+        },
       })
 
       // Mock successful sign out
@@ -308,11 +352,19 @@ describe('AuthContext', () => {
         user: mockUser,
       }
 
-      const mockError: AuthError = {
+      const mockError = {
         name: 'AuthApiError',
         message: 'Sign out failed',
         status: 500,
-      }
+        code: 'sign_out_error',
+        __isAuthError: true,
+        toJSON: () => ({
+          name: 'AuthApiError',
+          message: 'Sign out failed',
+          status: 500,
+          code: 'sign_out_error',
+        }),
+      } as unknown as AuthError
 
       // Mock initial state (signed in)
       vi.mocked(supabase.auth.getSession).mockResolvedValue({
@@ -321,7 +373,13 @@ describe('AuthContext', () => {
       })
 
       vi.mocked(supabase.auth.onAuthStateChange).mockReturnValue({
-        data: { subscription: { unsubscribe: vi.fn() } },
+        data: {
+          subscription: {
+            id: 'mock-subscription-id',
+            callback: vi.fn(),
+            unsubscribe: vi.fn(),
+          },
+        },
       })
 
       // Mock failed sign out
@@ -368,12 +426,18 @@ describe('AuthContext', () => {
         error: null,
       })
 
-      let authCallback: ((event: string, session: Session | null) => void) | null = null
+      let authCallback: any = null
 
-      vi.mocked(supabase.auth.onAuthStateChange).mockImplementation((callback) => {
+      vi.mocked(supabase.auth.onAuthStateChange).mockImplementation((callback: any) => {
         authCallback = callback
         return {
-          data: { subscription: { unsubscribe: vi.fn() } },
+          data: {
+            subscription: {
+              id: 'mock-subscription-id',
+              callback: vi.fn(),
+              unsubscribe: vi.fn(),
+            },
+          },
         }
       })
 
@@ -407,7 +471,13 @@ describe('AuthContext', () => {
       })
 
       vi.mocked(supabase.auth.onAuthStateChange).mockReturnValue({
-        data: { subscription: { unsubscribe: unsubscribeMock } },
+        data: {
+          subscription: {
+            id: 'mock-subscription-id',
+            callback: vi.fn(),
+            unsubscribe: unsubscribeMock,
+          },
+        },
       })
 
       const { unmount } = renderHook(() => useAuth(), {

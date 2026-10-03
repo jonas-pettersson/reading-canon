@@ -30,7 +30,13 @@ describe('ProtectedRoute', () => {
     )
 
     vi.mocked(supabase.auth.onAuthStateChange).mockReturnValue({
-      data: { subscription: { unsubscribe: vi.fn() } },
+      data: {
+        subscription: {
+          id: 'mock-subscription-id',
+          callback: vi.fn(),
+          unsubscribe: vi.fn(),
+        },
+      },
     })
 
     render(
@@ -63,7 +69,13 @@ describe('ProtectedRoute', () => {
     })
 
     vi.mocked(supabase.auth.onAuthStateChange).mockReturnValue({
-      data: { subscription: { unsubscribe: vi.fn() } },
+      data: {
+        subscription: {
+          id: 'mock-subscription-id',
+          callback: vi.fn(),
+          unsubscribe: vi.fn(),
+        },
+      },
     })
 
     render(
@@ -114,7 +126,13 @@ describe('ProtectedRoute', () => {
     })
 
     vi.mocked(supabase.auth.onAuthStateChange).mockReturnValue({
-      data: { subscription: { unsubscribe: vi.fn() } },
+      data: {
+        subscription: {
+          id: 'mock-subscription-id',
+          callback: vi.fn(),
+          unsubscribe: vi.fn(),
+        },
+      },
     })
 
     render(
@@ -165,7 +183,13 @@ describe('ProtectedRoute', () => {
     })
 
     vi.mocked(supabase.auth.onAuthStateChange).mockReturnValue({
-      data: { subscription: { unsubscribe: vi.fn() } },
+      data: {
+        subscription: {
+          id: 'mock-subscription-id',
+          callback: vi.fn(),
+          unsubscribe: vi.fn(),
+        },
+      },
     })
 
     render(
@@ -205,7 +229,13 @@ describe('ProtectedRoute', () => {
     })
 
     vi.mocked(supabase.auth.onAuthStateChange).mockReturnValue({
-      data: { subscription: { unsubscribe: vi.fn() } },
+      data: {
+        subscription: {
+          id: 'mock-subscription-id',
+          callback: vi.fn(),
+          unsubscribe: vi.fn(),
+        },
+      },
     })
 
     const { container } = render(
@@ -258,7 +288,13 @@ describe('ProtectedRoute', () => {
     })
 
     vi.mocked(supabase.auth.onAuthStateChange).mockReturnValue({
-      data: { subscription: { unsubscribe: vi.fn() } },
+      data: {
+        subscription: {
+          id: 'mock-subscription-id',
+          callback: vi.fn(),
+          unsubscribe: vi.fn(),
+        },
+      },
     })
 
     render(

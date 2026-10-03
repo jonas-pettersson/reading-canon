@@ -29,7 +29,13 @@ describe('LoginForm', () => {
     })
 
     vi.mocked(supabase.auth.onAuthStateChange).mockReturnValue({
-      data: { subscription: { unsubscribe: vi.fn() } },
+      data: {
+        subscription: {
+          id: 'mock-subscription-id',
+          callback: vi.fn(),
+          unsubscribe: vi.fn(),
+        },
+      },
     })
   })
 
@@ -249,11 +255,19 @@ describe('LoginForm', () => {
     it('should display error message for invalid credentials', async () => {
       const user = userEvent.setup()
 
-      const mockError: AuthError = {
+      const mockError = {
         name: 'AuthApiError',
         message: 'Invalid login credentials',
         status: 400,
-      }
+        code: 'invalid_credentials',
+        __isAuthError: true,
+        toJSON: () => ({
+          name: 'AuthApiError',
+          message: 'Invalid login credentials',
+          status: 400,
+          code: 'invalid_credentials',
+        }),
+      } as unknown as AuthError
 
       vi.mocked(supabase.auth.signInWithPassword).mockResolvedValue({
         data: { user: null, session: null },
@@ -310,11 +324,19 @@ describe('LoginForm', () => {
     it('should clear error message on retry', async () => {
       const user = userEvent.setup()
 
-      const mockError: AuthError = {
+      const mockError = {
         name: 'AuthApiError',
         message: 'Invalid login credentials',
         status: 400,
-      }
+        code: 'invalid_credentials',
+        __isAuthError: true,
+        toJSON: () => ({
+          name: 'AuthApiError',
+          message: 'Invalid login credentials',
+          status: 400,
+          code: 'invalid_credentials',
+        }),
+      } as unknown as AuthError
 
       // First attempt fails
       vi.mocked(supabase.auth.signInWithPassword).mockResolvedValueOnce({
@@ -428,11 +450,19 @@ describe('LoginForm', () => {
     it('should announce errors to screen readers', async () => {
       const user = userEvent.setup()
 
-      const mockError: AuthError = {
+      const mockError = {
         name: 'AuthApiError',
         message: 'Invalid login credentials',
         status: 400,
-      }
+        code: 'invalid_credentials',
+        __isAuthError: true,
+        toJSON: () => ({
+          name: 'AuthApiError',
+          message: 'Invalid login credentials',
+          status: 400,
+          code: 'invalid_credentials',
+        }),
+      } as unknown as AuthError
 
       vi.mocked(supabase.auth.signInWithPassword).mockResolvedValue({
         data: { user: null, session: null },
