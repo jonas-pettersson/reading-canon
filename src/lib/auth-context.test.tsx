@@ -426,9 +426,10 @@ describe('AuthContext', () => {
         error: null,
       })
 
-      let authCallback: any = null
+      type AuthCallback = Parameters<typeof supabase.auth.onAuthStateChange>[0]
+      let authCallback: AuthCallback | null = null
 
-      vi.mocked(supabase.auth.onAuthStateChange).mockImplementation((callback: any) => {
+      vi.mocked(supabase.auth.onAuthStateChange).mockImplementation((callback) => {
         authCallback = callback
         return {
           data: {
@@ -451,9 +452,8 @@ describe('AuthContext', () => {
       })
 
       // Simulate auth state change (e.g., logout in another tab)
-      if (authCallback) {
-        authCallback('SIGNED_OUT', null)
-      }
+      expect(authCallback).toBeDefined()
+      authCallback!('SIGNED_OUT', null)
 
       // Should clear user and session
       await waitFor(() => {
