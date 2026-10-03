@@ -1,2 +1,212 @@
-# Examples directory
+# Reading Canon - .gitignore
+# Production-ready configuration for React + TypeScript + Vite + Supabase + Vercel
+
+# ==============================================================================
+# Source Data - Private Book Collection
+# ==============================================================================
+# Contains curator's personal book collection data (Excel/CSV source files)
+# This data will be imported via migration script but source files remain private
 examples/
+
+# ==============================================================================
+# Environment Variables & Secrets
+# ==============================================================================
+# SECURITY: Never commit environment files containing API keys, tokens, or credentials
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Exception: .env.example is a template with dummy values and SHOULD be committed
+!.env.example
+
+# ==============================================================================
+# Node.js Dependencies
+# ==============================================================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ==============================================================================
+# Vite Build Artifacts
+# ==============================================================================
+dist/
+dist-ssr/
+*.local
+
+# Vite cache directory
+.vite/
+
+# Build outputs
+build/
+
+# ==============================================================================
+# Testing
+# ==============================================================================
+coverage/
+*.lcov
+.nyc_output/
+
+# Vitest cache
+.vitest/
+
+# Playwright test results
+test-results/
+playwright-report/
+playwright/.cache/
+
+# ==============================================================================
+# Supabase Local Development
+# ==============================================================================
+# Local Supabase CLI artifacts and temporary files
+supabase/.branches/
+supabase/.temp/
+
+# Local database snapshots (contain data, credentials)
+*.dump
+*.sql.gz
+
+# Generated types from schema are COMMITTED (part of source control)
+# Do not ignore: src/types/database.ts or similar
+
+# ==============================================================================
+# Vercel Deployment
+# ==============================================================================
+.vercel/
+.vercel.json
+
+# ==============================================================================
+# Claude Code
+# ==============================================================================
+# Local user settings (permissions, preferences)
+.claude/settings.local.json
+
+# Project settings (.claude/settings.json) SHOULD be committed
+# Memory files (.claude/memory/*.md) SHOULD be committed
+
+# ==============================================================================
+# IDE / Editor Files
+# ==============================================================================
+
+# Visual Studio Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# JetBrains IDEs (WebStorm, IntelliJ IDEA, etc.)
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Vim
+*.swp
+*.swo
+*~
+.vim/
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+
+# Sublime Text
+*.sublime-workspace
+*.sublime-project
+
+# ==============================================================================
+# Operating System Files
+# ==============================================================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Linux
+.directory
+.Trash-*
+.nfs*
+
+# ==============================================================================
+# Logs
+# ==============================================================================
+logs/
+*.log
+
+# ==============================================================================
+# Temporary Files
+# ==============================================================================
+*.tmp
+*.temp
+.cache/
+.temp/
+tmp/
+
+# ==============================================================================
+# TypeScript
+# ==============================================================================
+*.tsbuildinfo
+
+# ==============================================================================
+# Package Manager Lock Files
+# ==============================================================================
+# Strategy: Commit lock file for reproducible builds
+# package-lock.json, yarn.lock, or pnpm-lock.yaml SHOULD be committed
+# Only ignore if using multiple package managers (not recommended)
+
+# ==============================================================================
+# Miscellaneous
+# ==============================================================================
+# Local development databases (SQLite, etc.)
+*.sqlite
+*.sqlite3
+*.db
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Archive files that shouldn't be in version control
+*.zip
+*.tar
+*.tar.gz
+*.rar
+*.7z
+
+# Except if you have intentional archive releases
+!releases/*.zip
+!releases/*.tar.gz
