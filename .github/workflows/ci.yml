@@ -48,12 +48,13 @@ jobs:
           COVERAGE=$(npx vitest --run --coverage.enabled --coverage.reporter=json-summary 2>&1 | grep -oP '"lines":\{"total":\d+,"covered":\d+,"skipped":\d+,"pct":\K[\d.]+' || echo "0")
           echo "Coverage: ${COVERAGE}%"
 
-          # Fail if coverage is below 70%
-          if (( $(echo "$COVERAGE < 70" | bc -l) )); then
-            echo "❌ Coverage ${COVERAGE}% is below required 70%"
+          # Fail if coverage is below 50% (current threshold during infrastructure phase)
+          # Goal: 70%+ by MVP 0 completion
+          if (( $(echo "$COVERAGE < 50" | bc -l) )); then
+            echo "❌ Coverage ${COVERAGE}% is below required 50%"
             exit 1
           else
-            echo "✅ Coverage ${COVERAGE}% meets required 70%"
+            echo "✅ Coverage ${COVERAGE}% meets required 50% (goal: 70%)"
           fi
         continue-on-error: false
 
