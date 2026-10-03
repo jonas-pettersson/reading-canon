@@ -10,16 +10,27 @@ This project is also a learning exercise in practicing an AI-native software dev
 
 ## Project Status
 
-**Phase:** Implementation Planning Complete - Ready for Development  
-**Current Activity:** Ready to begin MVP 0 Phase 0 (Project Foundation)
+**Phase:** MVP 0 Implementation In Progress  
+**Current Activity:** Phase 0 (Project Foundation) ✅ COMPLETE - Ready for Phase 1 (Authentication)
 
-**Completed:**
+**Phase 0 Completed (2026-10-03):**
+- ✅ Supabase project created and configured
+- ✅ Frontend initialized (React 18 + TypeScript + Vite)
+- ✅ Database schema implemented (3 tables: books, user_reading_status, external_references)
+- ✅ Row-Level Security (RLS) policies enforced
+- ✅ TypeScript types generated from schema
+- ✅ CI/CD pipeline with GitHub Actions (lint, type check, tests, build)
+- ✅ Pre-commit hooks with husky + lint-staged
+- ✅ Test infrastructure (18 tests passing, 27 tests ready for auth)
+- ✅ Coverage reporting configured (current: 55%, goal: 70%+)
+
+**Previously Completed:**
 - ✅ Requirements Specification v1.4 (stable)
 - ✅ Architecture Decision Records (ADR-001 through ADR-008)
 - ✅ Architecture Review and Enhancement
 - ✅ MVP 0 Implementation Plan (6 phases, 46 tasks)
 
-**Next:** Begin Phase 0 - Environment Setup
+**Next:** Phase 1 - Authentication & User Management
 
 ## Document Hierarchy
 
@@ -143,17 +154,17 @@ See `adr/README.md` for complete architecture documentation.
 
 ## Next Steps
 
-### Immediate: Begin MVP 0 Implementation
+### Immediate: Phase 1 - Authentication & User Management
 
 **See `artifacts/plan-mvp0.md` for the complete detailed plan.**
 
-The implementation plan breaks MVP 0 into 6 phases with 46 specific tasks, including:
+The implementation plan breaks MVP 0 into 6 phases with 46 specific tasks:
 
-**Phase 0: Project Foundation** (3-4 days)
-- Environment setup (Supabase + Vite + React + TypeScript)
-- Database schema with RLS policies
-- CI/CD pipeline and pre-commit hooks
-- TypeScript type generation
+**Phase 0: Project Foundation** (3-4 days) ✅ COMPLETE
+- ✅ Environment setup (Supabase + Vite + React + TypeScript)
+- ✅ Database schema with RLS policies
+- ✅ CI/CD pipeline and pre-commit hooks
+- ✅ TypeScript type generation
 
 **Phase 1: Authentication** (2-3 days)
 - Auth context and hooks
@@ -202,31 +213,83 @@ After MVP 0 validation, add multi-user capabilities:
 - Role-based RLS policies
 - Production deployment to Vercel
 
+## Getting Started
+
+### Prerequisites
+- Node.js 20.x or later
+- Git
+- Supabase account (free tier)
+
+### Installation
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/jonas-pettersson/reading-canon.git
+   cd reading-canon
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+3. **Configure environment variables:**
+   ```bash
+   cp .env.example .env.local
+   # Edit .env.local and add your Supabase credentials
+   ```
+
+4. **Run the development server:**
+   ```bash
+   npm run dev
+   ```
+   Open http://localhost:5173
+
+5. **Run tests:**
+   ```bash
+   npm test              # Watch mode
+   npm test -- --run     # Run once
+   npm run test:coverage # With coverage
+   ```
+
+### Database Setup
+
+The database schema is already deployed to Supabase. Migrations are in `supabase/migrations/`.
+
+To regenerate TypeScript types after schema changes:
+```bash
+export SUPABASE_ACCESS_TOKEN=<your-token>
+supabase gen types typescript --linked > src/types/database.ts
+```
+
 ## Development Environment
 
 **Frontend:**
-- React 18 with TypeScript
+- React 18 with TypeScript (strict mode)
 - Vite for build tooling
-- React Hook Form for form handling
-- Radix UI for accessible components
-- Tailwind CSS for styling (recommended)
-- TanStack Query for server state management
+- @supabase/supabase-js for data access
+- @tanstack/react-query (TanStack Query) for server state
 - Vitest + React Testing Library for testing
+- oxlint for linting
 
 **Backend:**
 - Supabase (managed PostgreSQL + Auth + API)
 - Row-Level Security for authorization
-- Edge Functions (Deno) for privileged operations
+- Auto-generated TypeScript types from schema
+
+**CI/CD:**
+- GitHub Actions (lint, type check, tests, build)
+- Pre-commit hooks (husky + lint-staged)
+- Coverage reporting (vitest)
 
 **Tools:**
 - Supabase CLI for migrations and type generation
-- Node.js for migration script
+- Node.js 20.x
 - Git for version control
-- VS Code (recommended IDE)
 
 **Deployment:**
-- Vercel for frontend hosting (automatic HTTPS, Git integration)
-- Supabase Cloud for backend (free tier sufficient for MVP)
+- Vercel for frontend hosting (planned for MVP 1)
+- Supabase Cloud for backend (currently active)
 
 ## Source Data
 
@@ -238,6 +301,6 @@ Private project for personal use.
 
 ---
 
-**Last Updated**: 2026-10-02  
-**Document Version**: 3.0 (Implementation Plan Complete)  
-**Project Phase**: Ready for Development - Phase 0 Kickoff
+**Last Updated**: 2026-10-03  
+**Document Version**: 3.1 (Phase 0 Complete)  
+**Project Phase**: MVP 0 Implementation - Phase 1 Ready

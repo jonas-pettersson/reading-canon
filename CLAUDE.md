@@ -6,7 +6,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Reading Canon is a curated reading companion application for tracking and exploring significant literary works. The project demonstrates an AI-native development lifecycle with clear requirements, traceable decisions, and documented architecture.
 
-**Current Target:** MVP 0. Determine current implementation status from the implementation plan, repository state, and user instructions.
+**Current Status:** Phase 0 (Project Foundation) ✅ COMPLETE. Ready for Phase 1 (Authentication & User Management).
+
+**Phase 0 Completed (2026-10-03):**
+- ✅ Supabase project created and configured
+- ✅ Frontend initialized (React 18 + TypeScript + Vite)
+- ✅ Database schema implemented (books, user_reading_status, external_references)
+- ✅ Row-Level Security (RLS) policies enforced
+- ✅ CI/CD pipeline with GitHub Actions
+- ✅ Pre-commit hooks (husky + lint-staged)
+- ✅ Test infrastructure (18 tests passing, 27 ready for auth)
+
+**Next Target:** Phase 1, Task 1.1.1 - Setup Authentication UI
 
 ## Document Hierarchy and Authority
 
@@ -59,14 +70,15 @@ This project follows a strict document hierarchy. Later documents must align wit
 
 ## Development Commands
 
-**Note:** The project is in pre-implementation phase. Once frontend is initialized (Task 0.1.2), these commands will be available:
+**Phase 0 Complete:** All infrastructure is configured and ready.
 
 ```bash
 # Development
-npm run dev              # Start Vite dev server
+npm run dev              # Start Vite dev server (port 5173)
 
 # Testing
-npm run test             # Run Vitest tests
+npm run test             # Run Vitest tests (watch mode)
+npm test -- --run        # Run tests once
 npm run test:ui          # Run Vitest with UI
 npm run test:coverage    # Generate coverage report
 
@@ -74,8 +86,16 @@ npm run test:coverage    # Generate coverage report
 npm run build            # Production build
 npm run preview          # Preview production build
 
+# Linting
+npm run lint             # Run oxlint
+
 # Type generation (after Supabase schema changes)
-npx supabase gen types typescript --project-id <project-id> > src/types/database.ts
+export SUPABASE_ACCESS_TOKEN=<your-token>
+supabase gen types typescript --linked > src/types/database.ts
+
+# Database migrations
+supabase migration new <migration-name>  # Create new migration
+supabase db push                         # Apply migrations to Supabase
 ```
 
 ## Core Architecture Concepts
