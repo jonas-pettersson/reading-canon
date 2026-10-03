@@ -99,6 +99,44 @@ export type Database = {
         }
         Relationships: []
       }
+      external_references: {
+        Row: {
+          book_id: string
+          created_at: string
+          created_by_user_id: string | null
+          id: string
+          link_text: string | null
+          reference_type: string | null
+          url: string
+        }
+        Insert: {
+          book_id: string
+          created_at?: string
+          created_by_user_id?: string | null
+          id?: string
+          link_text?: string | null
+          reference_type?: string | null
+          url: string
+        }
+        Update: {
+          book_id?: string
+          created_at?: string
+          created_by_user_id?: string | null
+          id?: string
+          link_text?: string | null
+          reference_type?: string | null
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "external_references_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "books"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_reading_status: {
         Row: {
           book_id: string
