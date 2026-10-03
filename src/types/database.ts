@@ -99,6 +99,63 @@ export type Database = {
         }
         Relationships: []
       }
+      user_reading_status: {
+        Row: {
+          book_id: string
+          completed_at: string | null
+          created_at: string
+          id: string
+          ownership_status: Database["public"]["Enums"]["ownership_status_enum"]
+          personal_notes: string | null
+          personal_priority: Database["public"]["Enums"]["priority_enum"] | null
+          personal_rating: number | null
+          reading_status: Database["public"]["Enums"]["reading_status_enum"]
+          started_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          book_id: string
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          ownership_status?: Database["public"]["Enums"]["ownership_status_enum"]
+          personal_notes?: string | null
+          personal_priority?:
+            | Database["public"]["Enums"]["priority_enum"]
+            | null
+          personal_rating?: number | null
+          reading_status?: Database["public"]["Enums"]["reading_status_enum"]
+          started_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          book_id?: string
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          ownership_status?: Database["public"]["Enums"]["ownership_status_enum"]
+          personal_notes?: string | null
+          personal_priority?:
+            | Database["public"]["Enums"]["priority_enum"]
+            | null
+          personal_rating?: number | null
+          reading_status?: Database["public"]["Enums"]["reading_status_enum"]
+          started_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_reading_status_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "books"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -108,7 +165,20 @@ export type Database = {
       show_trgm: { Args: { "": string }; Returns: string[] }
     }
     Enums: {
-      [_ in never]: never
+      ownership_status_enum:
+        | "not_owned"
+        | "ordered"
+        | "owned_physical"
+        | "owned_digital"
+        | "borrowed"
+      priority_enum: "high" | "medium" | "low"
+      reading_status_enum:
+        | "not_started"
+        | "want_to_read"
+        | "reading"
+        | "paused"
+        | "finished"
+        | "abandoned"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -238,6 +308,23 @@ export const Constants = {
     Enums: {},
   },
   public: {
-    Enums: {},
+    Enums: {
+      ownership_status_enum: [
+        "not_owned",
+        "ordered",
+        "owned_physical",
+        "owned_digital",
+        "borrowed",
+      ],
+      priority_enum: ["high", "medium", "low"],
+      reading_status_enum: [
+        "not_started",
+        "want_to_read",
+        "reading",
+        "paused",
+        "finished",
+        "abandoned",
+      ],
+    },
   },
 } as const
