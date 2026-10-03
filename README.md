@@ -11,7 +11,7 @@ This project is also a learning exercise in practicing an AI-native software dev
 ## Project Status
 
 **Phase:** MVP 0 Implementation In Progress  
-**Current Activity:** Phase 1 (Authentication & User Management) 🚧 IN PROGRESS (67% complete)
+**Current Activity:** Phase 2 (Book Collection Display) - Ready to start
 
 **Phase 0 Completed (2026-10-03):**
 - ✅ Supabase project created and configured
@@ -24,14 +24,14 @@ This project is also a learning exercise in practicing an AI-native software dev
 - ✅ Test infrastructure (18 tests passing, 27 tests ready for auth)
 - ✅ Coverage reporting configured (current: 55%, goal: 70%+)
 
-**Phase 1 Progress (2026-10-03):**
+**Phase 1 Completed (2026-10-03):**
 - ✅ Task 1.1.1: Auth Context Provider - User/session state management (10 tests)
 - ✅ Task 1.1.2: Protected Route Component - Route guards (6 tests)
 - ✅ Task 1.2.1: Login Form Component - Email/password form with validation (16 tests)
-- 🔲 Task 1.2.2: Login Page - Page wrapper with routing (next)
-- 🔲 Task 1.3.1: Create Curator Account - Bootstrap real user
+- ✅ Task 1.2.2: Login Page - Page wrapper with routing (8 tests)
+- ✅ Task 1.3.1: Create Curator Account - Admin script for bootstrapping
 
-**Test Status:** 50 tests passing | 27 tests skipped (waiting for full auth flow) | Coverage: >50%
+**Test Status:** 58 tests passing | 27 skipped (85 total) | Coverage: 67.87%
 
 **Previously Completed:**
 - ✅ Requirements Specification v1.4 (stable)
@@ -39,7 +39,7 @@ This project is also a learning exercise in practicing an AI-native software dev
 - ✅ Architecture Review and Enhancement
 - ✅ MVP 0 Implementation Plan (6 phases, 46 tasks)
 
-**Next:** Phase 1, Task 1.2.2 - Create Login Page
+**Next:** Phase 2, Task 2.1.1 - Create Book Query Hooks
 
 ## Document Hierarchy
 
@@ -175,12 +175,12 @@ The implementation plan breaks MVP 0 into 6 phases with 46 specific tasks:
 - ✅ CI/CD pipeline and pre-commit hooks
 - ✅ TypeScript type generation
 
-**Phase 1: Authentication** (2-3 days) 🚧 67% COMPLETE
+**Phase 1: Authentication & User Management** (2-3 days) ✅ COMPLETE
 - ✅ Auth context and hooks (Task 1.1.1)
 - ✅ Protected routes (Task 1.1.2)
 - ✅ Login UI form component (Task 1.2.1)
-- 🔲 Login page with routing (Task 1.2.2)
-- 🔲 Curator account bootstrap (Task 1.3.1)
+- ✅ Login page with routing (Task 1.2.2)
+- ✅ Curator account bootstrap script (Task 1.3.1)
 
 **Phase 2: Book Collection Display** (3-4 days)
 - Book query hooks with search/filter/sort
@@ -249,13 +249,19 @@ After MVP 0 validation, add multi-user capabilities:
    # Edit .env.local and add your Supabase credentials
    ```
 
-4. **Run the development server:**
+4. **Create curator account:**
+   ```bash
+   npm run create-curator
+   ```
+   Follow the prompts to create your curator account. You'll need the `SUPABASE_SERVICE_ROLE_KEY` in `.env.local`.
+
+5. **Run the development server:**
    ```bash
    npm run dev
    ```
-   Open http://localhost:5173
+   Open http://localhost:5173/login and sign in with your curator credentials.
 
-5. **Run tests:**
+6. **Run tests:**
    ```bash
    npm test              # Watch mode
    npm test -- --run     # Run once
@@ -312,5 +318,5 @@ Private project for personal use.
 ---
 
 **Last Updated**: 2026-10-03  
-**Document Version**: 3.2 (Phase 1 In Progress)  
-**Project Phase**: MVP 0 Implementation - Phase 1 Authentication (67% complete)
+**Document Version**: 3.3 (Phase 1 Complete)  
+**Project Phase**: MVP 0 Implementation - Phase 2 Book Collection Display (Ready)
