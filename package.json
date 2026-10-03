@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "test:coverage": "vitest --coverage"
+    "test:coverage": "vitest --coverage",
+    "prepare": "husky"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.2",
@@ -27,11 +28,24 @@
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.7",
     "@vitejs/plugin-react": "^6.1.1",
+    "@vitest/coverage-v8": "^3.2.7",
     "@vitest/ui": "^3.1.5",
+    "husky": "^9.1.7",
     "jsdom": "^26.0.0",
+    "lint-staged": "^17.6.0",
     "oxlint": "^1.81.0",
+    "tsc-files": "^1.1.4",
     "typescript": "~6.0.2",
     "vite": "^8.3.0",
     "vitest": "^3.1.5"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "oxlint",
+      "tsc-files --noEmit"
+    ],
+    "*.{ts,tsx,test.ts,test.tsx}": [
+      "vitest related --run"
+    ]
   }
 }
