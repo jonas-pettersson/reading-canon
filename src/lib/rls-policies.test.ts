@@ -1,6 +1,4 @@
-import { beforeAll, describe, expect, it } from 'vitest'
-import { createClient } from '@supabase/supabase-js'
-import type { Database } from '@/types/database'
+import { describe, expect, it } from 'vitest'
 import { supabase } from './supabase'
 
 /**
