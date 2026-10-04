@@ -29,11 +29,18 @@ Reading Canon is a curated reading companion application for tracking and explor
 - ✅ Task 2.1.2: Single Book Query Hook (useBook) - 4 tests
 - ✅ Task 2.2.1: BookListItem Component - 24 tests
 - ✅ Task 2.2.2: BookList Component - 18 tests
-- ✅ Task 2.2.3: BookFilters Component - 14 tests
+- ✅ Task 2.2.3: BookFilters Component - 18 tests
+- ✅ Task 2.2.4: AppLayout Component - 16 tests
+- ✅ Task 2.2.5: Collection Page - 12 tests
 
-**Test Status:** 131 tests passing | 27 skipped (158 total)
+**Test Status:** 163 tests passing | 27 skipped (190 total)
+**Coverage:** 90% statements | 97.61% functions | 96.17% branches
 
-**Next Target:** Phase 2.3 - Collection View Page (wire together BookList + BookFilters + useBooks)
+**Phase 2.2 Complete!** All Book List UI tasks done.
+
+**Next Target:** Phase 2.3 - Book Detail View
+- Task 2.3.1: BookDetail Component
+- Task 2.3.2: Book Detail Page
 
 ## Document Hierarchy and Authority
 

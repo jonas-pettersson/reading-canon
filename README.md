@@ -37,8 +37,13 @@ This project is also a learning exercise in practicing an AI-native software dev
 - ✅ Task 2.2.1: BookListItem Component - Reusable book card with accessibility (24 tests)
 - ✅ Task 2.2.2: BookList Component - Container with loading/empty/error states (18 tests)
 - ✅ Task 2.2.3: BookFilters Component - Search, 5 filters, sort controls (18 tests)
+- ✅ Task 2.2.4: AppLayout Component - Navigation, mobile menu, logout (16 tests)
+- ✅ Task 2.2.5: Collection Page - Integrated book collection view (12 tests)
 
-**Test Status:** 135 tests passing | 27 skipped (162 total) | Coverage: 89% statements, 100% functions
+**Test Status:** 163 tests passing | 27 skipped (190 total)
+**Coverage:** 90% statements | 97.61% functions | 96.17% branches
+
+**Phase 2.2 Complete!** All Book List UI tasks finished.
 
 **Previously Completed:**
 - ✅ Requirements Specification v1.4 (stable)
@@ -46,7 +51,7 @@ This project is also a learning exercise in practicing an AI-native software dev
 - ✅ Architecture Review and Enhancement
 - ✅ MVP 0 Implementation Plan (6 phases, 46 tasks)
 
-**Next:** Phase 2.3 - Collection View Page (wire together BookList + BookFilters + useBooks)
+**Next:** Phase 2.3 - Book Detail View (BookDetail Component + Book Detail Page)
 
 ## Document Hierarchy
 
