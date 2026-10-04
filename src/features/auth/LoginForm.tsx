@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import type { FormEvent } from 'react'
 import { useAuth } from '@/lib/auth-context'
 
@@ -21,6 +21,13 @@ export function LoginForm() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const isMountedRef = useRef(true)
+
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false
+    }
+  }, [])
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -43,9 +50,13 @@ export function LoginForm() {
         err && typeof err === 'object' && 'message' in err
           ? String(err.message)
           : 'Something went wrong. Please try again.'
-      setError(errorMessage)
+      if (isMountedRef.current) {
+        setError(errorMessage)
+      }
     } finally {
-      setIsLoading(false)
+      if (isMountedRef.current) {
+        setIsLoading(false)
+      }
     }
   }
 
