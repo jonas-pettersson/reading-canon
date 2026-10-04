@@ -27,13 +27,12 @@ export default defineConfig({
         'src/index.css',
       ],
       thresholds: {
-        // Thresholds start at current coverage level during infrastructure phase
-        // Will increase as we build features and UI components
-        // Goal: 70%+ by MVP 0 completion
-        lines: 50,
-        functions: 100,
-        branches: 0,
-        statements: 50,
+        // Thresholds aligned with MVP 0 goal of 70%+ coverage
+        // Current coverage: 90% statements, 97.61% functions, 96.15% branches
+        lines: 70,
+        functions: 95,
+        branches: 90,
+        statements: 70,
       },
     },
   },
