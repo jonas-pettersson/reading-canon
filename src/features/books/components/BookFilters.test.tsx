@@ -37,6 +37,50 @@ describe('BookFilters', () => {
       expect(screen.getByRole('button', { name: 'Clear Filters' })).toBeInTheDocument()
     })
 
+    it('should sync search input with filters.search prop', () => {
+      const mockOnFiltersChange = vi.fn()
+      const filtersWithSearch: BookFiltersState = {
+        ...defaultFilters,
+        search: 'Homer',
+      }
+
+      const { rerender } = render(
+        <BookFilters
+          filters={defaultFilters}
+          onFiltersChange={mockOnFiltersChange}
+        />
+      )
+
+      const searchInput = screen.getByLabelText('Search') as HTMLInputElement
+      expect(searchInput.value).toBe('')
+
+      // Update filters prop
+      rerender(
+        <BookFilters
+          filters={filtersWithSearch}
+          onFiltersChange={mockOnFiltersChange}
+        />
+      )
+
+      expect(searchInput.value).toBe('Homer')
+    })
+
+    it('should update search input value on change', () => {
+      const mockOnFiltersChange = vi.fn()
+
+      render(
+        <BookFilters
+          filters={defaultFilters}
+          onFiltersChange={mockOnFiltersChange}
+        />
+      )
+
+      const searchInput = screen.getByLabelText('Search') as HTMLInputElement
+      fireEvent.change(searchInput, { target: { value: 'Iliad' } })
+
+      expect(searchInput.value).toBe('Iliad')
+    })
+
     it('should render all category options', () => {
       const mockOnFiltersChange = vi.fn()
 
@@ -100,6 +144,44 @@ describe('BookFilters', () => {
       expect(mockOnFiltersChange).toHaveBeenCalledWith({
         ...defaultFilters,
         category: 'Poetry',
+      })
+    })
+
+    it('should call onFiltersChange when tags changes', () => {
+      const mockOnFiltersChange = vi.fn()
+
+      render(
+        <BookFilters
+          filters={defaultFilters}
+          onFiltersChange={mockOnFiltersChange}
+        />
+      )
+
+      const tagsInput = screen.getByLabelText('Tags')
+      fireEvent.change(tagsInput, { target: { value: 'epic, ancient' } })
+
+      expect(mockOnFiltersChange).toHaveBeenCalledWith({
+        ...defaultFilters,
+        tags: ['epic', 'ancient'],
+      })
+    })
+
+    it('should call onFiltersChange when original language changes', () => {
+      const mockOnFiltersChange = vi.fn()
+
+      render(
+        <BookFilters
+          filters={defaultFilters}
+          onFiltersChange={mockOnFiltersChange}
+        />
+      )
+
+      const languageInput = screen.getByLabelText('Original Language')
+      fireEvent.change(languageInput, { target: { value: 'Ancient Greek' } })
+
+      expect(mockOnFiltersChange).toHaveBeenCalledWith({
+        ...defaultFilters,
+        originalLanguage: 'Ancient Greek',
       })
     })
 
