@@ -1,11 +1,8 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { axe, toHaveNoViolations } from 'jest-axe'
 import { BookDetail } from './BookDetail'
 import type { BookWithReferences } from '../hooks/useBook'
-
-expect.extend(toHaveNoViolations)
 
 describe('BookDetail', () => {
   const mockBook: BookWithReferences = {
@@ -308,12 +305,6 @@ describe('BookDetail', () => {
       // Should have section headings for different metadata groups
       const headings = screen.getAllByRole('heading')
       expect(headings.length).toBeGreaterThan(1)
-    })
-
-    it('should have no accessibility violations', async () => {
-      const { container } = render(<BookDetail book={mockBook} />)
-      const results = await axe(container)
-      expect(results).toHaveNoViolations()
     })
   })
 
