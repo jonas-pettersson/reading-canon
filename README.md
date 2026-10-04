@@ -11,7 +11,7 @@ This project is also a learning exercise in practicing an AI-native software dev
 ## Project Status
 
 **Phase:** MVP 0 Implementation In Progress  
-**Current Activity:** Phase 2 (Book Collection Display) - In Progress
+**Current Activity:** Phase 3 (Book Curation - CRUD) - Ready
 
 **Phase 0 Completed (2026-10-03):**
 - ✅ Supabase project created and configured
@@ -31,7 +31,7 @@ This project is also a learning exercise in practicing an AI-native software dev
 - ✅ Task 1.2.2: Login Page - Page wrapper with routing (8 tests)
 - ✅ Task 1.3.1: Create Curator Account - Admin script for bootstrapping
 
-**Phase 2 Progress (2026-10-04):**
+**Phase 2 Completed (2026-10-04):**
 - ✅ Task 2.1.1: Book Query Hooks (useBooks) - Multi-book query with search/filter/sort (13 tests)
 - ✅ Task 2.1.2: Single Book Query Hook (useBook) - Single book with external references (4 tests)
 - ✅ Task 2.2.1: BookListItem Component - Reusable book card with accessibility (24 tests)
@@ -39,11 +39,13 @@ This project is also a learning exercise in practicing an AI-native software dev
 - ✅ Task 2.2.3: BookFilters Component - Search, 5 filters, sort controls (18 tests)
 - ✅ Task 2.2.4: AppLayout Component - Navigation, mobile menu, logout (16 tests)
 - ✅ Task 2.2.5: Collection Page - Integrated book collection view (12 tests)
+- ✅ Task 2.3.1: BookDetail Component - Full book metadata display (31 tests)
+- ✅ Task 2.3.2: Book Detail Page - Detail view with routing (11 tests)
 
-**Test Status:** 163 tests passing | 27 skipped (190 total)
-**Coverage:** 90% statements | 97.61% functions | 96.17% branches
+**Test Status:** 205 tests passing | 27 skipped (232 total)
+**Coverage:** 90.71% statements | 94.88% branches | 93.47% functions
 
-**Phase 2.2 Complete!** All Book List UI tasks finished.
+**Phase 2 Complete!** All Book Collection Display tasks finished.
 
 **Previously Completed:**
 - ✅ Requirements Specification v1.4 (stable)
@@ -51,7 +53,7 @@ This project is also a learning exercise in practicing an AI-native software dev
 - ✅ Architecture Review and Enhancement
 - ✅ MVP 0 Implementation Plan (6 phases, 46 tasks)
 
-**Next:** Phase 2.3 - Book Detail View (BookDetail Component + Book Detail Page)
+**Next:** Phase 3 - Book Curation (CRUD) - Add, edit, and delete books with full form validation
 
 ## Document Hierarchy
 
@@ -194,10 +196,10 @@ The implementation plan breaks MVP 0 into 6 phases with 46 specific tasks:
 - ✅ Login page with routing (Task 1.2.2)
 - ✅ Curator account bootstrap script (Task 1.3.1)
 
-**Phase 2: Book Collection Display** (3-4 days)
-- Book query hooks with search/filter/sort
-- Book list and detail views
-- Collection page with all features integrated
+**Phase 2: Book Collection Display** (3-4 days) ✅ COMPLETE
+- ✅ Book query hooks with search/filter/sort (Tasks 2.1.1-2.1.2)
+- ✅ Book list UI with filters and search (Tasks 2.2.1-2.2.5)
+- ✅ Book detail view with routing (Tasks 2.3.1-2.3.2)
 
 **Phase 3: Book Curation (CRUD)** (2-3 days)
 - Add/edit/delete books
@@ -329,6 +331,6 @@ Private project for personal use.
 
 ---
 
-**Last Updated**: 2026-10-03  
-**Document Version**: 3.3 (Phase 1 Complete)  
-**Project Phase**: MVP 0 Implementation - Phase 2 Book Collection Display (Ready)
+**Last Updated**: 2026-10-04  
+**Document Version**: 3.4 (Phase 2 Complete)  
+**Project Phase**: MVP 0 Implementation - Phase 3 Book Curation (Ready)
