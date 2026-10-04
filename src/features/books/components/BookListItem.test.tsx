@@ -221,6 +221,54 @@ describe('BookListItem', () => {
     })
   })
 
+  describe('Hover Behavior', () => {
+    it('should change background color on mouse enter when clickable', async () => {
+      const user = userEvent.setup()
+      const onClickMock = vi.fn()
+
+      render(<BookListItem book={mockBook} onClick={onClickMock} />)
+
+      const article = screen.getByRole('button')
+      expect(article).toHaveStyle({ backgroundColor: '' })
+
+      await user.hover(article)
+
+      expect(article).toHaveStyle({ backgroundColor: 'rgb(245, 245, 245)' })
+    })
+
+    it('should restore background color on mouse leave', async () => {
+      const user = userEvent.setup()
+      const onClickMock = vi.fn()
+
+      render(<BookListItem book={mockBook} onClick={onClickMock} />)
+
+      const article = screen.getByRole('button')
+      const initialBg = article.style.backgroundColor
+
+      // Hover then unhover
+      await user.hover(article)
+      expect(article).toHaveStyle({ backgroundColor: 'rgb(245, 245, 245)' })
+
+      await user.unhover(article)
+      // Should restore to initial background (empty string or transparent)
+      expect(article.style.backgroundColor).toBe('transparent')
+    })
+
+    it('should not change background when not clickable', async () => {
+      const user = userEvent.setup()
+
+      render(<BookListItem book={mockBook} />)
+
+      const article = screen.getByRole('article')
+      const initialBg = article.style.backgroundColor
+
+      await user.hover(article)
+
+      // Background should not change
+      expect(article.style.backgroundColor).toBe(initialBg)
+    })
+  })
+
   describe('Accessibility', () => {
     it('should use semantic article element', () => {
       render(<BookListItem book={mockBook} />)
