@@ -243,7 +243,6 @@ describe('BookListItem', () => {
       render(<BookListItem book={mockBook} onClick={onClickMock} />)
 
       const article = screen.getByRole('button')
-      const initialBg = article.style.backgroundColor
 
       // Hover then unhover
       await user.hover(article)
