@@ -1,9 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
-import type { Database } from '@/types/database'
-
-type Book = Database['public']['Tables']['books']['Row']
-type ExternalReference = Database['public']['Tables']['external_references']['Row']
+import type { Book, ExternalReference } from '@/types/database'
 
 export interface BookWithReferences extends Book {
   external_references?: ExternalReference[]

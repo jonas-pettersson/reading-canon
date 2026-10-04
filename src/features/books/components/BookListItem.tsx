@@ -1,6 +1,4 @@
-import type { Database } from '@/types/database'
-
-type Book = Database['public']['Tables']['books']['Row']
+import type { Book } from '@/types/database'
 
 export interface BookListItemProps {
   book: Book

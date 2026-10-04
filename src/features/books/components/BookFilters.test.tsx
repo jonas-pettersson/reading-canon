@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
-import { BookFilters, type BookFiltersState, PRIMARY_CATEGORIES, READING_STATUSES, OWNERSHIP_STATUSES } from './BookFilters'
+import { BookFilters, type BookFiltersState } from './BookFilters'
+import { PRIMARY_CATEGORIES, READING_STATUSES, OWNERSHIP_STATUSES } from '../constants'
 
 describe('BookFilters', () => {
   const defaultFilters: BookFiltersState = {

@@ -2,9 +2,7 @@ import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { BookList } from './BookList'
-import type { Database } from '@/types/database'
-
-type Book = Database['public']['Tables']['books']['Row']
+import type { Book } from '@/types/database'
 
 describe('BookList', () => {
   const mockBooks: Book[] = [

@@ -1,10 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { supabase } from '@/lib/supabase'
-import type { Database } from '@/types/database'
-
-type Book = Database['public']['Tables']['books']['Row']
-type UserReadingStatus = Database['public']['Tables']['user_reading_status']['Row']
+import type { Book, UserReadingStatus } from '@/types/database'
 
 interface BooksQueryParams {
   search?: string

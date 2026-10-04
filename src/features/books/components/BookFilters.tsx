@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { PRIMARY_CATEGORIES, READING_STATUSES, OWNERSHIP_STATUSES } from '../constants'
 
 export interface BookFiltersState {
   search: string
@@ -15,40 +16,6 @@ export interface BookFiltersProps {
   filters: BookFiltersState
   onFiltersChange: (filters: BookFiltersState) => void
 }
-
-// Primary categories from spec.md v1.4 Section 2.1
-export const PRIMARY_CATEGORIES = [
-  'Novel',
-  'Play / Drama',
-  'Poetry',
-  'Philosophy',
-  'History',
-  'Religion / Theology',
-  'Politics / Political Theory',
-  'Science',
-  'Essay / Non-fiction',
-  'Biography / Memoir',
-  'Anthology / Collection',
-]
-
-// Reading status values from spec.md v1.4
-export const READING_STATUSES = [
-  'Not Started',
-  'Want to Read',
-  'Reading',
-  'Paused',
-  'Finished',
-  'Abandoned',
-]
-
-// Ownership status values
-export const OWNERSHIP_STATUSES = [
-  'Not Owned',
-  'Ordered',
-  'Owned Physical',
-  'Owned Digital',
-  'Borrowed',
-]
 
 /**
  * BookFilters component provides search, filter, and sort controls for books.

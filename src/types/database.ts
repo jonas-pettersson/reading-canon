@@ -366,3 +366,8 @@ export const Constants = {
     },
   },
 } as const
+
+// Helper type exports for commonly used database tables
+export type Book = Database['public']['Tables']['books']['Row']
+export type UserReadingStatus = Database['public']['Tables']['user_reading_status']['Row']
+export type ExternalReference = Database['public']['Tables']['external_references']['Row']
