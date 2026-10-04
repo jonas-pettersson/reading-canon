@@ -5,6 +5,7 @@ import { ProtectedRoute } from '@/components/ProtectedRoute'
 import { AppLayout } from '@/components/AppLayout'
 import { LoginPage } from '@/pages/LoginPage'
 import { CollectionPage } from '@/pages/CollectionPage'
+import { BookDetailPage } from '@/pages/BookDetailPage'
 
 // Create a client for TanStack Query
 const queryClient = new QueryClient()
@@ -38,7 +39,12 @@ function App() {
             >
               {/* Collection page - Task 2.2.5 complete */}
               <Route index element={<CollectionPage />} />
-            {/* Reading Dashboard - placeholder until Phase 4 */}
+              <Route path="collection" element={<CollectionPage />} />
+
+              {/* Book detail page - Task 2.3.2 */}
+              <Route path="books/:id" element={<BookDetailPage />} />
+
+              {/* Reading Dashboard - placeholder until Phase 4 */}
             <Route
               path="reading"
               element={
