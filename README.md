@@ -11,7 +11,7 @@ This project is also a learning exercise in practicing an AI-native software dev
 ## Project Status
 
 **Phase:** MVP 0 Implementation In Progress  
-**Current Activity:** Phase 2 (Book Collection Display) - Ready to start
+**Current Activity:** Phase 2 (Book Collection Display) - In Progress
 
 **Phase 0 Completed (2026-10-03):**
 - ✅ Supabase project created and configured
@@ -31,7 +31,14 @@ This project is also a learning exercise in practicing an AI-native software dev
 - ✅ Task 1.2.2: Login Page - Page wrapper with routing (8 tests)
 - ✅ Task 1.3.1: Create Curator Account - Admin script for bootstrapping
 
-**Test Status:** 58 tests passing | 27 skipped (85 total) | Coverage: 67.87%
+**Phase 2 Progress (2026-10-04):**
+- ✅ Task 2.1.1: Book Query Hooks (useBooks) - Multi-book query with search/filter/sort (13 tests)
+- ✅ Task 2.1.2: Single Book Query Hook (useBook) - Single book with external references (4 tests)
+- ✅ Task 2.2.1: BookListItem Component - Reusable book card with accessibility (24 tests)
+- ✅ Task 2.2.2: BookList Component - Container with loading/empty/error states (18 tests)
+- ✅ Task 2.2.3: BookFilters Component - Search, 5 filters, sort controls (18 tests)
+
+**Test Status:** 135 tests passing | 27 skipped (162 total) | Coverage: 89% statements, 100% functions
 
 **Previously Completed:**
 - ✅ Requirements Specification v1.4 (stable)
@@ -39,7 +46,7 @@ This project is also a learning exercise in practicing an AI-native software dev
 - ✅ Architecture Review and Enhancement
 - ✅ MVP 0 Implementation Plan (6 phases, 46 tasks)
 
-**Next:** Phase 2, Task 2.1.1 - Create Book Query Hooks
+**Next:** Phase 2.3 - Collection View Page (wire together BookList + BookFilters + useBooks)
 
 ## Document Hierarchy
 

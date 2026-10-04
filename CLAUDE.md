@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Reading Canon is a curated reading companion application for tracking and exploring significant literary works. The project demonstrates an AI-native development lifecycle with clear requirements, traceable decisions, and documented architecture.
 
-**Current Status:** Phase 2 (Book Collection Display) - Ready to start.
+**Current Status:** Phase 2 (Book Collection Display) - In Progress.
 
 **Phase 0 Completed (2026-10-03):**
 - ✅ Supabase project created and configured
@@ -24,9 +24,16 @@ Reading Canon is a curated reading companion application for tracking and explor
 - ✅ Task 1.2.2: Login Page (8 tests)
 - ✅ Task 1.3.1: Create Curator Account (admin script)
 
-**Test Status:** 58 tests passing | 27 skipped (85 total)
+**Phase 2 Progress (2026-10-04):**
+- ✅ Task 2.1.1: Book Query Hooks (useBooks) - 13 tests
+- ✅ Task 2.1.2: Single Book Query Hook (useBook) - 4 tests
+- ✅ Task 2.2.1: BookListItem Component - 24 tests
+- ✅ Task 2.2.2: BookList Component - 18 tests
+- ✅ Task 2.2.3: BookFilters Component - 14 tests
 
-**Next Target:** Phase 2, Task 2.1.1 - Create Book Query Hooks
+**Test Status:** 131 tests passing | 27 skipped (158 total)
+
+**Next Target:** Phase 2.3 - Collection View Page (wire together BookList + BookFilters + useBooks)
 
 ## Document Hierarchy and Authority
 
@@ -340,4 +347,4 @@ const booksWithStatus = useMemo(() => {
 
 ---
 
-**Last Updated:** 2026-10-03
+**Last Updated:** 2026-10-04
