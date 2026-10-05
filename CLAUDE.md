@@ -144,34 +144,6 @@ See `adr/ADR-007-testing-strategy.md` for complete testing philosophy and exampl
 
 **See README.md Section "MVP Scope" for complete details.**
 
-## Key Data Model Details
-
-### Reading Status Values
-Use these exact values (normalized in spec v1.4):
-- "Not Started" (default for new books with no user_reading_status)
-- "Want to Read"
-- "Reading"
-- "Paused"
-- "Finished"
-- "Abandoned"
-
-### Primary Categories
-Use these exact values (from spec.md v1.4 Section 2.1):
-- Novel
-- Play / Drama
-- Poetry
-- Philosophy
-- History
-- Religion / Theology
-- Politics / Political Theory
-- Science
-- Essay / Non-fiction
-- Biography / Memoir
-- Anthology / Collection
-
-### Search Implementation
-MVP 0 uses trigram indexes (pg_trgm) with ILIKE-based search, not full-text search. This provides simple fuzzy matching with a migration path to to_tsvector if needed. See Task 0.2.1 in plan-mvp0.md and ADR-003.
-
 ## Development Workflow
 
 ### Starting a New Task
