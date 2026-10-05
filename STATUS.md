@@ -1,7 +1,7 @@
 # Project Status
 
 **Current Phase:** MVP 0 - Phase 4 (Personal Reading Management)  
-**Progress:** Phase 4 in progress (2/8 tasks)  
+**Progress:** Phase 4 in progress (3/8 tasks)  
 **Last Updated:** 2026-10-05
 
 ---
@@ -11,18 +11,19 @@
 **Phase 4: Personal Reading Management** 🚧 In Progress
 - ✅ Task 4.1.1: User Reading Status Hooks (9 tests)
 - ✅ Task 4.1.2: Reading Stats Query Hook (7 tests)
-- ⏳ Task 4.2.1: ReadingStatusSelect Component
+- ✅ Task 4.2.1: ReadingStatusSelect Component (10 tests)
+- ⏳ Task 4.2.2: PersonalDataPanel Component
 
-**Next:** Task 4.2.1 - Create ReadingStatusSelect Component
+**Next:** Task 4.2.2 - Create PersonalDataPanel Component
 
 ## Test Metrics
 
-**Test Status:** 349 tests passing | 28 skipped (377 total)  
+**Test Status:** 359 tests passing | 28 skipped (387 total)  
 **Coverage:**
-- Statements: 94.47%
-- Branches: 88.88%
-- Functions: 94.84%
-- Lines: 94.47%
+- Statements: 94.59%
+- Branches: 89.05%
+- Functions: 94.94%
+- Lines: 94.59%
 
 **Note:** Coverage thresholds aligned with ADR-007:
 - Components: 70-80% target
