@@ -89,20 +89,6 @@ For MVP 0 with <1,000 books, the recommended pattern for enriching books with us
 
 This pattern is simpler than complex SQL joins for small datasets. See Task 2.1.1 in plan-mvp0.md.
 
-## Task Boundaries
-
-- Work on one explicitly assigned task at a time.
-- Do not automatically begin the next task.
-- Do not implement adjacent or future features merely because they are convenient.
-- Restrict changes to the scope required by the current task and its tests.
-- At task completion provide:
-  - Files changed
-  - Tests added or updated
-  - Commands executed
-  - Verification results
-  - Unresolved questions
-  - Done-criteria status
-
 ## Development Workflow
 
 ### Session Start
