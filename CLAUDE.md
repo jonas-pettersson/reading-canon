@@ -287,17 +287,28 @@ MVP 0 uses trigram indexes (pg_trgm) with ILIKE-based search, not full-text sear
 1. **Stage changes:** `git add <files>`
 2. **Commit:** Create a descriptive commit message following the project conventions
 3. **Push:** `git push origin master`
-4. **Verify CI:** Check GitHub Actions status automatically:
+4. **Verify CI (MANDATORY):** Check GitHub Actions status automatically:
    ```bash
-   gh run list --limit 3 --repo jonas-pettersson/reading-canon
-   gh run view --repo jonas-pettersson/reading-canon
+   # Wait 30 seconds for CI to start, then check status
+   sleep 30
+   gh run list --limit 1 --repo jonas-pettersson/reading-canon
+   
+   # If in_progress, wait another 30 seconds and check again
+   sleep 30
+   gh run list --limit 1 --repo jonas-pettersson/reading-canon
+   
+   # If completed, get full details (shows both jobs)
+   gh run view <run-id> --repo jonas-pettersson/reading-canon
    ```
 5. **Report to user:**
    - Commit hash and summary
    - Files changed
    - Test status
-   - CI pipeline status (both jobs must pass)
-   - If CI fails, fix issues and push again
+   - **CI pipeline status** - Both jobs MUST pass:
+     - ✓ Test & Lint (20.x)
+     - ✓ Build (20.x)
+   - If CI fails: **STOP immediately, diagnose error, fix, and push again**
+   - Do NOT proceed to next task if CI is red
 
 **What constitutes a "major task":**
 - Implementation tasks from plan-mvp0.md (e.g., Task 3.1.1, Task 3.1.2)
