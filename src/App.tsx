@@ -8,6 +8,7 @@ import { CollectionPage } from '@/pages/CollectionPage'
 import { BookDetailPage } from '@/pages/BookDetailPage'
 import { AddBookPage } from '@/pages/AddBookPage'
 import { EditBookPage } from '@/pages/EditBookPage'
+import { ReadingDashboardPage } from '@/pages/ReadingDashboardPage'
 
 // Create a client for TanStack Query
 const queryClient = new QueryClient()
@@ -52,16 +53,8 @@ function App() {
               {/* Book detail page - Task 2.3.2 */}
               <Route path="books/:id" element={<BookDetailPage />} />
 
-              {/* Reading Dashboard - placeholder until Phase 4 */}
-            <Route
-              path="reading"
-              element={
-                <div>
-                  <h2>Reading Dashboard</h2>
-                  <p>Coming in Phase 4</p>
-                </div>
-              }
-            />
+              {/* Reading Dashboard - Task 4.2.4 */}
+              <Route path="reading" element={<ReadingDashboardPage />} />
             {/* Statistics - placeholder until Phase 5 */}
             <Route
               path="stats"

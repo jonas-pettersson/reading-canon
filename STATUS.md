@@ -1,7 +1,7 @@
 # Project Status
 
 **Current Phase:** MVP 0 - Phase 4 (Personal Reading Management)  
-**Progress:** Phase 4 in progress (5/8 tasks)  
+**Progress:** Phase 4 in progress (6/8 tasks)  
 **Last Updated:** 2026-10-05
 
 ---
@@ -14,13 +14,14 @@
 - ✅ Task 4.2.1: ReadingStatusSelect Component (10 tests)
 - ✅ Task 4.2.2: PersonalDataPanel Component (18 tests)
 - ✅ Task 4.2.3: Integrate Personal Data into Book Detail (2 new tests)
-- ⏳ Task 4.2.4: Reading Dashboard Page
+- ✅ Task 4.2.4: Reading Dashboard Page (17 new tests: 8 hooks + 9 page)
+- ⏳ Task 4.3.1: StatsCard Component
 
-**Next:** Task 4.2.4 - Create Reading Dashboard Page
+**Next:** Task 4.3.1 - Create StatsCard Component
 
 ## Test Metrics
 
-**Test Status:** 379 tests passing | 28 skipped (407 total)  
+**Test Status:** 396 tests passing | 28 skipped (424 total)  
 **Coverage:**
 - Statements: 94.88%
 - Branches: 89.53%
