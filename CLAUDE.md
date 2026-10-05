@@ -213,7 +213,23 @@ See `adr/ADR-007-testing-strategy.md` for complete testing philosophy and exampl
 - Significant refactorings
 - Bug fixes with tests
 
-**Note:** All major tasks require STATUS.md to be updated as part of the commit. This keeps project state current for session resumption with `/continue`.
+**Note:** All major tasks require STATUS.md to be updated as part of the commit. This keeps project state current for session resumption with `/continue-work`.
+
+**CI Verification - When to Skip:**
+
+Skip CI verification (steps 6-7) for **documentation-only changes**:
+- README.md, STATUS.md, or other *.md files
+- Documentation in `artifacts/` or `adr/`
+- `.claude/skills/` files
+- CHANGELOG, LICENSE, etc.
+
+**Always verify CI** for code/config changes:
+- Any changes in `src/` or test files
+- Configuration files (package.json, vite.config.ts, tsconfig.json, etc.)
+- CI/CD workflows (`.github/workflows/`)
+- Database migrations (`supabase/migrations/`)
+
+For documentation-only commits, skip to step 7 and report commit hash without waiting for CI.
 
 **When NOT to auto-commit:**
 - User explicitly says "don't commit yet"
