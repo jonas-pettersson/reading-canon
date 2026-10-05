@@ -148,10 +148,19 @@ See `adr/ADR-007-testing-strategy.md` for complete testing philosophy and exampl
 
 ### Starting a New Task
 
-1. Read the task details in `artifacts/plan-mvp0.md`
-2. Verify dependencies are complete
-3. Follow the specified TDD approach for that task
-4. Check "Done Criteria" before considering task complete
+**When resuming work with "continue work" or starting a new task:**
+
+1. **Find the next task:** Read `STATUS.md` to identify current phase and next task
+2. **Read task specification:** Read the task details in `artifacts/plan-mvp0.md`
+3. **Check authoritative documents** (before implementation):
+   - Search `spec.md` for relevant requirements (functional requirements, UX requirements, accessibility)
+   - Check ADRs for architectural decisions affecting this task type (e.g., ADR-007 for testing, ADR-006 for data access)
+   - Review existing code patterns for consistency
+4. **Verify dependencies** are complete (previous tasks must be done)
+5. **Follow TDD approach** specified for the task (test-first, test-alongside, or security-first)
+6. **Check "Done Criteria"** before considering task complete
+
+**Why this matters:** Checking authoritative documents before implementation catches requirement conflicts early, ensures design consistency, and prevents rework. The document hierarchy (vision → intent → design-decisions → spec → ADRs → plan) means later documents must align with earlier ones.
 
 ### Database Changes
 

@@ -1,7 +1,7 @@
 # Project Status
 
 **Current Phase:** MVP 0 - Phase 3 (Book Curation - CRUD)  
-**Progress:** ~65% through Phase 3  
+**Progress:** ~85% through Phase 3 (6/7 tasks complete)  
 **Last Updated:** 2026-10-05
 
 ---
@@ -14,11 +14,12 @@
 - ✅ Task 3.1.3: Add Book Page (8 tests)
 - ✅ Task 3.2.1: EditBookForm Component (28 tests, 1 skipped)
 - ✅ Task 3.2.2: Edit Book Page (11 tests)
-- **Next:** Task 3.3.1: Delete Confirmation Dialog
+- ✅ Task 3.3.1: Delete Confirmation Dialog (19 tests)
+- **Next:** Task 3.3.2: Delete Book Functionality
 
 ## Test Metrics
 
-**Test Status:** 305 tests passing | 28 skipped (333 total)  
+**Test Status:** 324 tests passing | 28 skipped (352 total)  
 **Coverage:**
 - Statements: 94.29%
 - Branches: 87.87%
@@ -67,8 +68,8 @@
 - ✅ Task 3.1.3: Add Book Page - Integration and routing (8 tests)
 - ✅ Task 3.2.1: EditBookForm Component - Edit with references (28 tests, 1 skipped)
 - ✅ Task 3.2.2: Edit Book Page - Edit page with routing (11 tests)
-- ⏳ Task 3.3.1: Delete Confirmation Dialog (next)
-- ⏳ Task 3.3.2: Delete Book Functionality
+- ✅ Task 3.3.1: Delete Confirmation Dialog - Generic reusable dialog (19 tests)
+- ⏳ Task 3.3.2: Delete Book Functionality (next)
 
 ## Upcoming Phases
 
