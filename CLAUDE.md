@@ -119,7 +119,7 @@ After completing a major task (implementation tasks from plan-mvp0.md with passi
 4. Push: `git push origin master`
 5. **Verify CI** (for code/config changes only - skip for docs):
    ```bash
-   sleep 30
+   sleep 45
    curl -s "https://api.github.com/repos/jonas-pettersson/reading-canon/actions/runs?per_page=1" | head -100
    ```
    Both jobs must pass (Test & Lint, Build). If CI fails, stop and fix immediately.
