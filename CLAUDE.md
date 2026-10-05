@@ -177,18 +177,17 @@ See `adr/ADR-007-testing-strategy.md` for complete testing philosophy and exampl
 1. **Stage changes:** `git add <files>`
 2. **Commit:** Create a descriptive commit message following the project conventions
 3. **Push:** `git push origin master`
-4. **Verify CI (MANDATORY):** Check GitHub Actions status automatically:
+4. **Verify CI (MANDATORY):** Check GitHub Actions status via API:
    ```bash
-   # Wait 30 seconds for CI to start, then check status
+   # Wait 30 seconds for CI to start, then check latest run status
    sleep 30
-   gh run list --limit 1 --repo jonas-pettersson/reading-canon
+   curl -s "https://api.github.com/repos/jonas-pettersson/reading-canon/actions/runs?per_page=1" | head -100
    
-   # If in_progress, wait another 30 seconds and check again
-   sleep 30
-   gh run list --limit 1 --repo jonas-pettersson/reading-canon
+   # Check for: "status": "completed", "conclusion": "success"
+   # If status is "in_progress", wait another 30 seconds and check again
    
-   # If completed, get full details (shows both jobs)
-   gh run view <run-id> --repo jonas-pettersson/reading-canon
+   # To see individual job details, extract run_id from above and query:
+   curl -s "https://api.github.com/repos/jonas-pettersson/reading-canon/actions/runs/<run-id>/jobs" | grep -E '"name":|"conclusion":|"status":'
    ```
 5. **Report to user:**
    - Commit hash and summary
