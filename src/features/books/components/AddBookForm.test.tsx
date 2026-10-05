@@ -19,8 +19,15 @@ vi.mock('../hooks/useCreateBook', () => ({
 }))
 
 // Mock the useDuplicateDetection hook
-const mockUseDuplicateDetection = vi.fn(() => ({
-  data: [],
+interface DuplicateBook {
+  id: string
+  title: string
+  author_display_name: string
+  year_published: string | null
+}
+
+const mockUseDuplicateDetection = vi.fn((_title: string, _author: string) => ({
+  data: [] as DuplicateBook[],
   isLoading: false,
   isError: false,
   error: null,

@@ -27,7 +27,6 @@ function createWrapper() {
 }
 
 describe('useDuplicateDetection', () => {
-  const mockFrom = vi.fn()
   const mockSelect = vi.fn()
   const mockIlike = vi.fn()
   const mockLimit = vi.fn()
