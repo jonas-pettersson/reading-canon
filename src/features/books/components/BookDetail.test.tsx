@@ -1,10 +1,65 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { BookDetail } from './BookDetail'
 import type { BookWithReferences } from '../hooks/useBook'
+import type { ReactNode } from 'react'
+
+// Mock the reading hooks
+vi.mock('@/features/reading/hooks/useReadingStatus', () => ({
+  useReadingStatus: vi.fn(),
+  useUpdateReadingStatus: vi.fn(),
+}))
+
+import { useReadingStatus, useUpdateReadingStatus } from '@/features/reading/hooks/useReadingStatus'
+
+// Create a wrapper with QueryClient
+function createWrapper() {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: { retry: false },
+      mutations: { retry: false },
+    },
+  })
+  return ({ children }: { children: ReactNode }) => (
+    <QueryClientProvider client={queryClient}>
+      {children}
+    </QueryClientProvider>
+  )
+}
 
 describe('BookDetail', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+
+    // Mock reading status hook
+    vi.mocked(useReadingStatus).mockReturnValue({
+      data: null,
+      isLoading: false,
+      isError: false,
+      error: null,
+      isSuccess: true,
+    } as any)
+
+    vi.mocked(useUpdateReadingStatus).mockReturnValue({
+      mutate: vi.fn(),
+      isPending: false,
+      isError: false,
+      isSuccess: false,
+      error: null,
+      data: undefined,
+      reset: vi.fn(),
+      mutateAsync: vi.fn(),
+      variables: undefined,
+      context: undefined,
+      failureCount: 0,
+      failureReason: null,
+      status: 'idle',
+      submittedAt: 0,
+    } as any)
+  })
+
   const mockBook: BookWithReferences = {
     id: '1',
     title: 'The Iliad',
@@ -47,28 +102,28 @@ describe('BookDetail', () => {
 
   describe('Canonical Metadata Display', () => {
     it('should display title', () => {
-      render(<BookDetail book={mockBook} />)
+      render(<BookDetail book={mockBook} />, { wrapper: createWrapper() })
       expect(screen.getByText('The Iliad')).toBeInTheDocument()
     })
 
     it('should display original title when available', () => {
-      render(<BookDetail book={mockBook} />)
+      render(<BookDetail book={mockBook} />, { wrapper: createWrapper() })
       expect(screen.getByText(/Ἰλιάς/)).toBeInTheDocument()
     })
 
     it('should display author display name', () => {
-      render(<BookDetail book={mockBook} />)
+      render(<BookDetail book={mockBook} />, { wrapper: createWrapper() })
       expect(screen.getByText(/Homer/)).toBeInTheDocument()
     })
 
     it('should display author lifespan when available', () => {
-      render(<BookDetail book={mockBook} />)
+      render(<BookDetail book={mockBook} />, { wrapper: createWrapper() })
       // Check that author lifespan is displayed in parentheses after author name
       expect(screen.getByText(/\(c\. 8th century BCE\)/)).toBeInTheDocument()
     })
 
     it('should display year published', () => {
-      render(<BookDetail book={mockBook} />)
+      render(<BookDetail book={mockBook} />, { wrapper: createWrapper() })
       // Check for the Year label in the Publication section
       expect(screen.getByText('Year:')).toBeInTheDocument()
       // The year value appears multiple times, just verify it's present
@@ -77,24 +132,24 @@ describe('BookDetail', () => {
     })
 
     it('should display category', () => {
-      render(<BookDetail book={mockBook} />)
+      render(<BookDetail book={mockBook} />, { wrapper: createWrapper() })
       expect(screen.getByText('Poetry')).toBeInTheDocument()
     })
 
     it('should display all tags', () => {
-      render(<BookDetail book={mockBook} />)
+      render(<BookDetail book={mockBook} />, { wrapper: createWrapper() })
       expect(screen.getByText('epic')).toBeInTheDocument()
       expect(screen.getByText('ancient')).toBeInTheDocument()
       expect(screen.getByText('war')).toBeInTheDocument()
     })
 
     it('should display original language', () => {
-      render(<BookDetail book={mockBook} />)
+      render(<BookDetail book={mockBook} />, { wrapper: createWrapper() })
       expect(screen.getByText(/Ancient Greek/)).toBeInTheDocument()
     })
 
     it('should display source', () => {
-      render(<BookDetail book={mockBook} />)
+      render(<BookDetail book={mockBook} />, { wrapper: createWrapper() })
       // Verify Source section heading exists
       expect(screen.getByRole('heading', { name: /Source/i })).toBeInTheDocument()
       // Project Gutenberg appears in multiple places, just verify it's there
@@ -103,7 +158,7 @@ describe('BookDetail', () => {
     })
 
     it('should display inclusion rationale', () => {
-      render(<BookDetail book={mockBook} />)
+      render(<BookDetail book={mockBook} />, { wrapper: createWrapper() })
       // Verify the "Why This Book?" section heading
       expect(screen.getByRole('heading', { name: /Why This Book\?/i })).toBeInTheDocument()
       expect(screen.getByText(/Foundational epic of Western literature/)).toBeInTheDocument()
@@ -112,7 +167,7 @@ describe('BookDetail', () => {
 
   describe('External References', () => {
     it('should display external references as clickable links', () => {
-      render(<BookDetail book={mockBook} />)
+      render(<BookDetail book={mockBook} />, { wrapper: createWrapper() })
 
       const gutenbergLink = screen.getByRole('link', { name: /Project Gutenberg/i })
       expect(gutenbergLink).toBeInTheDocument()
@@ -124,7 +179,7 @@ describe('BookDetail', () => {
     })
 
     it('should open external links in new tab', () => {
-      render(<BookDetail book={mockBook} />)
+      render(<BookDetail book={mockBook} />, { wrapper: createWrapper() })
 
       const links = screen.getAllByRole('link', { name: /Project Gutenberg|Wikipedia/i })
       links.forEach((link) => {
@@ -134,7 +189,7 @@ describe('BookDetail', () => {
     })
 
     it('should display reference type when available', () => {
-      render(<BookDetail book={mockBook} />)
+      render(<BookDetail book={mockBook} />, { wrapper: createWrapper() })
       expect(screen.getByText('Full Text')).toBeInTheDocument()
       // "Reference" appears in heading too, use getAllByText
       const refElements = screen.getAllByText(/^Reference$/)
@@ -254,7 +309,7 @@ describe('BookDetail', () => {
 
   describe('Navigation', () => {
     it('should render back button', () => {
-      render(<BookDetail book={mockBook} />)
+      render(<BookDetail book={mockBook} />, { wrapper: createWrapper() })
       const backButton = screen.getByRole('button', { name: /back to collection/i })
       expect(backButton).toBeInTheDocument()
     })
@@ -263,7 +318,7 @@ describe('BookDetail', () => {
       const user = userEvent.setup()
       const onBack = vi.fn()
 
-      render(<BookDetail book={mockBook} onBack={onBack} />)
+      render(<BookDetail book={mockBook} onBack={onBack} />, { wrapper: createWrapper() })
 
       const backButton = screen.getByRole('button', { name: /back to collection/i })
       await user.click(backButton)
@@ -272,7 +327,7 @@ describe('BookDetail', () => {
     })
 
     it('should render edit button for future Phase 3', () => {
-      render(<BookDetail book={mockBook} />)
+      render(<BookDetail book={mockBook} />, { wrapper: createWrapper() })
       const editButton = screen.getByRole('button', { name: /edit/i })
       expect(editButton).toBeInTheDocument()
     })
@@ -281,7 +336,7 @@ describe('BookDetail', () => {
       const user = userEvent.setup()
       const onEdit = vi.fn()
 
-      render(<BookDetail book={mockBook} onEdit={onEdit} />)
+      render(<BookDetail book={mockBook} onEdit={onEdit} />, { wrapper: createWrapper() })
 
       const editButton = screen.getByRole('button', { name: /edit/i })
       await user.click(editButton)
@@ -292,7 +347,7 @@ describe('BookDetail', () => {
 
   describe('Accessibility', () => {
     it('should have proper heading hierarchy', () => {
-      render(<BookDetail book={mockBook} />)
+      render(<BookDetail book={mockBook} />, { wrapper: createWrapper() })
 
       // Main title should be h1
       const heading = screen.getByRole('heading', { level: 1, name: /The Iliad/i })
@@ -300,7 +355,7 @@ describe('BookDetail', () => {
     })
 
     it('should have accessible section headings', () => {
-      render(<BookDetail book={mockBook} />)
+      render(<BookDetail book={mockBook} />, { wrapper: createWrapper() })
 
       // Should have section headings for different metadata groups
       const headings = screen.getAllByRole('heading')
@@ -310,17 +365,34 @@ describe('BookDetail', () => {
 
   describe('Responsive Layout', () => {
     it('should render without crashing', () => {
-      const { container } = render(<BookDetail book={mockBook} />)
+      const { container } = render(<BookDetail book={mockBook} />, { wrapper: createWrapper() })
       expect(container.firstChild).toBeInTheDocument()
     })
 
     it('should display all content in a single container', () => {
-      render(<BookDetail book={mockBook} />)
+      render(<BookDetail book={mockBook} />, { wrapper: createWrapper() })
 
       // All key content should be present
       expect(screen.getByText('The Iliad')).toBeInTheDocument()
       expect(screen.getByText(/Homer/)).toBeInTheDocument()
       expect(screen.getByRole('button', { name: /back to collection/i })).toBeInTheDocument()
+    })
+  })
+
+  describe('Personal Data Integration', () => {
+    it('should display PersonalDataPanel', () => {
+      render(<BookDetail book={mockBook} />, { wrapper: createWrapper() })
+
+      // Check for personal data section
+      expect(screen.getByText(/personal reading data/i)).toBeInTheDocument()
+    })
+
+    it('should pass book ID to PersonalDataPanel', () => {
+      render(<BookDetail book={mockBook} />, { wrapper: createWrapper() })
+
+      // Personal data panel should be present with the correct book context
+      // The panel fetches its own data using the bookId
+      expect(screen.getByText(/personal reading data/i)).toBeInTheDocument()
     })
   })
 })

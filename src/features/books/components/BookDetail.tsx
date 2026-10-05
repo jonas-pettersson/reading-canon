@@ -1,4 +1,5 @@
 import type { BookWithReferences } from '../hooks/useBook'
+import { PersonalDataPanel } from '@/features/reading/components/PersonalDataPanel'
 
 export interface BookDetailProps {
   book: BookWithReferences
@@ -323,6 +324,11 @@ export function BookDetail({ book, onBack, onEdit, onDelete }: BookDetailProps) 
           </ul>
         </section>
       )}
+
+      {/* Personal Reading Data */}
+      <section style={{ marginTop: '2rem' }}>
+        <PersonalDataPanel bookId={book.id} />
+      </section>
     </article>
   )
 }
