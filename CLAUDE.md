@@ -2,18 +2,6 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Meta: Document Separation of Concerns
-
-**CLAUDE.md Purpose:** Operational guidance for AI-assisted development (workflows, rules, patterns, constraints)  
-**README.md Purpose:** Human onboarding and project overview (status, getting started, installation, context)
-
-**Rules:**
-- Do NOT duplicate project status, phase tracking, or detailed progress in CLAUDE.md
-- Do NOT duplicate installation steps, prerequisites, or getting started instructions
-- Reference README.md for human-oriented context when needed
-- Keep CLAUDE.md focused on: decision-making rules, workflows, testing requirements, code patterns, and constraints
-- When updating project status, update README.md only (unless workflow rules change)
-
 ## Project Overview
 
 Reading Canon is a curated reading companion application for tracking and exploring significant literary works. This project demonstrates an AI-native development lifecycle with clear requirements, traceable decisions, and documented architecture.
@@ -321,6 +309,18 @@ const booksWithStatus = useMemo(() => {
 - **Type Safety End-to-End:** Generate types from database schema, use strict TypeScript
 - **Cost Efficiency:** Design cost-efficiently. Do not introduce paid services or recurring costs without explicit approval.
 
+## Meta: Document Maintenance
+
+**CLAUDE.md Purpose:** Operational guidance for AI-assisted development (workflows, rules, patterns, constraints)  
+**README.md Purpose:** Human onboarding and project overview (status, getting started, installation, context)
+
+**Rules for maintaining this document:**
+- Do NOT duplicate project status, phase tracking, or detailed progress in CLAUDE.md
+- Do NOT duplicate installation steps, prerequisites, or getting started instructions
+- Reference README.md for human-oriented context when needed
+- Keep CLAUDE.md focused on: decision-making rules, workflows, testing requirements, code patterns, and constraints
+- When updating project status, update README.md only (unless workflow rules change)
+
 ## References
 
 - Architecture summary: `adr/README.md`
@@ -330,4 +330,4 @@ const booksWithStatus = useMemo(() => {
 
 ---
 
-**Last Updated:** 2026-10-05 (Optimized for Claude efficiency - removed duplicates from README.md)
+**Last Updated:** 2026-10-05 (Reorganized - operational guidance first, meta-instructions near end)
