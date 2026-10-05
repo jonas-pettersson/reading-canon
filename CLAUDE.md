@@ -111,11 +111,6 @@ After completing a major task (implementation tasks from plan-mvp0.md with passi
    Both jobs must pass (Test & Lint, Build). If CI fails, stop and fix immediately.
 6. Report: commit hash, files changed, test status, CI status
 
-**Skip CI verification for:** Documentation only (*.md, artifacts/, adr/)  
-**Always verify CI for:** Code (src/), tests, configs, migrations
-
-**Don't auto-commit:** WIP, experimental changes, or when user says "don't commit yet"
-
 ### Git Workflow
 
 - Default to one implementation task at a time
