@@ -172,70 +172,26 @@ See `adr/ADR-007-testing-strategy.md` for complete testing philosophy and exampl
 
 ### Task Completion Workflow
 
-**After completing a major task** (e.g., a task from plan-mvp0.md with passing tests):
+**After completing a major task** (implementation tasks from plan-mvp0.md with passing tests):
 
-1. **Stage changes:** `git add <files>`
-2. **Update STATUS.md:**
-   - Mark the completed task with ✅
-   - Update test counts (passing / skipped / total)
-   - Update coverage percentages if changed significantly
-   - Move task from "In Progress" to completed phase section
-   - Update "Next" to point to the next task
-   - Update "Last Updated" date
-3. **Stage STATUS.md:** `git add STATUS.md`
-4. **Commit:** Create a descriptive commit message following the project conventions (include STATUS.md in commit)
-5. **Push:** `git push origin master`
-6. **Verify CI (MANDATORY):** Check GitHub Actions status via API:
+1. Update STATUS.md (mark task ✅, update test counts, move to completed section)
+2. Stage all changes: `git add <files> STATUS.md`
+3. Commit with descriptive message
+4. Push: `git push origin master`
+5. **Verify CI** (for code/config changes only - skip for docs):
    ```bash
-   # Wait 30 seconds for CI to start, then check latest run status
    sleep 30
    curl -s "https://api.github.com/repos/jonas-pettersson/reading-canon/actions/runs?per_page=1" | head -100
-   
-   # Check for: "status": "completed", "conclusion": "success"
-   # If status is "in_progress", wait another 30 seconds and check again
-   
-   # To see individual job details, extract run_id from above and query:
-   curl -s "https://api.github.com/repos/jonas-pettersson/reading-canon/actions/runs/<run-id>/jobs" | grep -E '"name":|"conclusion":|"status":'
    ```
-7. **Report to user:**
-   - Commit hash and summary
-   - Files changed (including STATUS.md update)
-   - Test status
-   - **CI pipeline status** - Both jobs MUST pass:
-     - ✓ Test & Lint (20.x)
-     - ✓ Build (20.x)
-   - If CI fails: **STOP immediately, diagnose error, fix, and push again**
-   - Do NOT proceed to next task if CI is red
+   Both jobs must pass (Test & Lint, Build). If CI fails, stop and fix immediately.
+6. Report: commit hash, files changed, test status, CI status
 
-**What constitutes a "major task":**
-- Implementation tasks from plan-mvp0.md (e.g., Task 3.1.1, Task 3.1.2)
-- New features with tests
-- Significant refactorings
-- Bug fixes with tests
+**Skip CI verification for:** Documentation only (*.md, artifacts/, adr/)  
+**Always verify CI for:** Code (src/), tests, configs, migrations
 
-**Note:** All major tasks require STATUS.md to be updated as part of the commit. This keeps project state current for session resumption (use "resume work" to pick up where you left off).
+**Don't auto-commit:** WIP, experimental changes, or when user says "don't commit yet"
 
-**CI Verification - When to Skip:**
-
-Skip CI verification (steps 6-7) for **documentation-only changes**:
-- README.md, STATUS.md, or other *.md files
-- Documentation in `artifacts/` or `adr/`
-- `.claude/skills/` files
-- CHANGELOG, LICENSE, etc.
-
-**Always verify CI** for code/config changes:
-- Any changes in `src/` or test files
-- Configuration files (package.json, vite.config.ts, tsconfig.json, etc.)
-- CI/CD workflows (`.github/workflows/`)
-- Database migrations (`supabase/migrations/`)
-
-For documentation-only commits, skip to step 7 and report commit hash without waiting for CI.
-
-**When NOT to auto-commit:**
-- User explicitly says "don't commit yet"
-- Work in progress / incomplete implementation
-- Experimental changes
-- Minor documentation updates (wait for user instruction)
+**Session resumption:** STATUS.md kept current enables "resume work" prompt to pick up where you left off.
 
 ### Code Quality Standards
 
