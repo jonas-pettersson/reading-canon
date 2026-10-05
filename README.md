@@ -11,7 +11,7 @@ This project is also a learning exercise in practicing an AI-native software dev
 ## Project Status
 
 **Phase:** MVP 0 Implementation In Progress  
-**Current Activity:** Phase 3 (Book Curation - CRUD) - Ready
+**Current Activity:** Phase 3 (Book Curation - CRUD) - In Progress
 
 **Phase 0 Completed (2026-10-03):**
 - ✅ Supabase project created and configured
@@ -42,10 +42,15 @@ This project is also a learning exercise in practicing an AI-native software dev
 - ✅ Task 2.3.1: BookDetail Component - Full book metadata display (31 tests)
 - ✅ Task 2.3.2: Book Detail Page - Detail view with routing (11 tests)
 
-**Test Status:** 205 tests passing | 27 skipped (232 total)
-**Coverage:** 90.71% statements | 94.88% branches | 93.47% functions
+**Phase 3 (Book Curation - CRUD) - In Progress (2026-10-05):**
+- ✅ Task 3.1.1: AddBookForm Component - Full form with all book fields (29 tests)
+- ✅ Task 3.1.2: Duplicate Detection - Case-insensitive warning with soft override (10 tests)
+- ✅ Task 3.1.3: Add Book Page - Integration with routing and navigation (8 tests)
+- ✅ Task 3.2.1: EditBookForm Component - Pre-populated edit with references management (34 tests)
 
-**Phase 2 Complete!** All Book Collection Display tasks finished.
+**Test Status:** 294 tests passing | 28 skipped (322 total)
+**Coverage:** 94.29% statements | 87.87% branches | 94.59% functions | 94.29% lines
+**Note:** Coverage thresholds aligned with ADR-007 (components: 70-80%, utilities: 90%+)
 
 **Previously Completed:**
 - ✅ Requirements Specification v1.4 (stable)
@@ -201,9 +206,11 @@ The implementation plan breaks MVP 0 into 6 phases with 46 specific tasks:
 - ✅ Book list UI with filters and search (Tasks 2.2.1-2.2.5)
 - ✅ Book detail view with routing (Tasks 2.3.1-2.3.2)
 
-**Phase 3: Book Curation (CRUD)** (2-3 days)
-- Add/edit/delete books
-- External references management
+**Phase 3: Book Curation (CRUD)** (2-3 days) - IN PROGRESS
+- ✅ Add books with duplicate detection (Tasks 3.1.1-3.1.3)
+- 🔄 Edit books with pre-population (Task 3.2.1 ✅, 3.2.2 next)
+- Delete books with confirmation dialog
+- External references management (add/edit/delete)
 - Form validation and error handling
 
 **Phase 4: Personal Reading Management** (3-4 days)
@@ -331,6 +338,6 @@ Private project for personal use.
 
 ---
 
-**Last Updated**: 2026-10-04  
-**Document Version**: 3.4 (Phase 2 Complete)  
-**Project Phase**: MVP 0 Implementation - Phase 3 Book Curation (Ready)
+**Last Updated**: 2026-10-05  
+**Document Version**: 3.5 (Phase 3 In Progress)  
+**Project Phase**: MVP 0 Implementation - Phase 3 Book Curation (Task 3.2.2 Next)

@@ -35,15 +35,18 @@ Reading Canon is a curated reading companion application for tracking and explor
 - ✅ Task 2.3.1: BookDetail Component - 31 tests
 - ✅ Task 2.3.2: Book Detail Page - 11 tests
 
-**Phase 3 (Book Curation - CRUD):**
-- ✅ Task 3.1.1: AddBookForm Component - 23 tests + useCreateBook hook - 6 tests (2026-10-05)
+**Phase 3 (Book Curation - CRUD) - In Progress (2026-10-05):**
+- ✅ Task 3.1.1: AddBookForm Component - 29 tests (23 form + 6 hook)
+- ✅ Task 3.1.2: Duplicate Detection - 10 tests (useDuplicateDetection)
+- ✅ Task 3.1.3: Add Book Page - 8 tests
+- ✅ Task 3.2.1: EditBookForm Component - 34 tests (27 form + 7 hook)
 
-**Test Status:** 234 tests passing | 27 skipped (261 total)
-**Coverage:** 92.65% statements | 94.25% branches | 94.54% functions | 92.65% lines
+**Test Status:** 294 tests passing | 28 skipped (322 total)
+**Coverage:** 94.29% statements | 87.87% branches | 94.59% functions | 94.29% lines
+**Note:** Coverage thresholds aligned with ADR-007 (components: 70-80%, utilities: 90%+)
 
 **Next Target:**
-- Task 3.1.2: Duplicate Detection for AddBookForm
-- Task 3.1.3: Add Book Page
+- Task 3.2.2: Create Edit Book Page
 
 ## Document Hierarchy and Authority
 
