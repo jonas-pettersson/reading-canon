@@ -1,32 +1,27 @@
 # Project Status
 
-**Current Phase:** MVP 0 - Phase 3 (Book Curation - CRUD) ✅  
-**Progress:** Phase 3 complete (7/7 tasks)  
+**Current Phase:** MVP 0 - Phase 4 (Personal Reading Management)  
+**Progress:** Phase 4 in progress (1/8 tasks)  
 **Last Updated:** 2026-10-05
 
 ---
 
 ## Current Activity
 
-**Phase 3: Book Curation (CRUD)** ✅ Complete
-- ✅ Task 3.1.1: AddBookForm Component (29 tests)
-- ✅ Task 3.1.2: Duplicate Detection (10 tests)
-- ✅ Task 3.1.3: Add Book Page (8 tests)
-- ✅ Task 3.2.1: EditBookForm Component (28 tests, 1 skipped)
-- ✅ Task 3.2.2: Edit Book Page (11 tests)
-- ✅ Task 3.3.1: Delete Confirmation Dialog (19 tests)
-- ✅ Task 3.3.2: Delete Book Functionality (9 tests)
+**Phase 4: Personal Reading Management** 🚧 In Progress
+- ✅ Task 4.1.1: User Reading Status Hooks (9 tests)
+- ⏳ Task 4.1.2: Reading Stats Query Hook
 
-**Next:** Phase 4 - Personal Reading Management
+**Next:** Task 4.1.2 - Create Reading Stats Query Hook
 
 ## Test Metrics
 
-**Test Status:** 333 tests passing | 28 skipped (361 total)  
+**Test Status:** 342 tests passing | 28 skipped (370 total)  
 **Coverage:**
-- Statements: 94.29%
-- Branches: 87.87%
-- Functions: 94.59%
-- Lines: 94.29%
+- Statements: 94.38%
+- Branches: 88.93%
+- Functions: 94.73%
+- Lines: 94.38%
 
 **Note:** Coverage thresholds aligned with ADR-007:
 - Components: 70-80% target
@@ -74,11 +69,6 @@
 - ✅ Task 3.3.2: Delete Book Functionality - Hook, confirmation, redirect (9 tests)
 
 ## Upcoming Phases
-
-### Phase 4: Personal Reading Management (planned)
-- Reading status tracking hooks
-- Personal data panel (priority, rating, notes, ownership)
-- Statistics dashboard with counts
 
 ### Phase 5: Excel Data Migration (planned)
 - Migration script with validation
