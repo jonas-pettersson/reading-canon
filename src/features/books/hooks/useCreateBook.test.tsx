@@ -27,7 +27,6 @@ function createWrapper() {
 }
 
 describe('useCreateBook', () => {
-  const mockFrom = vi.fn()
   const mockInsert = vi.fn()
   const mockSelect = vi.fn()
   const mockSingle = vi.fn()
