@@ -136,7 +136,6 @@
 **Living Documents:**
 - 🔄 `CLAUDE.md` - Development guidance for AI assistance
 - 🔄 `STATUS.md` - This file (updated after each task)
-- 🔄 `README.md` - Project overview (updated at phase boundaries)
 
 ---
 
