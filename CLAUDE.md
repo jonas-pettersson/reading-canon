@@ -148,19 +148,18 @@ See `adr/ADR-007-testing-strategy.md` for complete testing philosophy and exampl
 
 ### Starting a New Task
 
-**When resuming work with "continue work" or starting a new task:**
+**Critical: Check requirements BEFORE coding.** When you see "continue work":
 
-1. **Find the next task:** Read `STATUS.md` to identify current phase and next task
-2. **Read task specification:** Read the task details in `artifacts/plan-mvp0.md`
-3. **Check authoritative documents** (before implementation):
-   - Search `spec.md` for relevant requirements (functional requirements, UX requirements, accessibility)
-   - Check ADRs for architectural decisions affecting this task type (e.g., ADR-007 for testing, ADR-006 for data access)
-   - Review existing code patterns for consistency
-4. **Verify dependencies** are complete (previous tasks must be done)
-5. **Follow TDD approach** specified for the task (test-first, test-alongside, or security-first)
-6. **Check "Done Criteria"** before considering task complete
+1. Read `STATUS.md` → find next task
+2. Read task in `artifacts/plan-mvp0.md` → understand scope and TDD approach
+3. **Search authoritative documents (before writing code):**
+   - `spec.md` → relevant requirements (search for feature name, UX-*, FR-*)
+   - `adr/` → architectural patterns for this task type (testing, data access, component patterns)
+   - Existing code → check test patterns and styling approach (grep for similar components)
+4. Write tests first (or alongside per task's TDD approach)
+5. Implement, verify against "Done Criteria"
 
-**Why this matters:** Checking authoritative documents before implementation catches requirement conflicts early, ensures design consistency, and prevents rework. The document hierarchy (vision → intent → design-decisions → spec → ADRs → plan) means later documents must align with earlier ones.
+The document hierarchy (vision → spec → ADRs → plan) means spec and ADRs override plan details. Checking patterns prevents inconsistent approaches.
 
 ### Database Changes
 
