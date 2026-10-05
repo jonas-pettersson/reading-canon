@@ -55,12 +55,12 @@ describe('useReadingBooks', () => {
     const mockStatus = [
       {
         book_id: 'book-1',
-        reading_status: 'Reading',
+        reading_status: 'reading',
         started_at: '2024-01-01T00:00:00Z',
       },
       {
         book_id: 'book-2',
-        reading_status: 'Reading',
+        reading_status: 'reading',
         started_at: '2024-01-15T00:00:00Z',
       },
     ]
@@ -169,18 +169,18 @@ describe('useWantToReadBooks', () => {
     const mockStatus = [
       {
         book_id: 'book-1',
-        reading_status: 'Want to Read',
-        personal_priority: 'High',
+        reading_status: 'want_to_read',
+        personal_priority: 'high',
       },
       {
         book_id: 'book-2',
-        reading_status: 'Want to Read',
-        personal_priority: 'Medium',
+        reading_status: 'want_to_read',
+        personal_priority: 'medium',
       },
       {
         book_id: 'book-3',
-        reading_status: 'Want to Read',
-        personal_priority: 'Low',
+        reading_status: 'want_to_read',
+        personal_priority: 'low',
       },
     ]
 
@@ -208,9 +208,9 @@ describe('useWantToReadBooks', () => {
 
     expect(result.current.data).toHaveLength(3)
     // Verify sorted by priority: High → Medium → Low
-    expect(result.current.data?.[0].personal_priority).toBe('High')
-    expect(result.current.data?.[1].personal_priority).toBe('Medium')
-    expect(result.current.data?.[2].personal_priority).toBe('Low')
+    expect(result.current.data?.[0].personal_priority).toBe('high')
+    expect(result.current.data?.[1].personal_priority).toBe('medium')
+    expect(result.current.data?.[2].personal_priority).toBe('low')
   })
 
   it('places books with no priority at the end', async () => {
@@ -221,9 +221,9 @@ describe('useWantToReadBooks', () => {
     ]
 
     const mockStatus = [
-      { book_id: 'book-1', reading_status: 'Want to Read', personal_priority: 'High' },
-      { book_id: 'book-2', reading_status: 'Want to Read', personal_priority: null },
-      { book_id: 'book-3', reading_status: 'Want to Read', personal_priority: 'Low' },
+      { book_id: 'book-1', reading_status: 'want_to_read', personal_priority: 'high' },
+      { book_id: 'book-2', reading_status: 'want_to_read', personal_priority: null },
+      { book_id: 'book-3', reading_status: 'want_to_read', personal_priority: 'low' },
     ]
 
     const mockQuery = {
@@ -250,8 +250,8 @@ describe('useWantToReadBooks', () => {
 
     expect(result.current.data).toHaveLength(3)
     // High should be first, Low second, null last
-    expect(result.current.data?.[0].personal_priority).toBe('High')
-    expect(result.current.data?.[1].personal_priority).toBe('Low')
+    expect(result.current.data?.[0].personal_priority).toBe('high')
+    expect(result.current.data?.[1].personal_priority).toBe('low')
     expect(result.current.data?.[2].personal_priority).toBeNull()
   })
 
@@ -302,7 +302,7 @@ describe('useWantToReadBooks', () => {
     ]
 
     const mockStatus = [
-      { book_id: 'book-1', reading_status: 'Want to Read', personal_priority: 'High' },
+      { book_id: 'book-1', reading_status: 'want_to_read', personal_priority: 'high' },
     ]
 
     // Create a mock that supports chaining .eq() calls
@@ -325,7 +325,7 @@ describe('useWantToReadBooks', () => {
       .mockReturnValueOnce(mockQuery as never)
       .mockReturnValueOnce(mockBooksQuery as never)
 
-    const { result } = renderHook(() => useWantToReadBooks('High'), {
+    const { result } = renderHook(() => useWantToReadBooks('high'), {
       wrapper: createWrapper(),
     })
 
@@ -335,7 +335,7 @@ describe('useWantToReadBooks', () => {
 
     // Verify only High priority books are returned
     expect(result.current.data).toHaveLength(1)
-    expect(result.current.data?.[0].personal_priority).toBe('High')
+    expect(result.current.data?.[0].personal_priority).toBe('high')
     expect(result.current.data?.[0].title).toBe('High Priority')
   })
 })

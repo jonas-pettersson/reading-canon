@@ -1,23 +1,26 @@
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
-import type { Book } from '@/types/database'
+import type { Book, Database } from '@/types/database'
+
+type ReadingStatus = Database['public']['Enums']['reading_status_enum']
+type Priority = Database['public']['Enums']['priority_enum']
 
 /**
  * Reading dashboard data type combining book and user reading status
  */
 export type ReadingBook = Book & {
   started_at?: string | null
-  personal_priority?: 'High' | 'Medium' | 'Low' | null
-  reading_status: string
+  personal_priority?: Priority | null
+  reading_status: ReadingStatus
 }
 
 /**
- * Priority order for sorting (High > Medium > Low > None)
+ * Priority order for sorting (high > medium > low > none)
  */
 const PRIORITY_ORDER: Record<string, number> = {
-  High: 1,
-  Medium: 2,
-  Low: 3,
+  high: 1,
+  medium: 2,
+  low: 3,
 }
 
 /**
@@ -28,11 +31,11 @@ export function useReadingBooks() {
   return useQuery({
     queryKey: ['reading-books'],
     queryFn: async () => {
-      // First, get user reading status for "Reading" books
+      // First, get user reading status for "reading" books
       const { data: statusData, error: statusError } = await supabase
         .from('user_reading_status')
         .select('book_id, started_at, reading_status')
-        .eq('reading_status', 'Reading')
+        .eq('reading_status', 'reading')
         .order('started_at', { ascending: false })
 
       if (statusError) throw statusError
@@ -49,7 +52,7 @@ export function useReadingBooks() {
 
       // Combine books with their status info
       const booksMap = new Map(booksData?.map((b) => [b.id, b]) || [])
-      const result: ReadingBook[] = statusData
+      const result = statusData
         .map((status) => {
           const book = booksMap.get(status.book_id)
           if (!book) return null
@@ -57,7 +60,7 @@ export function useReadingBooks() {
             ...book,
             started_at: status.started_at,
             reading_status: status.reading_status,
-          }
+          } as ReadingBook
         })
         .filter((b): b is ReadingBook => b !== null)
 
@@ -68,19 +71,19 @@ export function useReadingBooks() {
 
 /**
  * Fetch books the user wants to read.
- * Returns books with reading_status = "Want to Read", sorted by priority (High → Medium → Low → None).
+ * Returns books with reading_status = "want_to_read", sorted by priority (high → medium → low → none).
  *
  * @param priorityFilter - Optional filter to show only books with a specific priority
  */
-export function useWantToReadBooks(priorityFilter?: 'High' | 'Medium' | 'Low') {
+export function useWantToReadBooks(priorityFilter?: Priority) {
   return useQuery({
     queryKey: ['want-to-read-books', priorityFilter],
     queryFn: async () => {
-      // First, get user reading status for "Want to Read" books
+      // First, get user reading status for "want_to_read" books
       let query = supabase
         .from('user_reading_status')
         .select('book_id, personal_priority, reading_status')
-        .eq('reading_status', 'Want to Read')
+        .eq('reading_status', 'want_to_read')
 
       // Apply priority filter if provided
       if (priorityFilter) {
@@ -103,7 +106,7 @@ export function useWantToReadBooks(priorityFilter?: 'High' | 'Medium' | 'Low') {
 
       // Combine books with their status info
       const booksMap = new Map(booksData?.map((b) => [b.id, b]) || [])
-      const result: ReadingBook[] = statusData
+      const result = statusData
         .map((status) => {
           const book = booksMap.get(status.book_id)
           if (!book) return null
@@ -111,11 +114,11 @@ export function useWantToReadBooks(priorityFilter?: 'High' | 'Medium' | 'Low') {
             ...book,
             personal_priority: status.personal_priority,
             reading_status: status.reading_status,
-          }
+          } as ReadingBook
         })
         .filter((b): b is ReadingBook => b !== null)
 
-      // Sort by priority: High → Medium → Low → None
+      // Sort by priority: high → medium → low → none
       result.sort((a, b) => {
         const aPriority = a.personal_priority || ''
         const bPriority = b.personal_priority || ''

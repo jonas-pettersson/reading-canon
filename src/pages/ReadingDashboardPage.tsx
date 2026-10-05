@@ -2,6 +2,9 @@ import { Link } from 'react-router-dom'
 import { useReadingBooks, useWantToReadBooks } from '@/features/reading/hooks/useReadingDashboard'
 import { useUpdateReadingStatus } from '@/features/reading/hooks/useReadingStatus'
 import type { ReadingBook } from '@/features/reading/hooks/useReadingDashboard'
+import type { Database } from '@/types/database'
+
+type ReadingStatus = Database['public']['Enums']['reading_status_enum']
 
 /**
  * Reading Dashboard Page
@@ -104,7 +107,7 @@ function ReadingBookCard({
   onStatusChange,
 }: {
   book: ReadingBook
-  onStatusChange: (status: string) => void
+  onStatusChange: (status: ReadingStatus) => void
 }) {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 sm:p-6">
@@ -128,7 +131,7 @@ function ReadingBookCard({
         </div>
         <div className="flex flex-row sm:flex-col gap-2 w-full sm:w-auto">
           <button
-            onClick={() => onStatusChange('Finished')}
+            onClick={() => onStatusChange('finished')}
             className="flex-1 sm:flex-initial px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700
                      transition-colors min-h-[44px] text-sm font-medium"
             aria-label="Mark as Finished"
@@ -136,7 +139,7 @@ function ReadingBookCard({
             Mark as Finished
           </button>
           <button
-            onClick={() => onStatusChange('Paused')}
+            onClick={() => onStatusChange('paused')}
             className="flex-1 sm:flex-initial px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700
                      transition-colors min-h-[44px] text-sm font-medium"
             aria-label="Mark as Paused"
@@ -157,12 +160,12 @@ function WantToReadBookCard({
   onStatusChange,
 }: {
   book: ReadingBook
-  onStatusChange: (status: string) => void
+  onStatusChange: (status: ReadingStatus) => void
 }) {
   const priorityColors = {
-    High: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-    Medium: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
-    Low: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+    high: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+    medium: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
+    low: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
   }
 
   return (
@@ -192,7 +195,7 @@ function WantToReadBookCard({
           </p>
         </div>
         <button
-          onClick={() => onStatusChange('Reading')}
+          onClick={() => onStatusChange('reading')}
           className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700
                    transition-colors min-h-[44px] text-sm font-medium"
           aria-label="Mark as Reading"

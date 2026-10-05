@@ -14,7 +14,6 @@ vi.mock('@/features/reading/hooks/useReadingDashboard', () => ({
 
 vi.mock('@/features/reading/hooks/useReadingStatus', () => ({
   useUpdateReadingStatus: vi.fn(),
-  useUpdatePriority: vi.fn(),
 }))
 
 // Mock auth context
@@ -23,7 +22,7 @@ vi.mock('@/lib/auth-context', () => ({
 }))
 
 import { useReadingBooks, useWantToReadBooks } from '@/features/reading/hooks/useReadingDashboard'
-import { useUpdateReadingStatus, useUpdatePriority } from '@/features/reading/hooks/useReadingStatus'
+import { useUpdateReadingStatus } from '@/features/reading/hooks/useReadingStatus'
 
 function renderPage() {
   const queryClient = new QueryClient({
@@ -41,16 +40,11 @@ function renderPage() {
 
 describe('ReadingDashboardPage', () => {
   const mockUpdateStatus = vi.fn()
-  const mockUpdatePriority = vi.fn()
 
   beforeEach(() => {
     vi.clearAllMocks()
     vi.mocked(useUpdateReadingStatus).mockReturnValue({
       mutate: mockUpdateStatus,
-      isPending: false,
-    } as never)
-    vi.mocked(useUpdatePriority).mockReturnValue({
-      mutate: mockUpdatePriority,
       isPending: false,
     } as never)
   })
@@ -63,7 +57,7 @@ describe('ReadingDashboardPage', () => {
         author_display_name: 'F. Scott Fitzgerald',
         year_sort: 1925,
         started_at: '2024-01-15T00:00:00Z',
-        reading_status: 'Reading',
+        reading_status: 'reading',
       } as ReadingBook,
     ]
 
@@ -95,16 +89,16 @@ describe('ReadingDashboardPage', () => {
         title: 'To Kill a Mockingbird',
         author_display_name: 'Harper Lee',
         year_sort: 1960,
-        personal_priority: 'High',
-        reading_status: 'Want to Read',
+        personal_priority: 'high',
+        reading_status: 'want_to_read',
       } as ReadingBook,
       {
         id: 'book-2',
         title: '1984',
         author_display_name: 'George Orwell',
         year_sort: 1949,
-        personal_priority: 'Medium',
-        reading_status: 'Want to Read',
+        personal_priority: 'medium',
+        reading_status: 'want_to_read',
       } as ReadingBook,
     ]
 
@@ -126,8 +120,8 @@ describe('ReadingDashboardPage', () => {
       expect(screen.getByText('Want to Read')).toBeInTheDocument()
       expect(screen.getByText('To Kill a Mockingbird')).toBeInTheDocument()
       expect(screen.getByText('1984')).toBeInTheDocument()
-      expect(screen.getByText('High')).toBeInTheDocument()
-      expect(screen.getByText('Medium')).toBeInTheDocument()
+      expect(screen.getByText('high')).toBeInTheDocument()
+      expect(screen.getByText('medium')).toBeInTheDocument()
     })
   })
 
@@ -198,7 +192,7 @@ describe('ReadingDashboardPage', () => {
         author_display_name: 'F. Scott Fitzgerald',
         year_sort: 1925,
         started_at: '2024-01-15T00:00:00Z',
-        reading_status: 'Reading',
+        reading_status: 'reading',
       } as ReadingBook,
     ]
 
@@ -226,7 +220,7 @@ describe('ReadingDashboardPage', () => {
 
     expect(mockUpdateStatus).toHaveBeenCalledWith({
       bookId: 'book-1',
-      updates: { reading_status: 'Finished' },
+      updates: { reading_status: 'finished' },
     })
   })
 
@@ -238,8 +232,8 @@ describe('ReadingDashboardPage', () => {
         title: 'To Kill a Mockingbird',
         author_display_name: 'Harper Lee',
         year_sort: 1960,
-        personal_priority: 'High',
-        reading_status: 'Want to Read',
+        personal_priority: 'high',
+        reading_status: 'want_to_read',
       } as ReadingBook,
     ]
 
@@ -267,7 +261,7 @@ describe('ReadingDashboardPage', () => {
 
     expect(mockUpdateStatus).toHaveBeenCalledWith({
       bookId: 'book-1',
-      updates: { reading_status: 'Reading' },
+      updates: { reading_status: 'reading' },
     })
   })
 
@@ -279,7 +273,7 @@ describe('ReadingDashboardPage', () => {
         author_display_name: 'F. Scott Fitzgerald',
         year_sort: 1925,
         started_at: '2024-01-15T00:00:00Z',
-        reading_status: 'Reading',
+        reading_status: 'reading',
       } as ReadingBook,
     ]
 
@@ -311,7 +305,7 @@ describe('ReadingDashboardPage', () => {
         author_display_name: 'F. Scott Fitzgerald',
         year_sort: 1925,
         started_at: '2024-01-15T00:00:00Z',
-        reading_status: 'Reading',
+        reading_status: 'reading',
       } as ReadingBook,
     ]
 
