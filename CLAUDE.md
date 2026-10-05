@@ -115,11 +115,7 @@ After completing a major task (implementation tasks from plan-mvp0.md with passi
 
 1. Update STATUS.md (mark task ✅, update test counts, move to completed section)
 2. Stage all changes: `git add <files> STATUS.md`
-3. Commit with descriptive message:
-   - **Title:** Task number + what (50-70 chars): `Task 4.2.4: Create Reading Dashboard Page`
-   - **Body:** 1-3 sentences max - what changed and why
-   - **No need to list:** Files changed (visible in git), test counts, exhaustive feature lists
-   - **End with:** Attribution line (see system reminder)
+3. Commit with descriptive message (keep to reasonable length - what changed and why)
 4. Push: `git push origin master`
 5. **Verify CI** (for code/config changes only - skip for docs):
    ```bash
