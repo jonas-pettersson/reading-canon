@@ -146,20 +146,17 @@ See `adr/ADR-007-testing-strategy.md` for complete testing philosophy and exampl
 
 ## Development Workflow
 
-### Starting a New Task
+### Session Start
 
-**Critical: Check requirements BEFORE coding.** When you see "continue work":
+When starting a session, check `STATUS.md` for the next task, then read task details in `plan-mvp0.md`. Before implementing, search `spec.md` for relevant requirements (UX-*, FR-*), check ADRs for architectural patterns, and review existing code for consistency. Follow the task's TDD approach and verify against "Done Criteria" before completion.
 
-1. Read `STATUS.md` → find next task
-2. Read task in `artifacts/plan-mvp0.md` → understand scope and TDD approach
-3. **Search authoritative documents (before writing code):**
-   - `spec.md` → relevant requirements (search for feature name, UX-*, FR-*)
-   - `adr/` → architectural patterns for this task type (testing, data access, component patterns)
-   - Existing code → check test patterns and styling approach (grep for similar components)
-4. Write tests first (or alongside per task's TDD approach)
-5. Implement, verify against "Done Criteria"
+### Code Quality Standards
 
-The document hierarchy (vision → spec → ADRs → plan) means spec and ADRs override plan details. Checking patterns prevents inconsistent approaches.
+- TypeScript strict mode (no `any` types without justification)
+- Accessibility is required, not optional (WCAG 2.1 AA)
+- Empty states and loading states for all data displays (UX-004)
+- Error messages must be user-friendly (UX-005)
+- Responsive design: desktop-first, mobile-essential for reading workflows
 
 ### Database Changes
 
@@ -169,18 +166,9 @@ The document hierarchy (vision → spec → ADRs → plan) means spec and ADRs o
 4. Update RLS policies if needed
 5. Test RLS policies immediately (security-first)
 
-## Git and Concurrent Work
+### Task Completion
 
-- Default to one implementation task at a time.
-- Do not create branches, worktrees, sub-agents, or parallel implementation streams unless explicitly instructed.
-- Always inspect existing repository state before making changes.
-- Preserve unrelated user modifications.
-- Never overwrite changes not associated with the current task.
-- Parallel work is only allowed for clearly independent tasks and with explicit approval.
-
-### Task Completion Workflow
-
-**After completing a major task** (implementation tasks from plan-mvp0.md with passing tests):
+After completing a major task (implementation tasks from plan-mvp0.md with passing tests):
 
 1. Update STATUS.md (mark task ✅, update test counts, move to completed section)
 2. Stage all changes: `git add <files> STATUS.md`
@@ -199,15 +187,14 @@ The document hierarchy (vision → spec → ADRs → plan) means spec and ADRs o
 
 **Don't auto-commit:** WIP, experimental changes, or when user says "don't commit yet"
 
-**Session resumption:** STATUS.md kept current enables "resume work" prompt to pick up where you left off.
+### Git Workflow
 
-### Code Quality Standards
-
-- TypeScript strict mode (no `any` types without justification)
-- Accessibility is required, not optional (WCAG 2.1 AA)
-- Empty states and loading states for all data displays (UX-004)
-- Error messages must be user-friendly (UX-005)
-- Responsive design: desktop-first, mobile-essential for reading workflows
+- Default to one implementation task at a time
+- Do not create branches, worktrees, sub-agents, or parallel implementation streams unless explicitly instructed
+- Always inspect existing repository state before making changes
+- Preserve unrelated user modifications
+- Never overwrite changes not associated with the current task
+- Parallel work is only allowed for clearly independent tasks and with explicit approval
 
 ## Dependency Management
 
