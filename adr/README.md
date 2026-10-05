@@ -124,46 +124,6 @@ Add libraries when they solve a demonstrated need. Defer Zustand/Jotai unless Re
 
 **Important:** Free tier limits and pricing change over time. Verify current Vercel and Supabase pricing before deployment. For 1-10 users with a collection of <1,000 books, free tiers of reputable BaaS providers are typically sufficient, but the specific quotas and limits should be confirmed.
 
-## MVP 0 vs MVP 1 Implementation Scope
-
-**MVP 0 (Single User Validation):**
-
-*Goal:* Prove core value - "better than Excel for curator's personal use"
-
-*What Must Be Implemented:*
-- Single curator authentication (login/logout)
-- Database schema: books, user_reading_status, external_references
-- Basic RLS policies (authenticated access)
-- Collection management UI (add, edit, delete books)
-- Personal reading management (status, priority, rating, notes, ownership)
-- Search and filtering
-- Excel data migration (one-time)
-- Localhost development sufficient for validation
-
-*What Is Intentionally Deferred:*
-- Multi-user support and invitation workflow
-- `invitation_tokens` table
-- Application `profiles` table (optional for MVP 0)
-- Role-based authorization enforcement
-- Edge Functions for privileged operations
-- Production deployment (optional - localhost acceptable)
-
-**MVP 1 (Multi-User with Roles):**
-
-*Goal:* Enable 2-5 invited readers to use the application
-
-*Adds to MVP 0:*
-- `invitation_tokens` table with secure token management
-- `profiles` table for user roles and display names
-- Edge Function for secure invitation generation
-- Registration flow validating invitation tokens
-- Role-based RLS policies (curator vs reader)
-- User management UI for curator
-- Production deployment on Vercel with HTTPS
-
-*Architectural Continuity:*
-The core architecture (Supabase + React + Vercel) remains unchanged. MVP 1 adds tables, refines RLS policies, and introduces one Edge Function. No fundamental redesign required.
-
 ## Extensibility
 
 The chosen architecture allows for future enhancements:
@@ -217,43 +177,6 @@ If architectural changes are needed:
 - MongoDB - poor fit for relational data model
 - GitHub Pages or VPS - less automation, more operational overhead
 
-## Next Steps
-
-With architecture complete, proceed to:
-
-1. **Environment Setup**
-   - Create Supabase project
-   - Initialize Vite + React + TypeScript project
-   - Configure TypeScript strict mode
-   - Install dependencies
-
-2. **Database Schema**
-   - Write SQL migrations for entities (Books, Users, UserReadingStatus, etc.)
-   - Set up Row-Level Security policies
-   - Generate TypeScript types
-
-3. **Authentication Setup**
-   - Configure Supabase Auth
-   - Implement login/logout UI
-   - Create protected routes
-
-4. **Core Features Implementation**
-   - Book list view (FR-001)
-   - Book detail view (FR-005)
-   - Add/edit book forms (FR-010, FR-011)
-   - Reading status management (FR-020)
-   - Search and filtering (FR-002, FR-003)
-
-5. **Testing Setup**
-   - Configure Vitest + React Testing Library
-   - Write tests for core components
-   - Set up jest-axe for accessibility
-
-6. **Deployment**
-   - Connect GitHub repo to Vercel
-   - Configure environment variables
-   - Deploy MVP 0
-
 ## References
 
 - [Requirements Specification v1.4](../artifacts/spec.md)
@@ -273,9 +196,3 @@ These ADRs follow the standard ADR template:
 - **Alternatives Considered**: Other options evaluated
 
 New ADRs should be added to this directory and numbered sequentially.
-
----
-
-**Architecture Status:** ✅ COMPLETE - Ready for implementation
-
-**Last Updated:** 2026-10-02
