@@ -49,6 +49,7 @@ const mockExternalReferences: ExternalReference[] = [
     link_text: 'Full Text',
     reference_type: 'text',
     created_at: '2024-01-01T00:00:00Z',
+    created_by_user_id: null,
   },
   {
     id: 'ref-2',
@@ -57,6 +58,7 @@ const mockExternalReferences: ExternalReference[] = [
     link_text: 'Analysis',
     reference_type: 'review',
     created_at: '2024-01-01T00:00:00Z',
+    created_by_user_id: null,
   },
 ]
 

@@ -90,8 +90,9 @@ export function EditBookForm({ book, externalReferences, onSuccess, onCancel }: 
       : undefined
 
     // Separate external references into add/update/delete
-    const toAdd: UpdateBookInput['externalReferences']['toAdd'] = []
-    const toUpdate: UpdateBookInput['externalReferences']['toUpdate'] = []
+    type ExternalRefsType = NonNullable<UpdateBookInput['externalReferences']>
+    const toAdd: ExternalRefsType['toAdd'] = []
+    const toUpdate: ExternalRefsType['toUpdate'] = []
     const toDelete: string[] = []
 
     data.external_references?.forEach((ref) => {
