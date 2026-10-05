@@ -131,27 +131,6 @@ After completing a major task (implementation tasks from plan-mvp0.md with passi
 - Use exact versions specified in authoritative documents.
 - Do not upgrade dependencies during feature implementation unless explicitly instructed.
 
-## Meta: Document Maintenance
-
-**Purpose:** Operational guidance for AI-assisted development - things that affect *how Claude works*, not *what the code does*.
-
-**What belongs in CLAUDE.md:**
-- Decision-making rules and document hierarchy
-- Workflows (task boundaries, git, CI verification)
-- Key architectural concepts not obvious from reading other docs
-
-**What does NOT belong:**
-- Project status, phase tracking, installation steps (→ README.md for humans)
-- Data constants, enums, type definitions (→ code + spec.md)
-- Feature documentation or implementation details already in code
-- Anything already in authoritative docs (reference them instead)
-
-**Best practices when updating:**
-- Update when workflows or rules change, not when features are added
-- Reference authoritative sources (spec.md, ADRs) rather than duplicating content
-- Keep it concise - every section should serve a clear operational purpose
-- Test the guidance - verify Claude follows instructions correctly after changes
-
 ## References
 
 - Architecture summary: `adr/README.md`
