@@ -298,7 +298,7 @@ describe('AddBookForm', () => {
       const onSuccess = vi.fn()
 
       // Mock successful mutation
-      mockMutate.mockImplementation((data, options) => {
+      mockMutate.mockImplementation((_data, options) => {
         options.onSuccess({ id: '123' })
       })
 
@@ -334,7 +334,7 @@ describe('AddBookForm', () => {
       const user = userEvent.setup()
 
       // Mock failed mutation
-      const mockFailingMutate = vi.fn().mockImplementation((data, options) => {
+      const mockFailingMutate = vi.fn().mockImplementation((_data, options) => {
         options.onError(new Error('Failed to create book'))
       })
 
@@ -397,8 +397,6 @@ describe('AddBookForm', () => {
 
   describe('Loading State', () => {
     it('should disable submit button during submission', async () => {
-      const user = userEvent.setup()
-
       // Mock pending mutation
       mockUseCreateBook.mockReturnValue({
         mutate: mockMutate,
