@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Reading Canon is a curated reading companion application for tracking and exploring significant literary works. The project demonstrates an AI-native development lifecycle with clear requirements, traceable decisions, and documented architecture.
 
-**Current Status:** Phase 2 (Book Collection Display) - In Progress.
+**Current Status:** Phase 3 (Book Curation - CRUD) - In Progress.
 
 **Phase 0 Completed (2026-10-03):**
 - ✅ Supabase project created and configured
@@ -35,17 +35,15 @@ Reading Canon is a curated reading companion application for tracking and explor
 - ✅ Task 2.3.1: BookDetail Component - 31 tests
 - ✅ Task 2.3.2: Book Detail Page - 11 tests
 
-**Test Status:** 205 tests passing | 27 skipped (232 total)
-**Coverage:** 90.71% statements | 94.88% branches | 93.47% functions
+**Phase 3 (Book Curation - CRUD):**
+- ✅ Task 3.1.1: AddBookForm Component - 23 tests + useCreateBook hook - 6 tests (2026-10-05)
 
-**Phase 2 Complete!** All Book Collection Display tasks finished.
+**Test Status:** 234 tests passing | 27 skipped (261 total)
+**Coverage:** 92.65% statements | 94.25% branches | 94.54% functions | 92.65% lines
 
-**Next Target:** Phase 3 - Book Curation (CRUD)
-- Task 3.1.1: AddBookForm Component
-- Task 3.1.2: Add Book Page
-- Task 3.2.1: EditBookForm Component
-- Task 3.2.2: Edit Book Page
-- Task 3.3.1: Delete Book Functionality
+**Next Target:**
+- Task 3.1.2: Duplicate Detection for AddBookForm
+- Task 3.1.3: Add Book Page
 
 ## Document Hierarchy and Authority
 
@@ -277,11 +275,41 @@ MVP 0 uses trigram indexes (pg_trgm) with ILIKE-based search, not full-text sear
 
 - Default to one implementation task at a time.
 - Do not create branches, worktrees, sub-agents, or parallel implementation streams unless explicitly instructed.
-- Do not commit, push, merge, rebase, reset, or discard changes unless explicitly instructed.
 - Always inspect existing repository state before making changes.
 - Preserve unrelated user modifications.
 - Never overwrite changes not associated with the current task.
 - Parallel work is only allowed for clearly independent tasks and with explicit approval.
+
+### Task Completion Workflow
+
+**After completing a major task** (e.g., a task from plan-mvp0.md with passing tests):
+
+1. **Stage changes:** `git add <files>`
+2. **Commit:** Create a descriptive commit message following the project conventions
+3. **Push:** `git push origin master`
+4. **Verify CI:** Check GitHub Actions status automatically:
+   ```bash
+   gh run list --limit 3 --repo jonas-pettersson/reading-canon
+   gh run view --repo jonas-pettersson/reading-canon
+   ```
+5. **Report to user:**
+   - Commit hash and summary
+   - Files changed
+   - Test status
+   - CI pipeline status (both jobs must pass)
+   - If CI fails, fix issues and push again
+
+**What constitutes a "major task":**
+- Implementation tasks from plan-mvp0.md (e.g., Task 3.1.1, Task 3.1.2)
+- New features with tests
+- Significant refactorings
+- Bug fixes with tests
+
+**When NOT to auto-commit:**
+- User explicitly says "don't commit yet"
+- Work in progress / incomplete implementation
+- Experimental changes
+- Minor documentation updates (wait for user instruction)
 
 ### Code Quality Standards
 
