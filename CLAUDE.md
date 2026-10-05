@@ -213,7 +213,7 @@ See `adr/ADR-007-testing-strategy.md` for complete testing philosophy and exampl
 - Significant refactorings
 - Bug fixes with tests
 
-**Note:** All major tasks require STATUS.md to be updated as part of the commit. This keeps project state current for session resumption with `/continue-work`.
+**Note:** All major tasks require STATUS.md to be updated as part of the commit. This keeps project state current for session resumption (use "resume work" to pick up where you left off).
 
 **CI Verification - When to Skip:**
 
