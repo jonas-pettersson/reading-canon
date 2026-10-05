@@ -18,6 +18,18 @@ vi.mock('../hooks/useCreateBook', () => ({
   useCreateBook: () => mockUseCreateBook(),
 }))
 
+// Mock the useDuplicateDetection hook
+const mockUseDuplicateDetection = vi.fn(() => ({
+  data: [],
+  isLoading: false,
+  isError: false,
+  error: null,
+}))
+
+vi.mock('../hooks/useDuplicateDetection', () => ({
+  useDuplicateDetection: (title: string, author: string) => mockUseDuplicateDetection(title, author),
+}))
+
 function renderWithProviders(ui: React.ReactElement) {
   const queryClient = new QueryClient({
     defaultOptions: {
@@ -39,6 +51,12 @@ describe('AddBookForm', () => {
     mockUseCreateBook.mockReturnValue({
       mutate: mockMutate,
       isPending: false,
+      isError: false,
+      error: null,
+    })
+    mockUseDuplicateDetection.mockReturnValue({
+      data: [],
+      isLoading: false,
       isError: false,
       error: null,
     })
@@ -410,6 +428,157 @@ describe('AddBookForm', () => {
       const submitButton = screen.getByRole('button', { name: /adding/i })
 
       expect(submitButton).toBeDisabled()
+    })
+  })
+
+  describe('Duplicate Detection', () => {
+    it('should not show warning when no duplicates found', () => {
+      mockUseDuplicateDetection.mockReturnValue({
+        data: [],
+        isLoading: false,
+        isError: false,
+        error: null,
+      })
+
+      renderWithProviders(<AddBookForm onSuccess={() => {}} onCancel={() => {}} />)
+
+      expect(screen.queryByText(/similar books found/i)).not.toBeInTheDocument()
+    })
+
+    it('should display warning when duplicates are found', async () => {
+      const duplicates = [
+        {
+          id: 'book-1',
+          title: 'The Iliad',
+          author_display_name: 'Homer',
+          year_published: '8th century BC',
+        },
+      ]
+
+      mockUseDuplicateDetection.mockReturnValue({
+        data: duplicates,
+        isLoading: false,
+        isError: false,
+        error: null,
+      })
+
+      renderWithProviders(<AddBookForm onSuccess={() => {}} onCancel={() => {}} />)
+
+      expect(screen.getByText(/similar books found in your collection:/i)).toBeInTheDocument()
+      expect(screen.getByText(/The Iliad/)).toBeInTheDocument()
+      expect(screen.getByText(/Homer/)).toBeInTheDocument()
+      expect(screen.getByText(/8th century BC/)).toBeInTheDocument()
+    })
+
+    it('should display multiple duplicates', () => {
+      const duplicates = [
+        {
+          id: 'book-1',
+          title: 'The Iliad',
+          author_display_name: 'Homer',
+          year_published: '8th century BC',
+        },
+        {
+          id: 'book-2',
+          title: 'The Iliad',
+          author_display_name: 'Homer',
+          year_published: '750 BC',
+        },
+      ]
+
+      mockUseDuplicateDetection.mockReturnValue({
+        data: duplicates,
+        isLoading: false,
+        isError: false,
+        error: null,
+      })
+
+      renderWithProviders(<AddBookForm onSuccess={() => {}} onCancel={() => {}} />)
+
+      expect(screen.getByText(/similar books found in your collection:/i)).toBeInTheDocument()
+      expect(screen.getAllByText(/The Iliad/)).toHaveLength(2)
+      expect(screen.getAllByText(/Homer/)).toHaveLength(2)
+    })
+
+    it('should show link to view duplicate book', () => {
+      const duplicates = [
+        {
+          id: 'book-123',
+          title: 'The Iliad',
+          author_display_name: 'Homer',
+          year_published: '8th century BC',
+        },
+      ]
+
+      mockUseDuplicateDetection.mockReturnValue({
+        data: duplicates,
+        isLoading: false,
+        isError: false,
+        error: null,
+      })
+
+      renderWithProviders(<AddBookForm onSuccess={() => {}} onCancel={() => {}} />)
+
+      const link = screen.getByRole('link', { name: /view/i })
+      expect(link).toHaveAttribute('href', '/books/book-123')
+      expect(link).toHaveAttribute('target', '_blank')
+    })
+
+    it('should allow curator to proceed despite duplicates (soft warning)', async () => {
+      const user = userEvent.setup()
+      const duplicates = [
+        {
+          id: 'book-1',
+          title: 'The Iliad',
+          author_display_name: 'Homer',
+          year_published: '8th century BC',
+        },
+      ]
+
+      mockUseDuplicateDetection.mockReturnValue({
+        data: duplicates,
+        isLoading: false,
+        isError: false,
+        error: null,
+      })
+
+      renderWithProviders(<AddBookForm onSuccess={() => {}} onCancel={() => {}} />)
+
+      // Fill in the form
+      await user.type(screen.getByLabelText(/^title \*/i), 'The Iliad')
+      await user.type(screen.getByLabelText(/author display name/i), 'Homer')
+
+      // Should still be able to submit
+      const submitButton = screen.getByRole('button', { name: /add book/i })
+      expect(submitButton).not.toBeDisabled()
+
+      await user.click(submitButton)
+
+      await waitFor(() => {
+        expect(mockMutate).toHaveBeenCalled()
+      })
+    })
+
+    it('should show message that curator can still proceed', () => {
+      const duplicates = [
+        {
+          id: 'book-1',
+          title: 'The Iliad',
+          author_display_name: 'Homer',
+          year_published: '8th century BC',
+        },
+      ]
+
+      mockUseDuplicateDetection.mockReturnValue({
+        data: duplicates,
+        isLoading: false,
+        isError: false,
+        error: null,
+      })
+
+      renderWithProviders(<AddBookForm onSuccess={() => {}} onCancel={() => {}} />)
+
+      expect(screen.getByText(/you can still add this book if it's intentionally different/i)).toBeInTheDocument()
     })
   })
 })

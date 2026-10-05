@@ -1,8 +1,9 @@
 import { useForm, useFieldArray, type SubmitHandler } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useCreateBook, type CreateBookInput } from '../hooks/useCreateBook'
+import { useDuplicateDetection } from '../hooks/useDuplicateDetection'
 import { PRIMARY_CATEGORIES } from '@/constants/categories'
 import type { Database } from '@/types/database'
 
@@ -39,12 +40,15 @@ export interface AddBookFormProps {
 
 export function AddBookForm({ onSuccess, onCancel }: AddBookFormProps) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [debouncedTitle, setDebouncedTitle] = useState('')
+  const [debouncedAuthor, setDebouncedAuthor] = useState('')
   const { mutate, isPending } = useCreateBook()
 
   const {
     register,
     control,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<BookFormData>({
     resolver: zodResolver(bookFormSchema),
@@ -57,6 +61,28 @@ export function AddBookForm({ onSuccess, onCancel }: AddBookFormProps) {
     control,
     name: 'external_references',
   })
+
+  // Watch title and author for duplicate detection
+  const title = watch('title')
+  const author = watch('author_display_name')
+
+  // Debounce title and author (500ms)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedTitle(title || '')
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [title])
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedAuthor(author || '')
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [author])
+
+  // Check for duplicates
+  const { data: duplicates } = useDuplicateDetection(debouncedTitle, debouncedAuthor)
 
   const onSubmit: SubmitHandler<BookFormData> = (data) => {
     setErrorMessage(null)
@@ -106,6 +132,33 @@ export function AddBookForm({ onSuccess, onCancel }: AddBookFormProps) {
       {errorMessage && (
         <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded" role="alert">
           {errorMessage}
+        </div>
+      )}
+
+      {/* Duplicate Warning */}
+      {duplicates.length > 0 && (
+        <div className="bg-yellow-50 border border-yellow-300 text-yellow-900 px-4 py-3 rounded" role="alert">
+          <h4 className="font-semibold mb-2">Similar books found in your collection:</h4>
+          <ul className="list-disc list-inside space-y-1 mb-3">
+            {duplicates.map((duplicate) => (
+              <li key={duplicate.id}>
+                <span className="font-medium">{duplicate.title}</span> by {duplicate.author_display_name}
+                {duplicate.year_published && ` (${duplicate.year_published})`}
+                {' '}
+                <a
+                  href={`/books/${duplicate.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-700 underline hover:text-blue-900"
+                >
+                  View
+                </a>
+              </li>
+            ))}
+          </ul>
+          <p className="text-sm">
+            You can still add this book if it's intentionally different from the ones listed above.
+          </p>
         </div>
       )}
 
