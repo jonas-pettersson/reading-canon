@@ -8,26 +8,8 @@ A curated reading companion application for tracking and exploring significant l
 
 Reading Canon transforms a carefully curated collection of books into a personal reading companion that helps readers discover, prioritize, read, and reflect on significant works. This project is also a learning exercise in practicing an AI-native software development lifecycle with clear requirements, traceable decisions, and documented architecture.
 
-**Current Status:** MVP 0 Phase 3 - Book Curation (~65% complete)  
-📊 **Detailed Status:** See [STATUS.md](STATUS.md) for test metrics and task tracking
-
-## Key Features
-
-### MVP 0 (Single-User - In Development)
-- ✅ **Collection Display** - Browse, search, filter, and sort curated books
-- ✅ **Book Details** - View comprehensive metadata and external references
-- ✅ **Add Books** - Create new entries with duplicate detection
-- 🔄 **Edit Books** - Update book information and references
-- ⏳ **Delete Books** - Remove books with confirmation
-- ⏳ **Reading Tracking** - Personal status, priority, notes, and ratings
-- ⏳ **Statistics** - Reading progress and collection insights
-- ⏳ **Data Migration** - Import existing collection from Excel
-
-### MVP 1 (Multi-User - Planned)
-- Multi-user authentication and authorization
-- Invitation workflow for readers
-- Role-based access control (curator vs. reader)
-- Production deployment with HTTPS
+**Current Status:** MVP 0 in progress  
+📊 **Detailed Progress:** See [STATUS.md](STATUS.md) for current phase, tasks, and test metrics
 
 ## Core Concepts
 
