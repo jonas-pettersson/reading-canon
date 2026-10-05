@@ -283,15 +283,25 @@ const booksWithStatus = useMemo(() => {
 
 ## Meta: Document Maintenance
 
-**CLAUDE.md Purpose:** Operational guidance for AI-assisted development (workflows, rules, patterns, constraints)  
-**README.md Purpose:** Human onboarding and project overview (status, getting started, installation, context)
+**Purpose:** Operational guidance for AI-assisted development - things that affect *how Claude works*, not *what the code does*.
 
-**Rules for maintaining this document:**
-- Do NOT duplicate project status, phase tracking, or detailed progress in CLAUDE.md
-- Do NOT duplicate installation steps, prerequisites, or getting started instructions
-- Reference README.md for human-oriented context when needed
-- Keep CLAUDE.md focused on: decision-making rules, workflows, testing requirements, code patterns, and constraints
-- When updating project status, update README.md only (unless workflow rules change)
+**What belongs in CLAUDE.md:**
+- Decision-making rules and document hierarchy
+- Testing requirements and quality standards
+- Workflows (task boundaries, git, CI verification)
+- Common code patterns and architectural constraints
+
+**What does NOT belong:**
+- Project status, phase tracking, installation steps (→ README.md for humans)
+- Data constants, enums, type definitions (→ code + spec.md)
+- Feature documentation or implementation details already in code
+- Anything already in authoritative docs (reference them instead)
+
+**Best practices when updating:**
+- Update when workflows or rules change, not when features are added
+- Reference authoritative sources (spec.md, ADRs) rather than duplicating content
+- Keep it concise - every section should serve a clear operational purpose
+- Test the guidance - verify Claude follows instructions correctly after changes
 
 ## References
 
