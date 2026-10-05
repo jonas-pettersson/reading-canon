@@ -175,9 +175,17 @@ See `adr/ADR-007-testing-strategy.md` for complete testing philosophy and exampl
 **After completing a major task** (e.g., a task from plan-mvp0.md with passing tests):
 
 1. **Stage changes:** `git add <files>`
-2. **Commit:** Create a descriptive commit message following the project conventions
-3. **Push:** `git push origin master`
-4. **Verify CI (MANDATORY):** Check GitHub Actions status via API:
+2. **Update STATUS.md:**
+   - Mark the completed task with ✅
+   - Update test counts (passing / skipped / total)
+   - Update coverage percentages if changed significantly
+   - Move task from "In Progress" to completed phase section
+   - Update "Next" to point to the next task
+   - Update "Last Updated" date
+3. **Stage STATUS.md:** `git add STATUS.md`
+4. **Commit:** Create a descriptive commit message following the project conventions (include STATUS.md in commit)
+5. **Push:** `git push origin master`
+6. **Verify CI (MANDATORY):** Check GitHub Actions status via API:
    ```bash
    # Wait 30 seconds for CI to start, then check latest run status
    sleep 30
@@ -189,9 +197,9 @@ See `adr/ADR-007-testing-strategy.md` for complete testing philosophy and exampl
    # To see individual job details, extract run_id from above and query:
    curl -s "https://api.github.com/repos/jonas-pettersson/reading-canon/actions/runs/<run-id>/jobs" | grep -E '"name":|"conclusion":|"status":'
    ```
-5. **Report to user:**
+7. **Report to user:**
    - Commit hash and summary
-   - Files changed
+   - Files changed (including STATUS.md update)
    - Test status
    - **CI pipeline status** - Both jobs MUST pass:
      - ✓ Test & Lint (20.x)
@@ -204,6 +212,8 @@ See `adr/ADR-007-testing-strategy.md` for complete testing philosophy and exampl
 - New features with tests
 - Significant refactorings
 - Bug fixes with tests
+
+**Note:** All major tasks require STATUS.md to be updated as part of the commit. This keeps project state current for session resumption with `/continue`.
 
 **When NOT to auto-commit:**
 - User explicitly says "don't commit yet"
