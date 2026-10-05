@@ -53,7 +53,16 @@ export function CollectionPage() {
 
   return (
     <div className="collection-page">
-      <h1 className="page-heading">Collection</h1>
+      <div className="page-header">
+        <h1 className="page-heading">Collection</h1>
+        <button
+          className="add-book-button"
+          onClick={() => navigate('/books/new')}
+          aria-label="Add new book"
+        >
+          + Add Book
+        </button>
+      </div>
 
       {/* Filters Section */}
       <div className="filters-section">
@@ -75,11 +84,43 @@ export function CollectionPage() {
           width: 100%;
         }
 
+        .page-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 2rem;
+        }
+
         .page-heading {
           font-size: 2rem;
           font-weight: 600;
-          margin: 0 0 2rem 0;
+          margin: 0;
           color: #2c3e50;
+        }
+
+        .add-book-button {
+          padding: 0.75rem 1.5rem;
+          background-color: #2563eb;
+          color: white;
+          border: none;
+          border-radius: 6px;
+          font-size: 1rem;
+          font-weight: 500;
+          cursor: pointer;
+          transition: background-color 0.2s ease;
+        }
+
+        .add-book-button:hover {
+          background-color: #1d4ed8;
+        }
+
+        .add-book-button:active {
+          background-color: #1e40af;
+        }
+
+        .add-book-button:focus {
+          outline: 2px solid #3b82f6;
+          outline-offset: 2px;
         }
 
         .filters-section {
@@ -96,9 +137,21 @@ export function CollectionPage() {
 
         /* Responsive adjustments */
         @media (max-width: 768px) {
+          .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1rem;
+          }
+
           .page-heading {
             font-size: 1.5rem;
-            margin-bottom: 1rem;
+          }
+
+          .add-book-button {
+            width: 100%;
+            padding: 0.625rem 1rem;
+            font-size: 0.875rem;
           }
 
           .filters-section {

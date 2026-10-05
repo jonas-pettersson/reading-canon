@@ -6,6 +6,7 @@ import { AppLayout } from '@/components/AppLayout'
 import { LoginPage } from '@/pages/LoginPage'
 import { CollectionPage } from '@/pages/CollectionPage'
 import { BookDetailPage } from '@/pages/BookDetailPage'
+import { AddBookPage } from '@/pages/AddBookPage'
 
 // Create a client for TanStack Query
 const queryClient = new QueryClient()
@@ -40,6 +41,9 @@ function App() {
               {/* Collection page - Task 2.2.5 complete */}
               <Route index element={<CollectionPage />} />
               <Route path="collection" element={<CollectionPage />} />
+
+              {/* Add book page - Task 3.1.3 */}
+              <Route path="books/new" element={<AddBookPage />} />
 
               {/* Book detail page - Task 2.3.2 */}
               <Route path="books/:id" element={<BookDetailPage />} />

@@ -285,4 +285,21 @@ describe('CollectionPage', () => {
       expect(screen.getByRole('heading', { level: 1 })).toBeInTheDocument()
     })
   })
+
+  describe('Add Book Button', () => {
+    it('should render the Add Book button', () => {
+      renderCollectionPage()
+
+      const addButton = screen.getByRole('button', { name: /add new book/i })
+      expect(addButton).toBeInTheDocument()
+      expect(addButton).toHaveTextContent(/add book/i)
+    })
+
+    it('should have proper accessibility attributes', () => {
+      renderCollectionPage()
+
+      const addButton = screen.getByRole('button', { name: /add new book/i })
+      expect(addButton).toHaveAttribute('aria-label', 'Add new book')
+    })
+  })
 })
