@@ -2,51 +2,24 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Meta: Document Separation of Concerns
+
+**CLAUDE.md Purpose:** Operational guidance for AI-assisted development (workflows, rules, patterns, constraints)  
+**README.md Purpose:** Human onboarding and project overview (status, getting started, installation, context)
+
+**Rules:**
+- Do NOT duplicate project status, phase tracking, or detailed progress in CLAUDE.md
+- Do NOT duplicate installation steps, prerequisites, or getting started instructions
+- Reference README.md for human-oriented context when needed
+- Keep CLAUDE.md focused on: decision-making rules, workflows, testing requirements, code patterns, and constraints
+- When updating project status, update README.md only (unless workflow rules change)
+
 ## Project Overview
 
-Reading Canon is a curated reading companion application for tracking and exploring significant literary works. The project demonstrates an AI-native development lifecycle with clear requirements, traceable decisions, and documented architecture.
+Reading Canon is a curated reading companion application for tracking and exploring significant literary works. This project demonstrates an AI-native development lifecycle with clear requirements, traceable decisions, and documented architecture.
 
-**Current Status:** Phase 3 (Book Curation - CRUD) - In Progress.
-
-**Phase 0 Completed (2026-10-03):**
-- ✅ Supabase project created and configured
-- ✅ Frontend initialized (React 18 + TypeScript + Vite)
-- ✅ Database schema implemented (books, user_reading_status, external_references)
-- ✅ Row-Level Security (RLS) policies enforced
-- ✅ CI/CD pipeline with GitHub Actions
-- ✅ Pre-commit hooks (husky + lint-staged)
-- ✅ Test infrastructure (18 tests passing, 27 ready for auth)
-
-**Phase 1 Completed (2026-10-03):**
-- ✅ Task 1.1.1: Auth Context Provider (10 tests)
-- ✅ Task 1.1.2: Protected Route Component (6 tests)
-- ✅ Task 1.2.1: Login Form Component (16 tests)
-- ✅ Task 1.2.2: Login Page (8 tests)
-- ✅ Task 1.3.1: Create Curator Account (admin script)
-
-**Phase 2 Completed (2026-10-04):**
-- ✅ Task 2.1.1: Book Query Hooks (useBooks) - 13 tests
-- ✅ Task 2.1.2: Single Book Query Hook (useBook) - 4 tests
-- ✅ Task 2.2.1: BookListItem Component - 24 tests
-- ✅ Task 2.2.2: BookList Component - 18 tests
-- ✅ Task 2.2.3: BookFilters Component - 18 tests
-- ✅ Task 2.2.4: AppLayout Component - 16 tests
-- ✅ Task 2.2.5: Collection Page - 12 tests
-- ✅ Task 2.3.1: BookDetail Component - 31 tests
-- ✅ Task 2.3.2: Book Detail Page - 11 tests
-
-**Phase 3 (Book Curation - CRUD) - In Progress (2026-10-05):**
-- ✅ Task 3.1.1: AddBookForm Component - 29 tests (23 form + 6 hook)
-- ✅ Task 3.1.2: Duplicate Detection - 10 tests (useDuplicateDetection)
-- ✅ Task 3.1.3: Add Book Page - 8 tests
-- ✅ Task 3.2.1: EditBookForm Component - 34 tests (27 form + 7 hook)
-
-**Test Status:** 294 tests passing | 28 skipped (322 total)
-**Coverage:** 94.29% statements | 87.87% branches | 94.59% functions | 94.29% lines
-**Note:** Coverage thresholds aligned with ADR-007 (components: 70-80%, utilities: 90%+)
-
-**Next Target:**
-- Task 3.2.2: Create Edit Book Page
+**Current Status:** Phase 3 (Book Curation - CRUD) - Task 3.2.2 (Edit Book Page) next  
+**See README.md for detailed phase tracking and test status.**
 
 ## Document Hierarchy and Authority
 
@@ -77,54 +50,27 @@ This project follows a strict document hierarchy. Later documents must align wit
 
 ## Technology Stack
 
-**Frontend:**
+**Core Stack:**
 - React 18 + TypeScript (strict mode) + Vite
-- @supabase/supabase-js for data access
-- @tanstack/react-query (TanStack Query) for server state management
-- React Hook Form for forms
-- Radix UI for accessible component primitives
-- Vitest + React Testing Library for testing
+- Supabase (PostgreSQL + Auth + RLS)
+- @tanstack/react-query for server state
+- Vitest + React Testing Library
 
-**Backend:**
-- Supabase (Backend-as-a-Service)
-  - PostgreSQL 15+ with Row-Level Security (RLS)
-  - Supabase Auth (email/password, JWT sessions)
-  - Auto-generated REST API from database schema
-  - Generated TypeScript types from schema
+**See README.md and adr/README.md for complete technology details.**
 
-**Infrastructure:**
-- Vercel for frontend hosting (production - MVP 1)
-- Supabase Cloud for backend
-- Localhost deployment acceptable for MVP 0 validation
-
-## Development Commands
-
-**Phase 0 Complete:** All infrastructure is configured and ready.
+## Essential Development Commands
 
 ```bash
-# Development
-npm run dev              # Start Vite dev server (port 5173)
+# Testing (mandatory for every task)
+npm run test             # Watch mode
+npm test -- --run        # Run once
+npm run test:coverage    # With coverage
 
-# Testing
-npm run test             # Run Vitest tests (watch mode)
-npm test -- --run        # Run tests once
-npm run test:ui          # Run Vitest with UI
-npm run test:coverage    # Generate coverage report
-
-# Build
-npm run build            # Production build
-npm run preview          # Preview production build
+# Type generation (after database schema changes)
+npx supabase gen types typescript --linked > src/types/database.ts
 
 # Linting
 npm run lint             # Run oxlint
-
-# Type generation (after Supabase schema changes)
-export SUPABASE_ACCESS_TOKEN=<your-token>
-supabase gen types typescript --linked > src/types/database.ts
-
-# Database migrations
-supabase migration new <migration-name>  # Create new migration
-supabase db push                         # Apply migrations to Supabase
 ```
 
 ## Core Architecture Concepts
@@ -202,32 +148,13 @@ See `adr/ADR-007-testing-strategy.md` for complete testing philosophy and exampl
 
 ## MVP Scope Understanding
 
-### MVP 0 (Current Target)
-**Goal:** Prove it's better than Excel for curator's personal use
+**MVP 0 (Current):** Single curator, CRUD, personal tracking, Excel migration, localhost OK  
+**MVP 1 (Future):** Multi-user, invitations, roles, production deployment  
+**Post-MVP:** Recommendations, social features, advanced stats, algorithmic suggestions
 
-**In Scope:**
-- Single curator authentication
-- Collection management (display, search, filter, sort, CRUD)
-- Personal reading tracking (status, priority, ownership, notes, rating)
-- Basic statistics (counts by status and ownership)
-- Excel data migration (one-time)
-- Localhost deployment acceptable
+**Critical Rule:** Do not implement features marked as MVP 1 or Post-MVP when working on MVP 0 tasks.
 
-**Success Criteria:**
-- Curator prefers application over Excel
-- Deciding what to read next is easier
-- Updating reading progress is easier
-
-### MVP 1 (Future)
-**Adds:** Multi-user support, invitation workflow, role-based access, production deployment
-
-### Deferred to Post-MVP
-- Recommendation submission/approval workflow
-- Social features (discussions, shared comments)
-- Advanced statistics with visualizations
-- Algorithmic reading suggestions
-
-**Important:** Do not implement features marked as MVP 1 or Post-MVP when working on MVP 0 tasks.
+**See README.md Section "MVP Scope" for complete details.**
 
 ## Key Data Model Details
 
@@ -344,12 +271,14 @@ MVP 0 uses trigram indexes (pg_trgm) with ILIKE-based search, not full-text sear
 - Use exact versions specified in authoritative documents.
 - Do not upgrade dependencies during feature implementation unless explicitly instructed.
 
-## Product Principles (Guide Decision-Making)
+## Product Principles
 
-- **Curated, Not Comprehensive**: The canon remains editorially controlled
-- **Quality Over Quantity**: Encourage thoughtful reading, not consumption metrics
-- **Excellent Usability**: Must be better than spreadsheet for primary use cases
-- **Progressive Enrichment**: Works with incomplete metadata, improves over time
+- **Curated, Not Comprehensive**: Canon is editorially controlled
+- **Quality Over Quantity**: Thoughtful reading, not consumption metrics
+- **Excellent Usability**: Better than spreadsheet for primary use cases
+- **Progressive Enrichment**: Works with incomplete metadata
+
+**See artifacts/vision.md for complete product vision.**
 
 ## Common Patterns
 
@@ -401,4 +330,4 @@ const booksWithStatus = useMemo(() => {
 
 ---
 
-**Last Updated:** 2026-10-04 (Phase 2 Complete)
+**Last Updated:** 2026-10-05 (Optimized for Claude efficiency - removed duplicates from README.md)
