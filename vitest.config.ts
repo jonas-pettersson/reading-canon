@@ -27,13 +27,14 @@ export default defineConfig({
         'src/index.css',
       ],
       thresholds: {
-        // Thresholds aligned with MVP 0 goal of 70%+ coverage
-        // Current coverage: 92.65% statements, 94.54% functions, 87.87% branches
-        // Note: Branch coverage lowered temporarily due to EditBookForm conditional rendering
-        // TODO: Improve branch coverage in Phase 6
+        // Thresholds aligned with ADR-007 Testing Strategy:
+        // - Components: 70-80% coverage (most of our codebase)
+        // - Utility functions: 90%+ coverage
+        // - Overall: >70% coverage
+        // Philosophy: "Confidence over coverage" - guidance, not absolute gates
         lines: 70,
-        functions: 93,
-        branches: 87,
+        functions: 80,  // Components (70-80%), not utilities (90%+)
+        branches: 80,   // Aligned with component target
         statements: 70,
       },
     },
