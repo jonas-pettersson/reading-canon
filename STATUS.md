@@ -1,25 +1,27 @@
 # Project Status
 
-**Current Phase:** MVP 0 - Phase 3 (Book Curation - CRUD)  
-**Progress:** ~85% through Phase 3 (6/7 tasks complete)  
+**Current Phase:** MVP 0 - Phase 3 (Book Curation - CRUD) ✅  
+**Progress:** Phase 3 complete (7/7 tasks)  
 **Last Updated:** 2026-10-05
 
 ---
 
 ## Current Activity
 
-**Phase 3: Book Curation (CRUD)** - In Progress
+**Phase 3: Book Curation (CRUD)** ✅ Complete
 - ✅ Task 3.1.1: AddBookForm Component (29 tests)
 - ✅ Task 3.1.2: Duplicate Detection (10 tests)
 - ✅ Task 3.1.3: Add Book Page (8 tests)
 - ✅ Task 3.2.1: EditBookForm Component (28 tests, 1 skipped)
 - ✅ Task 3.2.2: Edit Book Page (11 tests)
 - ✅ Task 3.3.1: Delete Confirmation Dialog (19 tests)
-- **Next:** Task 3.3.2: Delete Book Functionality
+- ✅ Task 3.3.2: Delete Book Functionality (9 tests)
+
+**Next:** Phase 4 - Personal Reading Management
 
 ## Test Metrics
 
-**Test Status:** 324 tests passing | 28 skipped (352 total)  
+**Test Status:** 333 tests passing | 28 skipped (361 total)  
 **Coverage:**
 - Statements: 94.29%
 - Branches: 87.87%
@@ -62,14 +64,14 @@
 - ✅ Task 2.3.1: BookDetail Component - Full metadata display (31 tests)
 - ✅ Task 2.3.2: Book Detail Page - Detail view with routing (11 tests)
 
-### Phase 3: Book Curation (CRUD) - In Progress
+### Phase 3: Book Curation (CRUD) ✅ (Completed 2026-10-05)
 - ✅ Task 3.1.1: AddBookForm Component - Full form with validation (29 tests)
 - ✅ Task 3.1.2: Duplicate Detection - Case-insensitive warning (10 tests)
 - ✅ Task 3.1.3: Add Book Page - Integration and routing (8 tests)
 - ✅ Task 3.2.1: EditBookForm Component - Edit with references (28 tests, 1 skipped)
 - ✅ Task 3.2.2: Edit Book Page - Edit page with routing (11 tests)
 - ✅ Task 3.3.1: Delete Confirmation Dialog - Generic reusable dialog (19 tests)
-- ⏳ Task 3.3.2: Delete Book Functionality (next)
+- ✅ Task 3.3.2: Delete Book Functionality - Hook, confirmation, redirect (9 tests)
 
 ## Upcoming Phases
 

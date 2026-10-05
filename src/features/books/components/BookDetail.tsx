@@ -4,6 +4,7 @@ export interface BookDetailProps {
   book: BookWithReferences
   onBack?: () => void
   onEdit?: () => void
+  onDelete?: () => void
 }
 
 /**
@@ -15,6 +16,7 @@ export interface BookDetailProps {
  * - Handles missing optional fields gracefully
  * - Back navigation button
  * - Edit button (for Phase 3)
+ * - Delete button (for Phase 3)
  * - Accessible with proper heading hierarchy
  * - Responsive design
  *
@@ -23,9 +25,10 @@ export interface BookDetailProps {
  *   book={book}
  *   onBack={() => navigate('/collection')}
  *   onEdit={() => navigate(`/books/${book.id}/edit`)}
+ *   onDelete={() => handleDelete()}
  * />
  */
-export function BookDetail({ book, onBack, onEdit }: BookDetailProps) {
+export function BookDetail({ book, onBack, onEdit, onDelete }: BookDetailProps) {
   // Format year display
   const yearDisplay = book.year_sort
     ? book.year_sort < 0
@@ -75,6 +78,20 @@ export function BookDetail({ book, onBack, onEdit }: BookDetailProps) {
           }}
         >
           Edit
+        </button>
+        <button
+          onClick={onDelete}
+          style={{
+            padding: '0.5rem 1rem',
+            background: '#dc3545',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            fontSize: '0.9rem',
+          }}
+        >
+          Delete
         </button>
       </div>
 

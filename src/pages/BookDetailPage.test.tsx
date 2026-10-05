@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import userEvent from '@testing-library/user-event'
 import { BookDetailPage } from './BookDetailPage'
 import { supabase } from '@/lib/supabase'
 import type { BookWithReferences } from '@/features/books/hooks/useBook'
@@ -310,6 +311,176 @@ describe('BookDetailPage', () => {
       await waitFor(() => {
         expect(screen.getByText('Different Book')).toBeInTheDocument()
       })
+    })
+  })
+
+  describe('Delete Functionality', () => {
+    it('should display delete button', async () => {
+      vi.mocked(supabase.from).mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            single: vi.fn().mockResolvedValue({
+              data: mockBook,
+              error: null,
+            }),
+          }),
+        }),
+      } as any)
+
+      renderWithRouter('test-book-id')
+
+      await waitFor(() => {
+        expect(screen.getByText('The Odyssey')).toBeInTheDocument()
+      })
+
+      const deleteButton = screen.getByRole('button', { name: /delete/i })
+      expect(deleteButton).toBeInTheDocument()
+    })
+
+    it('should open confirmation dialog when delete button is clicked', async () => {
+      vi.mocked(supabase.from).mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            single: vi.fn().mockResolvedValue({
+              data: mockBook,
+              error: null,
+            }),
+          }),
+        }),
+      } as any)
+
+      const user = userEvent.setup()
+      renderWithRouter('test-book-id')
+
+      await waitFor(() => {
+        expect(screen.getByText('The Odyssey')).toBeInTheDocument()
+      })
+
+      const deleteButton = screen.getByRole('button', { name: /delete/i })
+      await user.click(deleteButton)
+
+      // Confirmation dialog should appear
+      expect(screen.getByText('Delete Book')).toBeInTheDocument()
+      expect(screen.getByText(/are you sure you want to delete/i)).toBeInTheDocument()
+    })
+
+    it('should close dialog when cancel is clicked', async () => {
+      vi.mocked(supabase.from).mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            single: vi.fn().mockResolvedValue({
+              data: mockBook,
+              error: null,
+            }),
+          }),
+        }),
+      } as any)
+
+      const user = userEvent.setup()
+      renderWithRouter('test-book-id')
+
+      await waitFor(() => {
+        expect(screen.getByText('The Odyssey')).toBeInTheDocument()
+      })
+
+      // Open dialog
+      const deleteButton = screen.getByRole('button', { name: /delete/i })
+      await user.click(deleteButton)
+
+      expect(screen.getByText('Delete Book')).toBeInTheDocument()
+
+      // Click cancel
+      const cancelButton = screen.getByRole('button', { name: /cancel/i })
+      await user.click(cancelButton)
+
+      // Dialog should be closed
+      expect(screen.queryByText('Delete Book')).not.toBeInTheDocument()
+    })
+
+    it('should call delete mutation and redirect when confirmed', async () => {
+      const mockDelete = vi.fn().mockReturnValue({
+        eq: vi.fn().mockResolvedValue({ data: null, error: null }),
+      })
+
+      vi.mocked(supabase.from).mockImplementation((table: string) => {
+        if (table === 'books') {
+          return {
+            select: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({
+                single: vi.fn().mockResolvedValue({
+                  data: mockBook,
+                  error: null,
+                }),
+              }),
+            }),
+            delete: mockDelete,
+          } as any
+        }
+        return {} as any
+      })
+
+      const user = userEvent.setup()
+
+      // Render with additional route for redirect testing
+      render(
+        <QueryClientProvider client={queryClient}>
+          <MemoryRouter initialEntries={['/books/test-book-id']}>
+            <Routes>
+              <Route path="/books/:id" element={<BookDetailPage />} />
+              <Route path="/collection" element={<div>Collection Page</div>} />
+            </Routes>
+          </MemoryRouter>
+        </QueryClientProvider>
+      )
+
+      await waitFor(() => {
+        expect(screen.getByText('The Odyssey')).toBeInTheDocument()
+      })
+
+      // Open dialog
+      const deleteButton = screen.getByRole('button', { name: /delete/i })
+      await user.click(deleteButton)
+
+      // Confirm delete - get all delete buttons and click the one in the dialog (second one)
+      const deleteButtons = screen.getAllByRole('button', { name: /^delete$/i })
+      await user.click(deleteButtons[1]) // The confirm button in dialog
+
+      // Should call delete
+      await waitFor(() => {
+        expect(mockDelete).toHaveBeenCalled()
+      })
+
+      // Should redirect to collection page
+      await waitFor(() => {
+        expect(screen.getByText('Collection Page')).toBeInTheDocument()
+      })
+    })
+
+    it('should include book title in confirmation dialog', async () => {
+      vi.mocked(supabase.from).mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            single: vi.fn().mockResolvedValue({
+              data: mockBook,
+              error: null,
+            }),
+          }),
+        }),
+      } as any)
+
+      const user = userEvent.setup()
+      renderWithRouter('test-book-id')
+
+      await waitFor(() => {
+        expect(screen.getByText('The Odyssey')).toBeInTheDocument()
+      })
+
+      // Open dialog
+      const deleteButton = screen.getByRole('button', { name: /delete/i })
+      await user.click(deleteButton)
+
+      // Should show book title in confirmation message
+      expect(screen.getByText(/are you sure you want to delete "The Odyssey"/i)).toBeInTheDocument()
     })
   })
 })

@@ -1,6 +1,9 @@
+import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useBook } from '@/features/books/hooks/useBook'
+import { useDeleteBook } from '@/features/books/hooks/useDeleteBook'
 import { BookDetail } from '@/features/books/components/BookDetail'
+import { ConfirmDialog } from '@/components/ConfirmDialog'
 
 /**
  * BookDetailPage - Display full details for a single book
@@ -11,11 +14,14 @@ import { BookDetail } from '@/features/books/components/BookDetail'
  * - Displays BookDetail component
  * - Handles loading, error, and not-found states
  * - Provides back navigation to collection
+ * - Delete book with confirmation dialog (Phase 3)
  */
 export function BookDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { data: book, isLoading, error } = useBook(id || '')
+  const deleteBook = useDeleteBook()
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
   // Handle back navigation
   const handleBack = () => {
@@ -27,6 +33,27 @@ export function BookDetailPage() {
     if (id) {
       navigate(`/books/${id}/edit`)
     }
+  }
+
+  // Handle delete - open confirmation dialog
+  const handleDelete = () => {
+    setIsDeleteDialogOpen(true)
+  }
+
+  // Handle delete confirmation - delete book and redirect
+  const handleConfirmDelete = () => {
+    if (id) {
+      deleteBook.mutate(id, {
+        onSuccess: () => {
+          navigate('/collection')
+        },
+      })
+    }
+  }
+
+  // Handle delete cancellation - close dialog
+  const handleCancelDelete = () => {
+    setIsDeleteDialogOpen(false)
   }
 
   // Loading state
@@ -196,7 +223,22 @@ export function BookDetailPage() {
   // Success - display book details
   return (
     <div className="book-detail-page">
-      <BookDetail book={book} onBack={handleBack} onEdit={handleEdit} />
+      <BookDetail
+        book={book}
+        onBack={handleBack}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+      />
+      <ConfirmDialog
+        isOpen={isDeleteDialogOpen}
+        title="Delete Book"
+        message={`Are you sure you want to delete "${book.title}"? This action cannot be undone and will remove all associated reading data.`}
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        variant="danger"
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+      />
     </div>
   )
 }
