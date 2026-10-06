@@ -263,8 +263,10 @@ function parseUserReadingStatus(
         // Explicit blank in Excel means not started
         status.reading_status = 'not_started'
       }
+    } else {
+      // Read column missing entirely - default to not_started
+      status.reading_status = 'not_started'
     }
-    // If Read column is missing entirely (undefined), leave reading_status undefined
   }
 
   return status

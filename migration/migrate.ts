@@ -145,23 +145,44 @@ export async function runMigration(
       })
       .filter((status): status is UserReadingStatusInsert => status !== null)
 
-    // 8. Insert user_reading_status records (batch)
+    // 8. Check for existing reading statuses (idempotent)
+    console.log('\nChecking for existing reading statuses...')
+    const bookIds = mappedStatuses.map(s => s.book_id)
+    const { data: existingStatuses, error: existingStatusError } = await supabase
+      .from('user_reading_status')
+      .select('book_id')
+      .eq('user_id', userId)
+      .in('book_id', bookIds)
+
+    if (existingStatusError) {
+      throw new Error(`Failed to query existing reading statuses: ${existingStatusError.message}`)
+    }
+
+    const existingStatusBookIds = new Set((existingStatuses || []).map(s => s.book_id))
+    const newStatuses = mappedStatuses.filter(s => !existingStatusBookIds.has(s.book_id))
+
+    if (existingStatuses && existingStatuses.length > 0) {
+      console.log(`  ${existingStatuses.length} reading statuses already exist (will be skipped)`)
+    }
+    console.log(`  ${newStatuses.length} new reading statuses to create`)
+
+    // 9. Insert user_reading_status records (batch)
     let statusesCreated = 0
-    if (mappedStatuses.length > 0) {
+    if (newStatuses.length > 0) {
       console.log('\nInserting reading statuses...')
       const { error: statusError } = await supabase
         .from('user_reading_status')
-        .insert(mappedStatuses)
+        .insert(newStatuses)
 
       if (statusError) {
         throw new Error(`Failed to insert reading statuses: ${statusError.message}`)
       }
 
-      statusesCreated = mappedStatuses.length
+      statusesCreated = newStatuses.length
       console.log(`  ${statusesCreated} reading statuses created`)
     }
 
-    // 9. Generate post-migration report
+    // 10. Generate post-migration report
     console.log('\nMigration complete!')
     console.log(`Books imported: ${insertedBooks.length}`)
     console.log(`Reading statuses created: ${statusesCreated}`)

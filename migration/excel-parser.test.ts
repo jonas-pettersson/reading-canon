@@ -261,7 +261,7 @@ describe('parseExcelFile', () => {
       expect(result.userReadingStatuses).toHaveLength(1)
       expect(result.userReadingStatuses[0].personal_priority).toBe('high')
       expect(result.userReadingStatuses[0].personal_rating).toBeUndefined()
-      expect(result.userReadingStatuses[0].reading_status).toBeUndefined()
+      expect(result.userReadingStatuses[0].reading_status).toBe('not_started')
     })
 
     it('should map numeric values 1-5 to personal_rating', () => {
@@ -314,7 +314,7 @@ describe('parseExcelFile', () => {
       expect(result.userReadingStatuses).toHaveLength(1)
       expect(result.userReadingStatuses[0].personal_priority).toBeUndefined()
       expect(result.userReadingStatuses[0].personal_rating).toBeUndefined()
-      expect(result.userReadingStatuses[0].reading_status).toBeUndefined()
+      expect(result.userReadingStatuses[0].reading_status).toBe('not_started')
     })
 
     it('should warn on invalid Prio values', () => {
