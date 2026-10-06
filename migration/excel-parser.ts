@@ -1,5 +1,6 @@
 import XLSX from 'xlsx'
 import type { Database } from '../src/types/database'
+import { normalizeCategory } from './category-mapping'
 
 // Type aliases for cleaner code
 type BookInsert = Database['public']['Tables']['books']['Insert']
@@ -204,7 +205,7 @@ function parseAuthor(row: ExcelRow): {
 
 /**
  * Parses Category, Genre, and Subject columns.
- * Category → primary_category
+ * Category → primary_category (normalized to spec canonical categories)
  * Genre + Subject → tags array
  */
 function parseCategoryAndTags(row: ExcelRow): {
@@ -215,7 +216,8 @@ function parseCategoryAndTags(row: ExcelRow): {
 
   const category = toTrimmedString(row.Category)
   if (category) {
-    result.primary_category = category
+    // Normalize to canonical PRIMARY_CATEGORIES from spec.md
+    result.primary_category = normalizeCategory(category)
   }
 
   const tags: string[] = []

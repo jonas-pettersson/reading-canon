@@ -178,19 +178,69 @@ describe('parseExcelFile', () => {
   })
 
   describe('category and tags mapping', () => {
-    it('should map Category to primary_category', () => {
+    it('should normalize category to canonical PRIMARY_CATEGORIES', () => {
       const testData = [
         {
           'Author': 'Homer',
           'Title (EN)': 'The Odyssey',
-          'Category': 'Epic',
+          'Category': 'epic poem',
         },
       ]
       createTestExcelFile(testData, testFilePath)
 
       const result = parseExcelFile(testFilePath)
 
-      expect(result.books[0].primary_category).toBe('Epic')
+      expect(result.books[0].primary_category).toBe('Poetry')
+    })
+
+    it('should normalize various novel types to "Novel"', () => {
+      const testData = [
+        { 'Author': 'Author 1', 'Title (EN)': 'Book 1', 'Category': 'novel' },
+        { 'Author': 'Author 2', 'Title (EN)': 'Book 2', 'Category': 'novella' },
+        { 'Author': 'Author 3', 'Title (EN)': 'Book 3', 'Category': 'short story' },
+        { 'Author': 'Author 4', 'Title (EN)': 'Book 4', 'Category': 'thriller' },
+      ]
+      createTestExcelFile(testData, testFilePath)
+
+      const result = parseExcelFile(testFilePath)
+
+      expect(result.books[0].primary_category).toBe('Novel')
+      expect(result.books[1].primary_category).toBe('Novel')
+      expect(result.books[2].primary_category).toBe('Novel')
+      expect(result.books[3].primary_category).toBe('Novel')
+    })
+
+    it('should normalize various drama types to "Play / Drama"', () => {
+      const testData = [
+        { 'Author': 'Author 1', 'Title (EN)': 'Book 1', 'Category': 'play' },
+        { 'Author': 'Author 2', 'Title (EN)': 'Book 2', 'Category': 'comedy' },
+        { 'Author': 'Author 3', 'Title (EN)': 'Book 3', 'Category': 'tragedy' },
+        { 'Author': 'Author 4', 'Title (EN)': 'Book 4', 'Category': 'drama' },
+      ]
+      createTestExcelFile(testData, testFilePath)
+
+      const result = parseExcelFile(testFilePath)
+
+      expect(result.books[0].primary_category).toBe('Play / Drama')
+      expect(result.books[1].primary_category).toBe('Play / Drama')
+      expect(result.books[2].primary_category).toBe('Play / Drama')
+      expect(result.books[3].primary_category).toBe('Play / Drama')
+    })
+
+    it('should handle unmapped categories by setting to undefined', () => {
+      const testData = [
+        {
+          'Author': 'Unknown Author',
+          'Title (EN)': 'Unknown Book',
+          'Category': 'unknown-genre-xyz',
+        },
+      ]
+      createTestExcelFile(testData, testFilePath)
+
+      const result = parseExcelFile(testFilePath)
+
+      // Unmapped categories are set to undefined and logged as warnings
+      expect(result.books[0].primary_category).toBeUndefined()
     })
 
     it('should combine Genre and Subject into tags array', () => {
