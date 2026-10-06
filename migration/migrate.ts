@@ -33,15 +33,21 @@ export async function runMigration(
     console.log('\nPre-migration report:')
     console.log(`Books to import: ${parsed.books.length}`)
     console.log(`Reading status records: ${parsed.userReadingStatuses.length}`)
+    console.log(`Skipped rows: ${parsed.skippedRows.length}`)
     console.log(`Validation errors: ${parsed.validationErrors.length}`)
     console.log(`Warnings: ${parsed.validationWarnings.length}`)
+
+    if (parsed.skippedRows.length > 0) {
+      console.log('\nSkipped rows (missing required fields):')
+      parsed.skippedRows.forEach((skip) => console.log(`  - ${skip}`))
+    }
 
     if (parsed.validationWarnings.length > 0) {
       console.log('\nValidation warnings:')
       parsed.validationWarnings.forEach((warning) => console.log(`  - ${warning}`))
     }
 
-    // 3. Check for validation errors
+    // 3. Check for validation errors (non-skippable issues)
     if (parsed.validationErrors.length > 0) {
       console.error('\nValidation errors found. Migration aborted.')
       console.error(parsed.validationErrors)
@@ -147,12 +153,13 @@ export async function runMigration(
 
     // 8. Check for existing reading statuses (idempotent)
     console.log('\nChecking for existing reading statuses...')
-    const bookIds = mappedStatuses.map(s => s.book_id)
+
+    // For large batches, query all user reading statuses instead of filtering by book_id
+    // This avoids query parameter limits (643 IDs would exceed PostgREST limits)
     const { data: existingStatuses, error: existingStatusError } = await supabase
       .from('user_reading_status')
       .select('book_id')
       .eq('user_id', userId)
-      .in('book_id', bookIds)
 
     if (existingStatusError) {
       throw new Error(`Failed to query existing reading statuses: ${existingStatusError.message}`)

@@ -31,6 +31,18 @@ interface ParsedData {
   userReadingStatuses: UserReadingStatusInsert[]
   validationErrors: string[]
   validationWarnings: string[]
+  skippedRows: string[]
+}
+
+/**
+ * Helper to safely convert Excel cell values to trimmed strings.
+ * Excel may store values as strings or numbers, so we need to convert.
+ */
+function toTrimmedString(value: any): string {
+  if (value === undefined || value === null || value === '') {
+    return ''
+  }
+  return String(value).trim()
 }
 
 /**
@@ -45,6 +57,7 @@ export function parseExcelFile(filePath: string): ParsedData {
   const userReadingStatuses: UserReadingStatusInsert[] = []
   const validationErrors: string[] = []
   const validationWarnings: string[] = []
+  const skippedRows: string[] = []
 
   // Read Excel file
   const workbook = XLSX.readFile(filePath)
@@ -55,17 +68,17 @@ export function parseExcelFile(filePath: string): ParsedData {
   rows.forEach((row, index) => {
     const rowNumber = index + 2 // Excel rows are 1-indexed, +1 for header
 
-    // Validate required fields
-    const title = row['Title (EN)']?.trim()
+    // Validate required fields - skip rows with missing required data
+    const title = toTrimmedString(row['Title (EN)'])
     if (!title) {
-      validationErrors.push(`Row ${rowNumber}: Missing required field "Title (EN)"`)
+      skippedRows.push(`Row ${rowNumber}: Missing required field "Title (EN)"`)
       return
     }
 
     // Parse author information
     const authorResult = parseAuthor(row)
     if (!authorResult.author_display_name) {
-      validationErrors.push(`Row ${rowNumber}: Missing required field "Author" or "Last Name"`)
+      skippedRows.push(`Row ${rowNumber}: Missing required field "Author" or "Last Name"`)
       return
     }
 
@@ -84,32 +97,38 @@ export function parseExcelFile(filePath: string): ParsedData {
     }
 
     // Optional book fields
-    if (row['Original Title']?.trim()) {
-      book.title_original = row['Original Title'].trim()
+    const originalTitle = toTrimmedString(row['Original Title'])
+    if (originalTitle) {
+      book.title_original = originalTitle
     }
 
-    if (row.Year?.trim()) {
-      book.year_published = row.Year.trim()
+    const year = toTrimmedString(row.Year)
+    if (year) {
+      book.year_published = year
     }
 
     if (row['Sort Time'] !== undefined && row['Sort Time'] !== null) {
       book.year_sort = Number(row['Sort Time'])
     }
 
-    if (row['Original Language']?.trim()) {
-      book.original_language = row['Original Language'].trim()
+    const originalLanguage = toTrimmedString(row['Original Language'])
+    if (originalLanguage) {
+      book.original_language = originalLanguage
     }
 
-    if (row.Source?.trim()) {
-      book.source = row.Source.trim()
+    const source = toTrimmedString(row.Source)
+    if (source) {
+      book.source = source
     }
 
-    if (row.Comment?.trim()) {
-      book.inclusion_rationale = row.Comment.trim()
+    const comment = toTrimmedString(row.Comment)
+    if (comment) {
+      book.inclusion_rationale = comment
     }
 
-    if (row['Author Lifespan']?.trim()) {
-      book.author_lifespan = row['Author Lifespan'].trim()
+    const authorLifespan = toTrimmedString(row['Author Lifespan'])
+    if (authorLifespan) {
+      book.author_lifespan = authorLifespan
     }
 
     // Parse category and tags
@@ -133,6 +152,7 @@ export function parseExcelFile(filePath: string): ParsedData {
     userReadingStatuses,
     validationErrors,
     validationWarnings,
+    skippedRows,
   }
 }
 
@@ -145,9 +165,9 @@ function parseAuthor(row: ExcelRow): {
   family_name?: string
   given_name?: string
 } {
-  const author = row.Author?.trim()
-  const lastName = row['Last Name']?.trim()
-  const firstName = row['First Name']?.trim()
+  const author = toTrimmedString(row.Author)
+  const lastName = toTrimmedString(row['Last Name'])
+  const firstName = toTrimmedString(row['First Name'])
 
   // Prefer Author column if present
   if (author) {
@@ -155,8 +175,8 @@ function parseAuthor(row: ExcelRow): {
     if (lastName || firstName) {
       return {
         author_display_name: author,
-        family_name: lastName,
-        given_name: firstName,
+        family_name: lastName || undefined,
+        given_name: firstName || undefined,
       }
     }
     return { author_display_name: author }
@@ -193,14 +213,14 @@ function parseCategoryAndTags(row: ExcelRow): {
 } {
   const result: { primary_category?: string; tags?: string[] } = {}
 
-  const category = row.Category?.trim()
+  const category = toTrimmedString(row.Category)
   if (category) {
     result.primary_category = category
   }
 
   const tags: string[] = []
-  const genre = row.Genre?.trim()
-  const subject = row.Subject?.trim()
+  const genre = toTrimmedString(row.Genre)
+  const subject = toTrimmedString(row.Subject)
 
   if (genre) tags.push(genre)
   if (subject) tags.push(subject)
@@ -229,22 +249,27 @@ function parseUserReadingStatus(
   }
 
   // Parse Lib column (ownership_status)
-  const lib = row.Lib?.trim().toLowerCase()
-  if (lib === 'x') {
+  // Convert to string to handle both string and numeric values
+  const libValue = row.Lib !== undefined && row.Lib !== null ? String(row.Lib).trim().toLowerCase() : ''
+  if (libValue === 'x') {
     status.ownership_status = 'owned_physical'
   } else {
     status.ownership_status = 'not_owned'
   }
 
   // Parse Prio column (complex: priority, rating, or reading status)
-  const prio = row.Prio?.trim().toLowerCase()
-  if (prio) {
-    if (prio === 'x') {
+  // Convert to string to handle both string and numeric values
+  const prioValue = row.Prio !== undefined && row.Prio !== null ? String(row.Prio).trim().toLowerCase() : ''
+  if (prioValue) {
+    if (prioValue === 'x') {
       status.personal_priority = 'high'
-    } else if (prio === '-') {
+    } else if (prioValue === '-') {
       status.reading_status = 'reading'
-    } else if (/^[1-5]$/.test(prio)) {
-      status.personal_rating = parseInt(prio, 10)
+    } else if (/^[1-5]$/.test(prioValue)) {
+      // German school grading system: 1 = best, 5 = worst
+      // Invert to star rating: 1 = 5 stars, 5 = 1 star
+      const germanGrade = parseInt(prioValue, 10)
+      status.personal_rating = 6 - germanGrade
     } else {
       validationWarnings.push(
         `Row ${rowNumber}: Unrecognized Prio value "${row.Prio}". Expected: x, 1-5, or -`
@@ -255,9 +280,9 @@ function parseUserReadingStatus(
   // Parse Read column (reading_status)
   // Only apply if Prio didn't already set reading_status
   if (!status.reading_status) {
-    if (row.Read !== undefined) {
-      const read = row.Read.trim().toLowerCase()
-      if (read === 'x') {
+    if (row.Read !== undefined && row.Read !== null) {
+      const readValue = String(row.Read).trim().toLowerCase()
+      if (readValue === 'x') {
         status.reading_status = 'finished'
       } else {
         // Explicit blank in Excel means not started

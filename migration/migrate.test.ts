@@ -26,10 +26,20 @@ describe('runMigration', () => {
     // Create mock Supabase client
     mockSupabase = {
       from: vi.fn(() => ({
+        select: vi.fn(function() {
+          // @ts-ignore - Allow chaining
+          const chain = this
+          return {
+            eq: vi.fn(() => ({
+              in: vi.fn(() => Promise.resolve({ data: [], error: null })),
+            })),
+            not: vi.fn(() => Promise.resolve({ data: [], error: null })),
+            then: (resolve: any) => resolve({ data: [], error: null }),
+          }
+        }),
         insert: vi.fn(() => ({
           select: vi.fn(() => Promise.resolve({ data: [], error: null })),
         })),
-        select: vi.fn(() => Promise.resolve({ data: [], error: null })),
       })),
       auth: {
         getUser: vi.fn(() => Promise.resolve({

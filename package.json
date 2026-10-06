@@ -16,7 +16,8 @@
     "create-curator": "tsx --env-file=.env.local scripts/create-curator.ts",
     "migrate": "tsx --env-file=.env.local migration/run-migration.ts",
     "create-test-data": "tsx migration/create-test-data-cli.ts",
-    "cleanup-test-books": "tsx --env-file=.env.local migration/cleanup-test-books.ts"
+    "cleanup-test-books": "tsx --env-file=.env.local migration/cleanup-test-books.ts",
+    "fix-ratings": "tsx --env-file=.env.local migration/fix-ratings.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",

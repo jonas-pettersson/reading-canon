@@ -65,7 +65,7 @@ describe('parseExcelFile', () => {
       expect(result.validationErrors).toHaveLength(0)
     })
 
-    it('should validate required fields are present', () => {
+    it('should skip rows with missing required fields', () => {
       const testData = [
         {
           'Author': 'Homer',
@@ -80,9 +80,11 @@ describe('parseExcelFile', () => {
 
       const result = parseExcelFile(testFilePath)
 
-      expect(result.validationErrors.length).toBeGreaterThan(0)
-      expect(result.validationErrors.some(err => err.includes('Title'))).toBe(true)
-      expect(result.validationErrors.some(err => err.includes('Author'))).toBe(true)
+      // Rows with missing required fields are skipped (not validation errors)
+      expect(result.skippedRows.length).toBeGreaterThan(0)
+      expect(result.skippedRows.some(err => err.includes('Title'))).toBe(true)
+      expect(result.skippedRows.some(err => err.includes('Author'))).toBe(true)
+      expect(result.books.length).toBe(0) // Both rows skipped
     })
   })
 
@@ -264,20 +266,20 @@ describe('parseExcelFile', () => {
       expect(result.userReadingStatuses[0].reading_status).toBe('not_started')
     })
 
-    it('should map numeric values 1-5 to personal_rating', () => {
+    it('should map numeric values 1-5 to personal_rating (inverted from German grading)', () => {
       const testData = [
-        { 'Author': 'A1', 'Title (EN)': 'Book 1', 'Prio': '1' },
-        { 'Author': 'A2', 'Title (EN)': 'Book 2', 'Prio': '3' },
-        { 'Author': 'A3', 'Title (EN)': 'Book 3', 'Prio': '5' },
+        { 'Author': 'A1', 'Title (EN)': 'Book 1', 'Prio': '1' }, // German grade 1 (best) → 5 stars
+        { 'Author': 'A2', 'Title (EN)': 'Book 2', 'Prio': '3' }, // German grade 3 → 3 stars
+        { 'Author': 'A3', 'Title (EN)': 'Book 3', 'Prio': '5' }, // German grade 5 (worst) → 1 star
       ]
       createTestExcelFile(testData, testFilePath)
 
       const result = parseExcelFile(testFilePath)
 
       expect(result.userReadingStatuses).toHaveLength(3)
-      expect(result.userReadingStatuses[0].personal_rating).toBe(1)
-      expect(result.userReadingStatuses[1].personal_rating).toBe(3)
-      expect(result.userReadingStatuses[2].personal_rating).toBe(5)
+      expect(result.userReadingStatuses[0].personal_rating).toBe(5) // Inverted: 6 - 1 = 5
+      expect(result.userReadingStatuses[1].personal_rating).toBe(3) // Inverted: 6 - 3 = 3
+      expect(result.userReadingStatuses[2].personal_rating).toBe(1) // Inverted: 6 - 5 = 1
     })
 
     it('should map "-" to reading status', () => {
@@ -553,7 +555,7 @@ describe('parseExcelFile', () => {
 
       // Verify second book
       expect(result.books[1].author_display_name).toBe('Tolstoy, Leo')
-      expect(result.userReadingStatuses[1].personal_rating).toBe(5)
+      expect(result.userReadingStatuses[1].personal_rating).toBe(1) // German grade 5 → 1 star (inverted)
       expect(result.userReadingStatuses[1].ownership_status).toBe('owned_physical')
 
       // Verify third book (minimal)
