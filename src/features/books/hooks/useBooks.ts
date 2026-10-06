@@ -53,17 +53,15 @@ export function useBooks(params: BooksQueryParams = {}) {
       }
 
       // Apply sorting (FR-004)
-      if (params.sortBy) {
-        const column = params.sortBy === 'year'
-          ? 'year_sort'
-          : params.sortBy === 'author'
-          ? 'author_display_name'
-          : params.sortBy
+      // Note: Author sorting is done client-side to use family_name
+      if (params.sortBy && params.sortBy !== 'author') {
+        const column = params.sortBy === 'year' ? 'year_sort' : params.sortBy
         query = query.order(column, { ascending: params.sortOrder === 'asc' })
-      } else {
+      } else if (!params.sortBy) {
         // Default sort: year (oldest first) per UX-010
         query = query.order('year_sort', { ascending: true })
       }
+      // Author sorting happens client-side (see filteredBooks useMemo)
 
       const { data, error } = await query
       if (error) throw error
@@ -110,8 +108,19 @@ export function useBooks(params: BooksQueryParams = {}) {
       })
     }
 
+    // Apply client-side sorting by author (using family_name when available)
+    if (params.sortBy === 'author') {
+      books = [...books].sort((a, b) => {
+        // Use family_name if available, fall back to author_display_name
+        const nameA = a.family_name || a.author_display_name
+        const nameB = b.family_name || b.author_display_name
+        const comparison = nameA.localeCompare(nameB)
+        return params.sortOrder === 'desc' ? -comparison : comparison
+      })
+    }
+
     return books
-  }, [booksQuery.data, statusQuery.data, params.readingStatus, params.ownershipStatus])
+  }, [booksQuery.data, statusQuery.data, params.readingStatus, params.ownershipStatus, params.sortBy, params.sortOrder])
 
   return {
     data: filteredBooks,

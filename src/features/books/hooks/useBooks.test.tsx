@@ -280,21 +280,21 @@ describe('useBooks', () => {
       expect(mockOrder).toHaveBeenCalledWith('title', { ascending: true })
     })
 
-    it('should sort by author descending', async () => {
+    it('should sort by author descending (client-side by family_name)', async () => {
+      // Note: Books returned in arbitrary order from DB, sorted client-side
       const mockBooks = [
-        { id: '1', title: 'Book', author_display_name: 'Zeus', year_sort: 1900 },
-        { id: '2', title: 'Book', author_display_name: 'Apollo', year_sort: 1901 },
+        { id: '1', title: 'Book A', author_display_name: 'Jane Austen', family_name: 'Austen', given_name: 'Jane', year_sort: 1813 },
+        { id: '2', title: 'Book B', author_display_name: 'Charlotte Brontë', family_name: 'Brontë', given_name: 'Charlotte', year_sort: 1847 },
+        { id: '3', title: 'Book C', author_display_name: 'Homer', family_name: null, given_name: null, year_sort: -800 },
       ]
 
-      const mockSelect = vi.fn().mockReturnThis()
-      const mockOrder = vi.fn().mockResolvedValue({
+      const mockSelect = vi.fn().mockResolvedValue({
         data: mockBooks,
         error: null,
       })
 
       vi.mocked(supabase.from).mockReturnValue({
         select: mockSelect,
-        order: mockOrder,
       } as any)
 
       const { result } = renderHook(
@@ -306,8 +306,12 @@ describe('useBooks', () => {
         expect(result.current.isLoading).toBe(false)
       })
 
-      expect(result.current.data).toEqual(mockBooks)
-      expect(mockOrder).toHaveBeenCalledWith('author_display_name', { ascending: false })
+      // Should be sorted by family_name descending (Homer, Brontë, Austen)
+      expect(result.current.data).toEqual([
+        mockBooks[2], // Homer (no family_name, uses author_display_name)
+        mockBooks[1], // Brontë
+        mockBooks[0], // Austen
+      ])
     })
 
     it('should sort by year (using year_sort column)', async () => {
