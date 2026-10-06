@@ -44,6 +44,8 @@ export function useCreateBook() {
     onSuccess: () => {
       // Invalidate books queries to refetch
       queryClient.invalidateQueries({ queryKey: ['books'] })
+      // Invalidate languages query so new language codes appear in filter
+      queryClient.invalidateQueries({ queryKey: ['languages'] })
     },
   })
 }

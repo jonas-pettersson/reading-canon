@@ -86,6 +86,8 @@ export function useUpdateBook() {
       queryClient.invalidateQueries({ queryKey: ['book', variables.bookId] })
       // Invalidate the books list query
       queryClient.invalidateQueries({ queryKey: ['books'] })
+      // Invalidate languages query so updated language codes appear in filter
+      queryClient.invalidateQueries({ queryKey: ['languages'] })
     },
   })
 }
