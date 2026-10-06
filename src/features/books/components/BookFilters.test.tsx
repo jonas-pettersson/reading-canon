@@ -1,7 +1,13 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { BookFilters, type BookFiltersState } from './BookFilters'
-import { PRIMARY_CATEGORIES, READING_STATUSES, OWNERSHIP_STATUSES } from '../constants'
+import {
+  PRIMARY_CATEGORIES,
+  READING_STATUSES,
+  OWNERSHIP_STATUSES,
+  getReadingStatusDisplayName,
+  getOwnershipStatusDisplayName
+} from '../constants'
 
 describe('BookFilters', () => {
   const defaultFilters: BookFiltersState = {
@@ -108,7 +114,7 @@ describe('BookFilters', () => {
       )
 
       READING_STATUSES.forEach((status) => {
-        expect(screen.getByRole('option', { name: status })).toBeInTheDocument()
+        expect(screen.getByRole('option', { name: getReadingStatusDisplayName(status) })).toBeInTheDocument()
       })
     })
 
@@ -123,7 +129,7 @@ describe('BookFilters', () => {
       )
 
       OWNERSHIP_STATUSES.forEach((status) => {
-        expect(screen.getByRole('option', { name: status })).toBeInTheDocument()
+        expect(screen.getByRole('option', { name: getOwnershipStatusDisplayName(status) })).toBeInTheDocument()
       })
     })
   })
@@ -197,11 +203,11 @@ describe('BookFilters', () => {
       )
 
       const statusSelect = screen.getByLabelText('Reading Status')
-      fireEvent.change(statusSelect, { target: { value: 'Reading' } })
+      fireEvent.change(statusSelect, { target: { value: 'reading' } })
 
       expect(mockOnFiltersChange).toHaveBeenCalledWith({
         ...defaultFilters,
-        readingStatus: 'Reading',
+        readingStatus: 'reading',
       })
     })
 
@@ -216,11 +222,11 @@ describe('BookFilters', () => {
       )
 
       const ownershipSelect = screen.getByLabelText('Ownership')
-      fireEvent.change(ownershipSelect, { target: { value: 'Owned Physical' } })
+      fireEvent.change(ownershipSelect, { target: { value: 'owned_physical' } })
 
       expect(mockOnFiltersChange).toHaveBeenCalledWith({
         ...defaultFilters,
-        ownershipStatus: 'Owned Physical',
+        ownershipStatus: 'owned_physical',
       })
     })
 

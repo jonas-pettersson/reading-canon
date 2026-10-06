@@ -1,5 +1,11 @@
 import { useState, useEffect, useCallback } from 'react'
-import { PRIMARY_CATEGORIES, READING_STATUSES, OWNERSHIP_STATUSES } from '../constants'
+import {
+  PRIMARY_CATEGORIES,
+  READING_STATUSES,
+  OWNERSHIP_STATUSES,
+  getReadingStatusDisplayName,
+  getOwnershipStatusDisplayName
+} from '../constants'
 
 export interface BookFiltersState {
   search: string
@@ -261,7 +267,7 @@ export function BookFilters({ filters, onFiltersChange }: BookFiltersProps) {
             <option value="">All Statuses</option>
             {READING_STATUSES.map((status) => (
               <option key={status} value={status}>
-                {status}
+                {getReadingStatusDisplayName(status)}
               </option>
             ))}
           </select>
@@ -296,7 +302,7 @@ export function BookFilters({ filters, onFiltersChange }: BookFiltersProps) {
             <option value="">All</option>
             {OWNERSHIP_STATUSES.map((status) => (
               <option key={status} value={status}>
-                {status}
+                {getOwnershipStatusDisplayName(status)}
               </option>
             ))}
           </select>
