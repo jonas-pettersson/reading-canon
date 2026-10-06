@@ -37,7 +37,6 @@ describe('PersonalDataPanel', () => {
     user_id: 'user-1',
     book_id: 'book-1',
     reading_status: 'not_started',
-    personal_priority: null,
     ownership_status: 'not_owned',
     personal_rating: null,
     personal_notes: null,
@@ -81,7 +80,6 @@ describe('PersonalDataPanel', () => {
       render(<PersonalDataPanel bookId="book-1" />, { wrapper: createWrapper() })
 
       expect(screen.getByLabelText(/reading status/i)).toBeInTheDocument()
-      expect(screen.getByLabelText(/priority/i)).toBeInTheDocument()
       expect(screen.getByLabelText(/ownership/i)).toBeInTheDocument()
       expect(screen.getByLabelText(/rating/i)).toBeInTheDocument()
       expect(screen.getByLabelText(/personal notes/i)).toBeInTheDocument()
@@ -91,7 +89,6 @@ describe('PersonalDataPanel', () => {
       const status: UserReadingStatus = {
         ...defaultReadingStatus,
         reading_status: 'reading',
-        personal_priority: 'high',
         ownership_status: 'owned_physical',
         personal_rating: 4,
         personal_notes: 'Great book so far!',
@@ -150,57 +147,6 @@ describe('PersonalDataPanel', () => {
 
       expect(screen.queryByText(/started:/i)).not.toBeInTheDocument()
       expect(screen.queryByText(/completed:/i)).not.toBeInTheDocument()
-    })
-  })
-
-  describe('Priority Select', () => {
-    it('allows changing priority', async () => {
-      const user = userEvent.setup()
-
-      render(<PersonalDataPanel bookId="book-1" />, { wrapper: createWrapper() })
-
-      const prioritySelect = screen.getByLabelText(/priority/i)
-      await user.selectOptions(prioritySelect, 'high')
-
-      await waitFor(() => {
-        expect(mockMutate).toHaveBeenCalledWith({
-          bookId: 'book-1',
-          updates: {
-            personal_priority: 'high',
-          },
-        })
-      })
-    })
-
-    it('allows setting priority to none', async () => {
-      const user = userEvent.setup()
-
-      const status: UserReadingStatus = {
-        ...defaultReadingStatus,
-        personal_priority: 'high',
-      }
-
-      vi.mocked(useReadingStatus).mockReturnValue({
-        data: status,
-        isLoading: false,
-        isError: false,
-        error: null,
-        isSuccess: true,
-      } as any)
-
-      render(<PersonalDataPanel bookId="book-1" />, { wrapper: createWrapper() })
-
-      const prioritySelect = screen.getByLabelText(/priority/i)
-      await user.selectOptions(prioritySelect, '')
-
-      await waitFor(() => {
-        expect(mockMutate).toHaveBeenCalledWith({
-          bookId: 'book-1',
-          updates: {
-            personal_priority: null,
-          },
-        })
-      })
     })
   })
 
@@ -370,7 +316,6 @@ describe('PersonalDataPanel', () => {
       render(<PersonalDataPanel bookId="book-1" />, { wrapper: createWrapper() })
 
       expect(screen.getByLabelText(/reading status/i)).toBeInTheDocument()
-      expect(screen.getByLabelText(/priority/i)).toBeInTheDocument()
       expect(screen.getByLabelText(/ownership/i)).toBeInTheDocument()
       expect(screen.getByLabelText(/rating/i)).toBeInTheDocument()
       expect(screen.getByLabelText(/personal notes/i)).toBeInTheDocument()
@@ -401,7 +346,7 @@ describe('PersonalDataPanel', () => {
 
       // Should still render form with default values
       expect(screen.getByLabelText(/reading status/i)).toBeInTheDocument()
-      expect(screen.getByLabelText(/priority/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(/ownership/i)).toBeInTheDocument()
     })
   })
 })

@@ -3,24 +3,13 @@ import { supabase } from '@/lib/supabase'
 import type { Book, Database } from '@/types/database'
 
 type ReadingStatus = Database['public']['Enums']['reading_status_enum']
-type Priority = Database['public']['Enums']['priority_enum']
 
 /**
  * Reading dashboard data type combining book and user reading status
  */
 export type ReadingBook = Book & {
   started_at?: string | null
-  personal_priority?: Priority | null
   reading_status: ReadingStatus
-}
-
-/**
- * Priority order for sorting (high > medium > low > none)
- */
-const PRIORITY_ORDER: Record<string, number> = {
-  high: 1,
-  medium: 2,
-  low: 3,
 }
 
 /**
@@ -71,26 +60,17 @@ export function useReadingBooks() {
 
 /**
  * Fetch books the user wants to read.
- * Returns books with reading_status = "want_to_read", sorted by priority (high → medium → low → none).
- *
- * @param priorityFilter - Optional filter to show only books with a specific priority
+ * Returns books with reading_status = "want_to_read", ordered by book title.
  */
-export function useWantToReadBooks(priorityFilter?: Priority) {
+export function useWantToReadBooks() {
   return useQuery({
-    queryKey: ['want-to-read-books', priorityFilter],
+    queryKey: ['want-to-read-books'],
     queryFn: async () => {
       // First, get user reading status for "want_to_read" books
-      let query = supabase
+      const { data: statusData, error: statusError } = await supabase
         .from('user_reading_status')
-        .select('book_id, personal_priority, reading_status')
+        .select('book_id, reading_status')
         .eq('reading_status', 'want_to_read')
-
-      // Apply priority filter if provided
-      if (priorityFilter) {
-        query = query.eq('personal_priority', priorityFilter)
-      }
-
-      const { data: statusData, error: statusError } = await query
 
       if (statusError) throw statusError
       if (!statusData || statusData.length === 0) return []
@@ -112,20 +92,13 @@ export function useWantToReadBooks(priorityFilter?: Priority) {
           if (!book) return null
           return {
             ...book,
-            personal_priority: status.personal_priority,
             reading_status: status.reading_status,
           } as ReadingBook
         })
         .filter((b): b is ReadingBook => b !== null)
 
-      // Sort by priority: high → medium → low → none
-      result.sort((a, b) => {
-        const aPriority = a.personal_priority || ''
-        const bPriority = b.personal_priority || ''
-        const aOrder = PRIORITY_ORDER[aPriority] || 999
-        const bOrder = PRIORITY_ORDER[bPriority] || 999
-        return aOrder - bOrder
-      })
+      // Sort by title
+      result.sort((a, b) => a.title.localeCompare(b.title))
 
       return result
     },

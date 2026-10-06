@@ -82,14 +82,13 @@ describe('ReadingDashboardPage', () => {
     })
   })
 
-  it('displays want to read books with priorities', async () => {
+  it('displays want to read books', async () => {
     const mockWantToReadBooks: ReadingBook[] = [
       {
         id: 'book-1',
         title: 'To Kill a Mockingbird',
         author_display_name: 'Harper Lee',
         year_sort: 1960,
-        personal_priority: 'high',
         reading_status: 'want_to_read',
       } as ReadingBook,
       {
@@ -97,7 +96,6 @@ describe('ReadingDashboardPage', () => {
         title: '1984',
         author_display_name: 'George Orwell',
         year_sort: 1949,
-        personal_priority: 'medium',
         reading_status: 'want_to_read',
       } as ReadingBook,
     ]
@@ -120,8 +118,6 @@ describe('ReadingDashboardPage', () => {
       expect(screen.getByText('Want to Read')).toBeInTheDocument()
       expect(screen.getByText('To Kill a Mockingbird')).toBeInTheDocument()
       expect(screen.getByText('1984')).toBeInTheDocument()
-      expect(screen.getByText('high')).toBeInTheDocument()
-      expect(screen.getByText('medium')).toBeInTheDocument()
     })
   })
 

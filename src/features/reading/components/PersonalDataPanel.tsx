@@ -3,17 +3,10 @@ import { useReadingStatus, useUpdateReadingStatus } from '../hooks/useReadingSta
 import { ReadingStatusSelect } from './ReadingStatusSelect'
 import type { Database } from '@/types/database'
 
-type PriorityEnum = Database['public']['Enums']['priority_enum']
 type OwnershipStatus = Database['public']['Enums']['ownership_status_enum']
 
 interface PersonalDataPanelProps {
   bookId: string
-}
-
-const PRIORITY_LABELS: Record<PriorityEnum, string> = {
-  high: 'High',
-  medium: 'Medium',
-  low: 'Low',
 }
 
 const OWNERSHIP_LABELS: Record<OwnershipStatus, string> = {
@@ -26,7 +19,7 @@ const OWNERSHIP_LABELS: Record<OwnershipStatus, string> = {
 
 /**
  * Panel component for editing personal reading data
- * Includes status, priority, ownership, rating, notes, and timestamps
+ * Includes status, ownership, rating, notes, and timestamps
  */
 export function PersonalDataPanel({ bookId }: PersonalDataPanelProps) {
   const { data: readingStatus, isLoading } = useReadingStatus(bookId)
@@ -41,16 +34,6 @@ export function PersonalDataPanel({ bookId }: PersonalDataPanelProps) {
 
   if (isLoading) {
     return <div className="text-gray-500">Loading personal data...</div>
-  }
-
-  const handlePriorityChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = event.target.value
-    mutate({
-      bookId,
-      updates: {
-        personal_priority: value === '' ? null : (value as PriorityEnum),
-      },
-    })
   }
 
   const handleOwnershipChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -111,24 +94,6 @@ export function PersonalDataPanel({ bookId }: PersonalDataPanelProps) {
           currentStatus={readingStatus?.reading_status || 'not_started'}
           className="w-full"
         />
-      </div>
-
-      {/* Priority */}
-      <div>
-        <label htmlFor={`priority-${bookId}`} className="mb-1 block text-sm font-medium text-gray-700">
-          Priority
-        </label>
-        <select
-          id={`priority-${bookId}`}
-          value={readingStatus?.personal_priority || ''}
-          onChange={handlePriorityChange}
-          className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-        >
-          <option value="">None</option>
-          <option value="high">{PRIORITY_LABELS.high}</option>
-          <option value="medium">{PRIORITY_LABELS.medium}</option>
-          <option value="low">{PRIORITY_LABELS.low}</option>
-        </select>
       </div>
 
       {/* Ownership */}

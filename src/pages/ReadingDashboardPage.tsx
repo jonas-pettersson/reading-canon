@@ -11,7 +11,7 @@ type ReadingStatus = Database['public']['Enums']['reading_status_enum']
  *
  * Primary page for reader workflow (UC-001, UC-002):
  * - View books currently reading
- * - View books in want-to-read list, sorted by priority
+ * - View books in want-to-read list
  * - Quick actions to update status
  * - Mobile-optimized per UX-011
  */
@@ -162,33 +162,16 @@ function WantToReadBookCard({
   book: ReadingBook
   onStatusChange: (status: ReadingStatus) => void
 }) {
-  const priorityColors = {
-    high: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-    medium: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
-    low: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-  }
-
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 sm:p-6">
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <Link
-              to={`/books/${book.id}`}
-              className="text-lg font-semibold text-blue-600 dark:text-blue-400 hover:underline"
-            >
-              {book.title}
-            </Link>
-            {book.personal_priority && (
-              <span
-                className={`px-2 py-1 rounded text-xs font-medium ${
-                  priorityColors[book.personal_priority]
-                }`}
-              >
-                {book.personal_priority}
-              </span>
-            )}
-          </div>
+          <Link
+            to={`/books/${book.id}`}
+            className="text-lg font-semibold text-blue-600 dark:text-blue-400 hover:underline"
+          >
+            {book.title}
+          </Link>
           <p className="text-gray-700 dark:text-gray-300 mt-1">
             {book.author_display_name}
             {book.year_sort && ` (${book.year_sort})`}

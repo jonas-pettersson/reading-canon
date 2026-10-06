@@ -144,25 +144,25 @@ describe('useWantToReadBooks', () => {
     vi.clearAllMocks()
   })
 
-  it('fetches books with want to read status sorted by priority', async () => {
+  it('fetches books with want to read status sorted by title', async () => {
     const mockBooks = [
       {
         id: 'book-1',
-        title: 'High Priority Book',
-        author_display_name: 'Author 1',
-        year_sort: 2020,
+        title: 'Moby Dick',
+        author_display_name: 'Herman Melville',
+        year_sort: 1851,
       },
       {
         id: 'book-2',
-        title: 'Medium Priority Book',
-        author_display_name: 'Author 2',
-        year_sort: 2021,
+        title: 'Animal Farm',
+        author_display_name: 'George Orwell',
+        year_sort: 1945,
       },
       {
         id: 'book-3',
-        title: 'Low Priority Book',
-        author_display_name: 'Author 3',
-        year_sort: 2022,
+        title: 'Zen and the Art',
+        author_display_name: 'Robert Pirsig',
+        year_sort: 1974,
       },
     ]
 
@@ -170,17 +170,14 @@ describe('useWantToReadBooks', () => {
       {
         book_id: 'book-1',
         reading_status: 'want_to_read',
-        personal_priority: 'high',
       },
       {
         book_id: 'book-2',
         reading_status: 'want_to_read',
-        personal_priority: 'medium',
       },
       {
         book_id: 'book-3',
         reading_status: 'want_to_read',
-        personal_priority: 'low',
       },
     ]
 
@@ -207,52 +204,10 @@ describe('useWantToReadBooks', () => {
     })
 
     expect(result.current.data).toHaveLength(3)
-    // Verify sorted by priority: High → Medium → Low
-    expect(result.current.data?.[0].personal_priority).toBe('high')
-    expect(result.current.data?.[1].personal_priority).toBe('medium')
-    expect(result.current.data?.[2].personal_priority).toBe('low')
-  })
-
-  it('places books with no priority at the end', async () => {
-    const mockBooks = [
-      { id: 'book-1', title: 'High Priority', author_display_name: 'A1', year_sort: 2020 },
-      { id: 'book-2', title: 'No Priority', author_display_name: 'A2', year_sort: 2021 },
-      { id: 'book-3', title: 'Low Priority', author_display_name: 'A3', year_sort: 2022 },
-    ]
-
-    const mockStatus = [
-      { book_id: 'book-1', reading_status: 'want_to_read', personal_priority: 'high' },
-      { book_id: 'book-2', reading_status: 'want_to_read', personal_priority: null },
-      { book_id: 'book-3', reading_status: 'want_to_read', personal_priority: 'low' },
-    ]
-
-    const mockQuery = {
-      select: vi.fn().mockReturnThis(),
-      eq: vi.fn().mockResolvedValue({ data: mockStatus, error: null }),
-    }
-
-    const mockBooksQuery = {
-      select: vi.fn().mockReturnThis(),
-      in: vi.fn().mockResolvedValue({ data: mockBooks, error: null }),
-    }
-
-    vi.mocked(supabase.from)
-      .mockReturnValueOnce(mockQuery as never)
-      .mockReturnValueOnce(mockBooksQuery as never)
-
-    const { result } = renderHook(() => useWantToReadBooks(), {
-      wrapper: createWrapper(),
-    })
-
-    await waitFor(() => {
-      expect(result.current.isLoading).toBe(false)
-    })
-
-    expect(result.current.data).toHaveLength(3)
-    // High should be first, Low second, null last
-    expect(result.current.data?.[0].personal_priority).toBe('high')
-    expect(result.current.data?.[1].personal_priority).toBe('low')
-    expect(result.current.data?.[2].personal_priority).toBeNull()
+    // Verify sorted by title alphabetically
+    expect(result.current.data?.[0].title).toBe('Animal Farm')
+    expect(result.current.data?.[1].title).toBe('Moby Dick')
+    expect(result.current.data?.[2].title).toBe('Zen and the Art')
   })
 
   it('returns empty array when no books in want to read', async () => {
@@ -293,49 +248,5 @@ describe('useWantToReadBooks', () => {
     })
 
     expect(result.current.data).toBeUndefined()
-  })
-
-  it('filters by priority when provided', async () => {
-    const mockBooks = [
-      { id: 'book-1', title: 'High Priority', author_display_name: 'A1', year_sort: 2020 },
-      { id: 'book-2', title: 'Medium Priority', author_display_name: 'A2', year_sort: 2021 },
-    ]
-
-    const mockStatus = [
-      { book_id: 'book-1', reading_status: 'want_to_read', personal_priority: 'high' },
-    ]
-
-    // Create a mock that supports chaining .eq() calls
-    const mockQuery = {
-      select: vi.fn().mockReturnThis(),
-      eq: vi.fn(),
-    }
-    // First .eq() call returns the query for chaining
-    // Second .eq() call resolves with data
-    mockQuery.eq
-      .mockReturnValueOnce(mockQuery)
-      .mockResolvedValueOnce({ data: mockStatus, error: null })
-
-    const mockBooksQuery = {
-      select: vi.fn().mockReturnThis(),
-      in: vi.fn().mockResolvedValue({ data: mockBooks, error: null }),
-    }
-
-    vi.mocked(supabase.from)
-      .mockReturnValueOnce(mockQuery as never)
-      .mockReturnValueOnce(mockBooksQuery as never)
-
-    const { result } = renderHook(() => useWantToReadBooks('high'), {
-      wrapper: createWrapper(),
-    })
-
-    await waitFor(() => {
-      expect(result.current.isLoading).toBe(false)
-    })
-
-    // Verify only High priority books are returned
-    expect(result.current.data).toHaveLength(1)
-    expect(result.current.data?.[0].personal_priority).toBe('high')
-    expect(result.current.data?.[0].title).toBe('High Priority')
   })
 })

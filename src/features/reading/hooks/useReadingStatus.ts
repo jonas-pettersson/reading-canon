@@ -36,7 +36,6 @@ interface UpdateReadingStatusParams {
   bookId: string
   updates: Partial<{
     reading_status: UserReadingStatus['reading_status']
-    personal_priority: UserReadingStatus['personal_priority']
     ownership_status: UserReadingStatus['ownership_status']
     personal_rating: UserReadingStatus['personal_rating']
     personal_notes: UserReadingStatus['personal_notes']

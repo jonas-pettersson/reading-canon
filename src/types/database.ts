@@ -145,7 +145,6 @@ export type Database = {
           id: string
           ownership_status: Database["public"]["Enums"]["ownership_status_enum"]
           personal_notes: string | null
-          personal_priority: Database["public"]["Enums"]["priority_enum"] | null
           personal_rating: number | null
           reading_status: Database["public"]["Enums"]["reading_status_enum"]
           started_at: string | null
@@ -159,9 +158,6 @@ export type Database = {
           id?: string
           ownership_status?: Database["public"]["Enums"]["ownership_status_enum"]
           personal_notes?: string | null
-          personal_priority?:
-            | Database["public"]["Enums"]["priority_enum"]
-            | null
           personal_rating?: number | null
           reading_status?: Database["public"]["Enums"]["reading_status_enum"]
           started_at?: string | null
@@ -175,9 +171,6 @@ export type Database = {
           id?: string
           ownership_status?: Database["public"]["Enums"]["ownership_status_enum"]
           personal_notes?: string | null
-          personal_priority?:
-            | Database["public"]["Enums"]["priority_enum"]
-            | null
           personal_rating?: number | null
           reading_status?: Database["public"]["Enums"]["reading_status_enum"]
           started_at?: string | null
@@ -209,7 +202,6 @@ export type Database = {
         | "owned_physical"
         | "owned_digital"
         | "borrowed"
-      priority_enum: "high" | "medium" | "low"
       reading_status_enum:
         | "not_started"
         | "want_to_read"
@@ -354,7 +346,6 @@ export const Constants = {
         "owned_digital",
         "borrowed",
       ],
-      priority_enum: ["high", "medium", "low"],
       reading_status_enum: [
         "not_started",
         "want_to_read",
@@ -366,8 +357,3 @@ export const Constants = {
     },
   },
 } as const
-
-// Helper type exports for commonly used database tables
-export type Book = Database['public']['Tables']['books']['Row']
-export type UserReadingStatus = Database['public']['Tables']['user_reading_status']['Row']
-export type ExternalReference = Database['public']['Tables']['external_references']['Row']
