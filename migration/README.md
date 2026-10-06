@@ -10,6 +10,21 @@ This directory contains scripts for migrating Excel data to the Supabase databas
 - **`create-test-data.ts`** - Utility to generate test Excel data
 - **`verify-migration.test.ts`** - Integration tests for migration validation (ONE-TIME, not in regression suite)
 
+## Setup
+
+Add your Supabase service role key to `.env.local`:
+
+```bash
+VITE_SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
+```
+
+**Where to find it:** Supabase Dashboard → Settings → API → `service_role` key (secret)
+
+**Why service role?** 
+- Bypasses RLS policies (appropriate for admin data migration)
+- No authentication required
+- Standard approach for admin operations
+
 ## Usage
 
 ### 1. Test Migration (Task 5.2.1)
@@ -20,7 +35,7 @@ Create test data and run migration verification:
 # Create test Excel file
 npm run create-test-data
 
-# Run automated verification tests (requires authentication)
+# Run automated verification tests
 npm run test:migration
 
 # Or manually run migration with test data
@@ -28,8 +43,8 @@ npm run migrate migration/test-data.xlsx
 ```
 
 **Prerequisites:**
-- You must be logged into the application (have a valid session)
-- `.env.local` must contain valid Supabase credentials
+- `.env.local` must contain `VITE_SUPABASE_URL` and `VITE_SUPABASE_SERVICE_ROLE_KEY`
+- At least one book must exist in database (for curator user_id lookup)
 
 ### 2. Production Migration (Task 5.2.2)
 

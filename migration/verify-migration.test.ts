@@ -35,25 +35,59 @@ describe.skipIf(SKIP_MIGRATION_TESTS)('Migration Verification (Integration)', ()
   beforeAll(async () => {
     // Verify environment variables
     const supabaseUrl = process.env.VITE_SUPABASE_URL
-    const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY
+    const serviceRoleKey = process.env.VITE_SUPABASE_SERVICE_ROLE_KEY
+    const anonKey = process.env.VITE_SUPABASE_ANON_KEY
 
-    if (!supabaseUrl || !supabaseKey) {
-      throw new Error('Supabase credentials not found. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY')
+    if (!supabaseUrl) {
+      throw new Error('VITE_SUPABASE_URL not found in environment')
+    }
+
+    const supabaseKey = serviceRoleKey || anonKey
+
+    if (!supabaseKey) {
+      throw new Error('Set either VITE_SUPABASE_SERVICE_ROLE_KEY or VITE_SUPABASE_ANON_KEY')
     }
 
     // Create Supabase client
-    supabase = createClient<Database>(supabaseUrl, supabaseKey)
+    supabase = createClient<Database>(supabaseUrl, supabaseKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    })
 
-    // Get current user
-    const { data: userData, error: userError } = await supabase.auth.getUser()
-    if (userError || !userData.user) {
-      throw new Error('Not authenticated. Please log in first.')
+    // Get curator user_id
+    if (serviceRoleKey) {
+      console.log('\nUsing service role key (admin access)')
+
+      // Find curator user_id from existing books
+      const { data: books, error } = await supabase
+        .from('books')
+        .select('created_by_user_id')
+        .not('created_by_user_id', 'is', null)
+        .limit(1)
+
+      if (error || !books || books.length === 0 || !books[0].created_by_user_id) {
+        throw new Error('Could not find curator user_id. Please create at least one book first.')
+      }
+
+      userId = books[0].created_by_user_id
+      console.log(`Found curator user_id: ${userId}`)
+    } else {
+      console.log('\nUsing anon key - checking authentication')
+
+      // Get current user from auth session
+      const { data: userData, error: userError } = await supabase.auth.getUser()
+      if (userError || !userData.user) {
+        throw new Error('Not authenticated. Please log in first or use service role key.')
+      }
+      userId = userData.user.id
+      console.log(`Using authenticated user: ${userId}`)
     }
-    userId = userData.user.id
 
     // Create test data file
     testFilePath = createTestExcelFile()
-    console.log(`\nTest data created: ${testFilePath}`)
+    console.log(`Test data created: ${testFilePath}`)
   })
 
   afterAll(async () => {
@@ -92,7 +126,7 @@ describe.skipIf(SKIP_MIGRATION_TESTS)('Migration Verification (Integration)', ()
   })
 
   it('should successfully execute migration with test data', async () => {
-    const result = await runMigration(testFilePath, supabase)
+    const result = await runMigration(testFilePath, supabase, userId)
 
     expect(result.success).toBe(true)
     expect(result.booksImported).toBeGreaterThan(0)
@@ -195,7 +229,7 @@ describe.skipIf(SKIP_MIGRATION_TESTS)('Migration Verification (Integration)', ()
 
   it('should handle duplicate prevention (idempotent)', async () => {
     // Run migration again with same data
-    const result = await runMigration(testFilePath, supabase)
+    const result = await runMigration(testFilePath, supabase, userId)
 
     // Should succeed but import 0 new books (all duplicates)
     expect(result.success).toBe(true)

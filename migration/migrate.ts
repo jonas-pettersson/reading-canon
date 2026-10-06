@@ -21,7 +21,8 @@ export interface MigrationResult {
  */
 export async function runMigration(
   excelFilePath: string,
-  supabase: SupabaseClient<Database>
+  supabase: SupabaseClient<Database>,
+  curatorUserId?: string
 ): Promise<MigrationResult> {
   try {
     // 1. Parse Excel file
@@ -53,11 +54,21 @@ export async function runMigration(
     }
 
     // 4. Get current user (for user_id in reading status)
-    const { data: userData, error: userError } = await supabase.auth.getUser()
-    if (userError || !userData.user) {
-      throw new Error('Failed to get current user. Make sure you are authenticated.')
+    let userId: string
+
+    if (curatorUserId) {
+      // Service role key migration - user_id provided
+      userId = curatorUserId
+      console.log(`Using provided user_id: ${userId}`)
+    } else {
+      // Anon key migration - get from auth session
+      const { data: userData, error: userError } = await supabase.auth.getUser()
+      if (userError || !userData.user) {
+        throw new Error('Failed to get current user. Make sure you are authenticated or provide curatorUserId.')
+      }
+      userId = userData.user.id
+      console.log(`Using authenticated user: ${userId}`)
     }
-    const userId = userData.user.id
 
     // 5. Check for existing books (idempotent operation)
     console.log('\nChecking for existing books...')
