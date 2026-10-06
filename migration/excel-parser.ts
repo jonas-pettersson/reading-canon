@@ -257,33 +257,36 @@ function parseUserReadingStatus(
     status.ownership_status = 'not_owned'
   }
 
-  // Parse Prio column (complex: priority, rating, or reading status)
+  // Parse Prio column (complex: rating or reading status)
   // Convert to string to handle both string and numeric values
   const prioValue = row.Prio !== undefined && row.Prio !== null ? String(row.Prio).trim().toLowerCase() : ''
   if (prioValue) {
     if (prioValue === 'x') {
-      status.personal_priority = 'high'
-    } else if (prioValue === '-') {
-      status.reading_status = 'reading'
+      // 'x' in Prio means "want to read"
+      status.reading_status = 'want_to_read'
     } else if (/^[1-5]$/.test(prioValue)) {
       // German school grading system: 1 = best, 5 = worst
       // Invert to star rating: 1 = 5 stars, 5 = 1 star
       const germanGrade = parseInt(prioValue, 10)
       status.personal_rating = 6 - germanGrade
-    } else {
+    } else if (prioValue !== '-') {
+      // Ignore '-' in Prio (was old reading status marker, now handled by Read column)
       validationWarnings.push(
-        `Row ${rowNumber}: Unrecognized Prio value "${row.Prio}". Expected: x, 1-5, or -`
+        `Row ${rowNumber}: Unrecognized Prio value "${row.Prio}". Expected: x, 1-5`
       )
     }
   }
 
   // Parse Read column (reading_status)
-  // Only apply if Prio didn't already set reading_status
+  // Only apply if Prio didn't already set reading_status (e.g., want_to_read)
   if (!status.reading_status) {
     if (row.Read !== undefined && row.Read !== null) {
       const readValue = String(row.Read).trim().toLowerCase()
       if (readValue === 'x') {
         status.reading_status = 'finished'
+      } else if (readValue === '-') {
+        // '-' in Read means currently reading
+        status.reading_status = 'reading'
       } else {
         // Explicit blank in Excel means not started
         status.reading_status = 'not_started'

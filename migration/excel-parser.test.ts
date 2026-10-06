@@ -248,11 +248,11 @@ describe('parseExcelFile', () => {
   })
 
   describe('Prio column mapping', () => {
-    it('should map "x" to high priority', () => {
+    it('should map "x" to want_to_read', () => {
       const testData = [
         {
           'Author': 'Test Author',
-          'Title (EN)': 'Priority Book',
+          'Title (EN)': 'Want to Read Book',
           'Prio': 'x',
         },
       ]
@@ -261,9 +261,9 @@ describe('parseExcelFile', () => {
       const result = parseExcelFile(testFilePath)
 
       expect(result.userReadingStatuses).toHaveLength(1)
-      expect(result.userReadingStatuses[0].personal_priority).toBe('high')
+      expect(result.userReadingStatuses[0].reading_status).toBe('want_to_read')
+      expect(result.userReadingStatuses[0].personal_priority).toBeUndefined()
       expect(result.userReadingStatuses[0].personal_rating).toBeUndefined()
-      expect(result.userReadingStatuses[0].reading_status).toBe('not_started')
     })
 
     it('should map numeric values 1-5 to personal_rating (inverted from German grading)', () => {
@@ -282,11 +282,11 @@ describe('parseExcelFile', () => {
       expect(result.userReadingStatuses[2].personal_rating).toBe(1) // Inverted: 6 - 5 = 1
     })
 
-    it('should map "-" to reading status', () => {
+    it('should ignore "-" in Prio column', () => {
       const testData = [
         {
           'Author': 'Test Author',
-          'Title (EN)': 'Currently Reading',
+          'Title (EN)': 'Book with Prio Dash',
           'Prio': '-',
         },
       ]
@@ -295,7 +295,7 @@ describe('parseExcelFile', () => {
       const result = parseExcelFile(testFilePath)
 
       expect(result.userReadingStatuses).toHaveLength(1)
-      expect(result.userReadingStatuses[0].reading_status).toBe('reading')
+      expect(result.userReadingStatuses[0].reading_status).toBe('not_started')
       expect(result.userReadingStatuses[0].personal_priority).toBeUndefined()
       expect(result.userReadingStatuses[0].personal_rating).toBeUndefined()
     })
@@ -433,13 +433,12 @@ describe('parseExcelFile', () => {
       expect(result.userReadingStatuses[0].reading_status).toBe('finished')
     })
 
-    it('should handle Prio "-" overriding Read blank', () => {
+    it('should map "-" to reading (currently reading)', () => {
       const testData = [
         {
           'Author': 'Test Author',
           'Title (EN)': 'Currently Reading',
-          'Prio': '-',
-          'Read': '',
+          'Read': '-',
         },
       ]
       createTestExcelFile(testData, testFilePath)
@@ -447,6 +446,37 @@ describe('parseExcelFile', () => {
       const result = parseExcelFile(testFilePath)
 
       expect(result.userReadingStatuses[0].reading_status).toBe('reading')
+    })
+
+    it('should handle case-insensitive "-"', () => {
+      const testData = [
+        {
+          'Author': 'Test Author',
+          'Title (EN)': 'Currently Reading',
+          'Read': '-',
+        },
+      ]
+      createTestExcelFile(testData, testFilePath)
+
+      const result = parseExcelFile(testFilePath)
+
+      expect(result.userReadingStatuses[0].reading_status).toBe('reading')
+    })
+
+    it('should prioritize Prio "x" (want_to_read) over Read blank', () => {
+      const testData = [
+        {
+          'Author': 'Test Author',
+          'Title (EN)': 'Want to Read',
+          'Prio': 'x',
+          'Read': '',
+        },
+      ]
+      createTestExcelFile(testData, testFilePath)
+
+      const result = parseExcelFile(testFilePath)
+
+      expect(result.userReadingStatuses[0].reading_status).toBe('want_to_read')
     })
   })
 
@@ -521,8 +551,7 @@ describe('parseExcelFile', () => {
           'Year': '8th century BC',
           'Sort Time': -750,
           'Category': 'Epic',
-          'Prio': 'x',
-          'Read': 'X',
+          'Read': 'X',  // Finished reading
         },
         {
           'Last Name': 'Tolstoy',
@@ -532,7 +561,12 @@ describe('parseExcelFile', () => {
           'Sort Time': 1869,
           'Genre': 'Historical Fiction',
           'Lib': 'X',
-          'Prio': '5',
+          'Prio': '5',  // Rating: German grade 5 → 1 star
+        },
+        {
+          'Author': 'Kafka',
+          'Title (EN)': 'The Trial',
+          'Prio': 'x',  // Want to read
         },
         {
           'Author': 'Unknown',
@@ -544,22 +578,25 @@ describe('parseExcelFile', () => {
 
       const result = parseExcelFile(testFilePath)
 
-      expect(result.books).toHaveLength(3)
-      expect(result.userReadingStatuses).toHaveLength(3)
+      expect(result.books).toHaveLength(4)
+      expect(result.userReadingStatuses).toHaveLength(4)
       expect(result.validationErrors).toHaveLength(0)
 
-      // Verify first book
+      // Verify first book (finished reading)
       expect(result.books[0].author_display_name).toBe('Homer')
-      expect(result.userReadingStatuses[0].personal_priority).toBe('high')
       expect(result.userReadingStatuses[0].reading_status).toBe('finished')
 
-      // Verify second book
+      // Verify second book (rated, owned)
       expect(result.books[1].author_display_name).toBe('Tolstoy, Leo')
       expect(result.userReadingStatuses[1].personal_rating).toBe(1) // German grade 5 → 1 star (inverted)
       expect(result.userReadingStatuses[1].ownership_status).toBe('owned_physical')
 
-      // Verify third book (minimal)
-      expect(result.books[2].author_display_name).toBe('Unknown')
+      // Verify third book (want to read)
+      expect(result.books[2].author_display_name).toBe('Kafka')
+      expect(result.userReadingStatuses[2].reading_status).toBe('want_to_read')
+
+      // Verify fourth book (minimal)
+      expect(result.books[3].author_display_name).toBe('Unknown')
     })
   })
 })

@@ -63,6 +63,7 @@ describe('runMigration', () => {
         ] as any,
         validationErrors: [],
         validationWarnings: ['Warning 1'],
+        skippedRows: [],
       })
 
       await runMigration('./test.xlsx', mockSupabase)
@@ -70,6 +71,7 @@ describe('runMigration', () => {
       expect(consoleLogSpy).toHaveBeenCalledWith('\nPre-migration report:')
       expect(consoleLogSpy).toHaveBeenCalledWith('Books to import: 2')
       expect(consoleLogSpy).toHaveBeenCalledWith('Reading status records: 2')
+      expect(consoleLogSpy).toHaveBeenCalledWith('Skipped rows: 0')
       expect(consoleLogSpy).toHaveBeenCalledWith('Validation errors: 0')
       expect(consoleLogSpy).toHaveBeenCalledWith('Warnings: 1')
     })
@@ -80,6 +82,7 @@ describe('runMigration', () => {
         userReadingStatuses: [],
         validationErrors: ['Missing title in row 2', 'Missing author in row 3'],
         validationWarnings: [],
+        skippedRows: [],
       })
 
       const result = await runMigration('./test.xlsx', mockSupabase)
@@ -103,6 +106,7 @@ describe('runMigration', () => {
         userReadingStatuses: [] as any,
         validationErrors: [],
         validationWarnings: [],
+        skippedRows: [],
       })
 
       const mockInsertedBooks = mockBooks.map((book, i) => ({
@@ -129,6 +133,7 @@ describe('runMigration', () => {
         userReadingStatuses: [] as any,
         validationErrors: [],
         validationWarnings: [],
+        skippedRows: [],
       })
 
       const mockFrom = vi.fn(() => ({
@@ -167,6 +172,7 @@ describe('runMigration', () => {
         userReadingStatuses: mockStatuses as any,
         validationErrors: [],
         validationWarnings: [],
+        skippedRows: [],
       })
 
       const mockInsertedBooks = mockBooks.map((book, i) => ({
@@ -212,6 +218,7 @@ describe('runMigration', () => {
         userReadingStatuses: [{ book_id: '', user_id: '' }] as any,
         validationErrors: [],
         validationWarnings: [],
+        skippedRows: [],
       })
 
       const mockInsertedBooks = [{ id: 'book-1', title: 'Book 1', author_display_name: 'Author 1' }]
@@ -226,6 +233,9 @@ describe('runMigration', () => {
           }
         } else if (table === 'user_reading_status') {
           return {
+            select: vi.fn(() => ({
+              eq: vi.fn(() => Promise.resolve({ data: [], error: null })), // For existing reading statuses check
+            })),
             insert: vi.fn(() => Promise.resolve({
               data: null,
               error: { message: 'Foreign key constraint failed' },
@@ -254,6 +264,7 @@ describe('runMigration', () => {
         userReadingStatuses: [] as any,
         validationErrors: [],
         validationWarnings: [],
+        skippedRows: [],
       })
 
       // Mock existing books query
@@ -277,6 +288,13 @@ describe('runMigration', () => {
           return {
             select: selectFn,
             insert: insertFn,
+          }
+        } else if (table === 'user_reading_status') {
+          return {
+            select: vi.fn(() => ({
+              eq: vi.fn(() => Promise.resolve({ data: [], error: null })),
+            })),
+            insert: vi.fn(() => Promise.resolve({ data: [], error: null })),
           }
         }
         return {} as any
@@ -304,6 +322,7 @@ describe('runMigration', () => {
         ] as any,
         validationErrors: [],
         validationWarnings: [],
+        skippedRows: [],
       })
 
       const mockInsertedBooks = [
@@ -321,6 +340,9 @@ describe('runMigration', () => {
           }
         } else if (table === 'user_reading_status') {
           return {
+            select: vi.fn(() => ({
+              eq: vi.fn(() => Promise.resolve({ data: [], error: null })),
+            })),
             insert: vi.fn(() => Promise.resolve({ data: [{}, {}], error: null })),
           }
         }
@@ -344,6 +366,7 @@ describe('runMigration', () => {
         userReadingStatuses: [{ book_id: '', user_id: '' }] as any,
         validationErrors: [],
         validationWarnings: [],
+        skippedRows: [],
       })
 
       const mockInsertedBooks = [{ id: 'book-1', title: 'Book 1', author_display_name: 'Author 1' }]
@@ -358,6 +381,9 @@ describe('runMigration', () => {
           }
         } else if (table === 'user_reading_status') {
           return {
+            select: vi.fn(() => ({
+              eq: vi.fn(() => Promise.resolve({ data: [], error: null })),
+            })),
             insert: vi.fn(() => Promise.resolve({ data: [{}], error: null })),
           }
         }
@@ -380,6 +406,7 @@ describe('runMigration', () => {
         userReadingStatuses: [],
         validationErrors: ['Error'],
         validationWarnings: [],
+        skippedRows: [],
       })
 
       const result = await runMigration('./test.xlsx', mockSupabase)
