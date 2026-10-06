@@ -26,7 +26,13 @@ const bookFormSchema = z.object({
   year_published: z.string().optional(),
   primary_category: z.string().optional(),
   tags: z.string().optional(), // Will be split into array
-  original_language: z.string().optional(),
+  original_language: z
+    .string()
+    .optional()
+    .refine(
+      (val) => !val || /^[A-Z]{2,3}$/.test(val),
+      { message: 'Must be a 2-3 letter uppercase ISO language code (e.g., EN, DE, SV)' }
+    ),
   source: z.string().optional(),
   inclusion_rationale: z.string().optional(),
   author_lifespan: z.string().optional(),
@@ -292,8 +298,15 @@ export function EditBookForm({ book, externalReferences, onSuccess, onCancel }: 
               id="original_language"
               type="text"
               {...register('original_language')}
+              placeholder="e.g., EN, DE, SV"
+              aria-describedby={errors.original_language ? 'original-language-error' : undefined}
               className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
+            {errors.original_language && (
+              <p id="original-language-error" className="mt-1 text-sm text-red-600">
+                {errors.original_language.message}
+              </p>
+            )}
           </div>
         </div>
 

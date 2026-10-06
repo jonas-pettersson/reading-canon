@@ -9,6 +9,15 @@ import {
   getOwnershipStatusDisplayName
 } from '../constants'
 
+// Mock useLanguages hook
+vi.mock('../hooks/useLanguages', () => ({
+  useLanguages: () => ({
+    data: ['DE', 'EN', 'FR', 'SV'],
+    isLoading: false,
+    isError: false,
+  }),
+}))
+
 describe('BookFilters', () => {
   const defaultFilters: BookFiltersState = {
     search: '',
@@ -183,12 +192,12 @@ describe('BookFilters', () => {
         />
       )
 
-      const languageInput = screen.getByLabelText('Original Language')
-      fireEvent.change(languageInput, { target: { value: 'Ancient Greek' } })
+      const languageSelect = screen.getByLabelText('Original Language')
+      fireEvent.change(languageSelect, { target: { value: 'EN' } })
 
       expect(mockOnFiltersChange).toHaveBeenCalledWith({
         ...defaultFilters,
-        originalLanguage: 'Ancient Greek',
+        originalLanguage: 'EN',
       })
     })
 

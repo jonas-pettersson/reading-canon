@@ -237,6 +237,56 @@ describe('AddBookForm', () => {
         expect(screen.getByText(/valid url/i)).toBeInTheDocument()
       })
     })
+
+    it('should reject invalid language codes', async () => {
+      const user = userEvent.setup()
+      renderWithProviders(<AddBookForm onSuccess={() => {}} onCancel={() => {}} />)
+
+      // Add required fields
+      await user.type(screen.getByLabelText(/^title \*/i), 'Test Book')
+      await user.type(screen.getByLabelText(/author display name/i), 'Test Author')
+
+      // Try invalid language codes
+      const languageInput = screen.getByLabelText(/original language/i)
+
+      // Test lowercase (invalid)
+      await user.type(languageInput, 'en')
+      const submitButton = screen.getByRole('button', { name: /add book/i })
+      await user.click(submitButton)
+
+      await waitFor(() => {
+        expect(screen.getByText(/must be a 2-3 letter uppercase iso language code/i)).toBeInTheDocument()
+      })
+
+      // Clear and try single letter (invalid)
+      await user.clear(languageInput)
+      await user.type(languageInput, 'E')
+      await user.click(submitButton)
+
+      await waitFor(() => {
+        expect(screen.getByText(/must be a 2-3 letter uppercase iso language code/i)).toBeInTheDocument()
+      })
+    })
+
+    it('should accept valid language codes', async () => {
+      const user = userEvent.setup()
+      renderWithProviders(<AddBookForm onSuccess={() => {}} onCancel={() => {}} />)
+
+      // Add required fields
+      await user.type(screen.getByLabelText(/^title \*/i), 'Test Book')
+      await user.type(screen.getByLabelText(/author display name/i), 'Test Author')
+
+      // Valid 2-letter code
+      const languageInput = screen.getByLabelText(/original language/i)
+      await user.type(languageInput, 'ZZ') // Properly formatted, even if not a real ISO code
+
+      const submitButton = screen.getByRole('button', { name: /add book/i })
+      await user.click(submitButton)
+
+      await waitFor(() => {
+        expect(mockMutate).toHaveBeenCalled()
+      })
+    })
   })
 
   describe('Tags Input', () => {

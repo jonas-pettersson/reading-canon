@@ -4,8 +4,10 @@ import {
   READING_STATUSES,
   OWNERSHIP_STATUSES,
   getReadingStatusDisplayName,
-  getOwnershipStatusDisplayName
+  getOwnershipStatusDisplayName,
+  getLanguageDisplayName
 } from '../constants'
+import { useLanguages } from '../hooks/useLanguages'
 
 export interface BookFiltersState {
   search: string
@@ -44,6 +46,9 @@ export interface BookFiltersProps {
 export function BookFilters({ filters, onFiltersChange }: BookFiltersProps) {
   // Local state for search input (for immediate UI feedback)
   const [searchInput, setSearchInput] = useState(filters.search)
+
+  // Fetch available languages dynamically
+  const { data: languages = [] } = useLanguages()
 
   // Debounce search input (300ms delay)
   useEffect(() => {
@@ -220,14 +225,12 @@ export function BookFilters({ filters, onFiltersChange }: BookFiltersProps) {
           >
             Original Language
           </label>
-          <input
+          <select
             id="originalLanguage"
-            type="text"
             value={filters.originalLanguage}
             onChange={(e) =>
               onFiltersChange({ ...filters, originalLanguage: e.target.value })
             }
-            placeholder="e.g., Ancient Greek"
             style={{
               width: '100%',
               padding: '0.5rem',
@@ -235,7 +238,14 @@ export function BookFilters({ filters, onFiltersChange }: BookFiltersProps) {
               border: '1px solid #ccc',
               borderRadius: '4px',
             }}
-          />
+          >
+            <option value="">All Languages</option>
+            {languages.map((code) => (
+              <option key={code} value={code}>
+                {getLanguageDisplayName(code)}
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* Reading Status Filter */}

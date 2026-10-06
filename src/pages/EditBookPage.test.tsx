@@ -30,7 +30,7 @@ describe('EditBookPage', () => {
     year_published: '8th century BCE',
     primary_category: 'Poetry',
     tags: ['epic', 'ancient', 'adventure'],
-    original_language: 'Ancient Greek',
+    original_language: 'GR', // Greek (using non-standard GR code from database)
     title_original: 'Ὀδύσσεια',
     inclusion_rationale: 'Foundational epic of Western literature',
     family_name: null,

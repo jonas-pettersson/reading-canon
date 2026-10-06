@@ -32,7 +32,7 @@ const mockBook: Book = {
   year_sort: -750,
   primary_category: 'Poetry',
   tags: ['epic', 'ancient'],
-  original_language: 'Ancient Greek',
+  original_language: 'GR', // Greek (using non-standard GR code from database)
   source: 'Western Canon',
   inclusion_rationale: 'Foundational epic',
   author_lifespan: 'c. 8th century BC',
@@ -113,7 +113,7 @@ describe('EditBookForm', () => {
       expect(screen.getByLabelText(/original title/i)).toHaveValue('Ἰλιάς')
       expect(screen.getByLabelText(/year published/i)).toHaveValue('8th century BC')
       expect(screen.getByLabelText(/primary category/i)).toHaveValue('Poetry')
-      expect(screen.getByLabelText(/original language/i)).toHaveValue('Ancient Greek')
+      expect(screen.getByLabelText(/original language/i)).toHaveValue('GR')
       expect(screen.getByLabelText(/source/i)).toHaveValue('Western Canon')
       expect(screen.getByLabelText(/inclusion rationale/i)).toHaveValue('Foundational epic')
       expect(screen.getByLabelText(/author lifespan/i)).toHaveValue('c. 8th century BC')

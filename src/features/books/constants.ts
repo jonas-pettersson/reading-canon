@@ -75,3 +75,30 @@ export function getOwnershipStatusDisplayName(status: Database['public']['Enums'
   }
   return displayNames[status]
 }
+
+/**
+ * Convert language code to display name
+ * Language list is fetched dynamically from database via useLanguages hook
+ */
+export function getLanguageDisplayName(code: string): string {
+  const displayNames: Record<string, string> = {
+    'CH': 'Chinese',
+    'DA': 'Danish',
+    'DE': 'German',
+    'DK': 'Danish',
+    'EN': 'English',
+    'ES': 'Spanish',
+    'FI': 'Finnish',
+    'FR': 'French',
+    'GR': 'Greek',
+    'IS': 'Icelandic',
+    'IT': 'Italian',
+    'LA': 'Latin',
+    'NO': 'Norwegian',
+    'RU': 'Russian',
+    'SV': 'Swedish',
+    'TU': 'Turkish',
+    'ZH': 'Chinese',
+  }
+  return displayNames[code] || code
+}
