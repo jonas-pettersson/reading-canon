@@ -30,12 +30,12 @@ async function main() {
   console.log(`Excel file: ${absolutePath}`)
 
   // Get Supabase credentials from environment
-  const supabaseUrl = process.env.VITE_SUPABASE_URL
-  const serviceRoleKey = process.env.VITE_SUPABASE_SERVICE_ROLE_KEY
-  const anonKey = process.env.VITE_SUPABASE_ANON_KEY
+  const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  const anonKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY
 
   if (!supabaseUrl) {
-    console.error('Error: VITE_SUPABASE_URL not found in environment')
+    console.error('Error: SUPABASE_URL not found in environment')
     process.exit(1)
   }
 
@@ -44,7 +44,7 @@ async function main() {
 
   if (!supabaseKey) {
     console.error('Error: Supabase key not found in environment')
-    console.error('Set either VITE_SUPABASE_SERVICE_ROLE_KEY (recommended) or VITE_SUPABASE_ANON_KEY')
+    console.error('Set either SUPABASE_SERVICE_ROLE_KEY (recommended) or SUPABASE_ANON_KEY')
     process.exit(1)
   }
 

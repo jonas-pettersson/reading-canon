@@ -12,13 +12,13 @@ This directory contains scripts for migrating Excel data to the Supabase databas
 
 ## Setup
 
-Add your Supabase service role key to `.env.local`:
+Your `.env.local` should already contain the service role key:
 
 ```bash
-VITE_SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
 ```
 
-**Where to find it:** Supabase Dashboard → Settings → API → `service_role` key (secret)
+If not, get it from: Supabase Dashboard → Settings → API → `service_role` key (secret)
 
 **Why service role?** 
 - Bypasses RLS policies (appropriate for admin data migration)
@@ -43,7 +43,7 @@ npm run migrate migration/test-data.xlsx
 ```
 
 **Prerequisites:**
-- `.env.local` must contain `VITE_SUPABASE_URL` and `VITE_SUPABASE_SERVICE_ROLE_KEY`
+- `.env.local` must contain `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`
 - At least one book must exist in database (for curator user_id lookup)
 
 ### 2. Production Migration (Task 5.2.2)
