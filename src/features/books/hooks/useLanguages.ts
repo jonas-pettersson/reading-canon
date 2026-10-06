@@ -1,9 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
+import { getLanguageDisplayName } from '../constants'
 
 /**
  * Hook to fetch unique original languages from books
- * Returns sorted list of language codes that exist in the database
+ * Returns list of language codes sorted by display name (not code)
  */
 export function useLanguages() {
   return useQuery({
@@ -15,14 +16,21 @@ export function useLanguages() {
 
       if (error) throw error
 
-      // Extract unique non-null language codes and sort
+      // Extract unique non-null language codes
       const uniqueLanguages = Array.from(
         new Set(
           data
             .map(book => book.original_language)
             .filter((lang): lang is string => lang !== null && lang !== '')
         )
-      ).sort()
+      )
+
+      // Sort by display name (what users see), not by code
+      uniqueLanguages.sort((a, b) => {
+        const displayA = getLanguageDisplayName(a)
+        const displayB = getLanguageDisplayName(b)
+        return displayA.localeCompare(displayB)
+      })
 
       return uniqueLanguages
     },

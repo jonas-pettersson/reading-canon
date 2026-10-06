@@ -53,7 +53,7 @@ describe('useLanguages', () => {
       expect(result.current.isSuccess).toBe(true)
     })
 
-    expect(result.current.data).toEqual(['DE', 'EN', 'FR']) // sorted, unique, no nulls
+    expect(result.current.data).toEqual(['EN', 'FR', 'DE']) // sorted by display name: English, French, German
   })
 
   it('should return empty array when no languages exist', async () => {
@@ -103,7 +103,7 @@ describe('useLanguages', () => {
     expect(result.current.error).toBeTruthy()
   })
 
-  it('should sort languages alphabetically', async () => {
+  it('should sort languages by display name', async () => {
     const mockBooks = [
       { original_language: 'ZH' },
       { original_language: 'EN' },
@@ -128,7 +128,7 @@ describe('useLanguages', () => {
       expect(result.current.isSuccess).toBe(true)
     })
 
-    expect(result.current.data).toEqual(['DE', 'EN', 'FR', 'ZH'])
+    expect(result.current.data).toEqual(['ZH', 'EN', 'FR', 'DE']) // sorted by display name: Chinese, English, French, German
   })
 
   it('should include exotic/unmapped language codes', async () => {
