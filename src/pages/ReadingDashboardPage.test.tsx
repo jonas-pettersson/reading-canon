@@ -220,7 +220,7 @@ describe('ReadingDashboardPage', () => {
     })
   })
 
-  it('allows changing priority for want to read books', async () => {
+  it('allows marking want to read books as reading', async () => {
     const user = userEvent.setup()
     const mockWantToReadBooks: ReadingBook[] = [
       {
@@ -228,7 +228,6 @@ describe('ReadingDashboardPage', () => {
         title: 'To Kill a Mockingbird',
         author_display_name: 'Harper Lee',
         year_sort: 1960,
-        personal_priority: 'high',
         reading_status: 'want_to_read',
       } as ReadingBook,
     ]

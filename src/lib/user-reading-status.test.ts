@@ -89,23 +89,6 @@ describe('User Reading Status Table Schema', () => {
       }
     })
 
-    // Skipped until RLS policies are added (Task 0.2.4+)
-    it.skip('should accept valid priority enum values', async () => {
-      const validPriorities = ['high', 'medium', 'low'] as const
-
-      for (const priority of validPriorities) {
-        const { error } = await supabase.from('user_reading_status').insert({
-          user_id: '00000000-0000-0000-0000-000000000000',
-          book_id: '00000000-0000-0000-0000-000000000000',
-          reading_status: 'not_started',
-          ownership_status: 'not_owned',
-          personal_priority: priority,
-        })
-
-        // Should succeed (no enum violation)
-        expect(error?.message).not.toContain('invalid input value for enum')
-      }
-    })
   })
 
   describe('Rating Constraint', () => {

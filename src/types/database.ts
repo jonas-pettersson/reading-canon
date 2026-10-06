@@ -357,3 +357,8 @@ export const Constants = {
     },
   },
 } as const
+
+// Convenience type exports for easier imports
+export type Book = Database['public']['Tables']['books']['Row']
+export type UserReadingStatus = Database['public']['Tables']['user_reading_status']['Row']
+export type ExternalReference = Database['public']['Tables']['external_references']['Row']
