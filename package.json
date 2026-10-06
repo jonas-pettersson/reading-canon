@@ -15,7 +15,8 @@
     "prepare": "husky",
     "create-curator": "tsx --env-file=.env.local scripts/create-curator.ts",
     "migrate": "tsx --env-file=.env.local migration/run-migration.ts",
-    "create-test-data": "tsx migration/create-test-data-cli.ts"
+    "create-test-data": "tsx migration/create-test-data-cli.ts",
+    "cleanup-test-books": "tsx --env-file=.env.local migration/cleanup-test-books.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",
@@ -38,7 +39,6 @@
     "@vitejs/plugin-react": "^6.1.1",
     "@vitest/coverage-v8": "^3.2.7",
     "@vitest/ui": "^3.1.5",
-    "cross-env": "^10.1.0",
     "husky": "^9.1.7",
     "jsdom": "^26.0.0",
     "lint-staged": "^17.6.0",
