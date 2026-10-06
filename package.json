@@ -11,8 +11,11 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
+    "test:migration": "RUN_MIGRATION_TESTS=true vitest run migration/verify-migration.test.ts",
     "prepare": "husky",
-    "create-curator": "tsx --env-file=.env.local scripts/create-curator.ts"
+    "create-curator": "tsx --env-file=.env.local scripts/create-curator.ts",
+    "migrate": "tsx --env-file=.env.local migration/run-migration.ts",
+    "create-test-data": "tsx migration/create-test-data-cli.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",

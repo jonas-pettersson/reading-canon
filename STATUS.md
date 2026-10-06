@@ -1,18 +1,20 @@
 # Project Status
 
 **Current Phase:** MVP 0 - Phase 5 (Excel Data Migration)  
-**Progress:** Phase 5 complete! (2/2 tasks)  
+**Progress:** Phase 5 in progress (2/4 tasks)  
 **Last Updated:** 2026-10-06
 
 ---
 
 ## Current Activity
 
-**Phase 5: Excel Data Migration** ✅ Complete
+**Phase 5: Excel Data Migration** 🔄 In Progress
 - ✅ Task 5.1.1: Excel Parser (29 tests)
 - ✅ Task 5.1.2: Migration Script (10 tests)
+- ⏳ Task 5.2.1: Run Migration on Test Data
+- ⏳ Task 5.2.2: Run Production Migration
 
-**Next:** Phase 6 - Polish & Validation
+**Next:** Task 5.2.1 - Run Migration on Test Data
 
 ## Test Metrics
 
