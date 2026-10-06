@@ -257,13 +257,31 @@ function parseUserReadingStatus(
     status.ownership_status = 'not_owned'
   }
 
-  // Parse Prio column (complex: rating or reading status)
+  // Parse Read column first (higher priority for reading status)
+  // Read 'X' = finished, Read '-' = currently reading
+  // Blank/missing Read means check Prio column next
+  if (row.Read !== undefined && row.Read !== null) {
+    const readValue = String(row.Read).trim().toLowerCase()
+    if (readValue === 'x') {
+      status.reading_status = 'finished'
+    } else if (readValue === '-') {
+      // '-' in Read means currently reading
+      status.reading_status = 'reading'
+    }
+    // Note: blank Read value means no explicit status from Read column,
+    // so we don't set anything and let Prio column potentially set it
+  }
+
+  // Parse Prio column (can set rating or reading status)
   // Convert to string to handle both string and numeric values
   const prioValue = row.Prio !== undefined && row.Prio !== null ? String(row.Prio).trim().toLowerCase() : ''
   if (prioValue) {
     if (prioValue === 'x') {
       // 'x' in Prio means "want to read"
-      status.reading_status = 'want_to_read'
+      // Only apply if Read column didn't already set a more specific status
+      if (!status.reading_status) {
+        status.reading_status = 'want_to_read'
+      }
     } else if (/^[1-5]$/.test(prioValue)) {
       // German school grading system: 1 = best, 5 = worst
       // Invert to star rating: 1 = 5 stars, 5 = 1 star
@@ -277,24 +295,9 @@ function parseUserReadingStatus(
     }
   }
 
-  // Parse Read column (reading_status)
-  // Only apply if Prio didn't already set reading_status (e.g., want_to_read)
+  // If no reading status set yet, default to not_started
   if (!status.reading_status) {
-    if (row.Read !== undefined && row.Read !== null) {
-      const readValue = String(row.Read).trim().toLowerCase()
-      if (readValue === 'x') {
-        status.reading_status = 'finished'
-      } else if (readValue === '-') {
-        // '-' in Read means currently reading
-        status.reading_status = 'reading'
-      } else {
-        // Explicit blank in Excel means not started
-        status.reading_status = 'not_started'
-      }
-    } else {
-      // Read column missing entirely - default to not_started
-      status.reading_status = 'not_started'
-    }
+    status.reading_status = 'not_started'
   }
 
   return status

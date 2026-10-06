@@ -478,6 +478,22 @@ describe('parseExcelFile', () => {
 
       expect(result.userReadingStatuses[0].reading_status).toBe('want_to_read')
     })
+
+    it('should prioritize Read "-" (reading) over Prio "x" (want_to_read)', () => {
+      const testData = [
+        {
+          'Author': 'Test Author',
+          'Title (EN)': 'Currently Reading',
+          'Prio': 'x',
+          'Read': '-',
+        },
+      ]
+      createTestExcelFile(testData, testFilePath)
+
+      const result = parseExcelFile(testFilePath)
+
+      expect(result.userReadingStatuses[0].reading_status).toBe('reading')
+    })
   })
 
   describe('additional fields', () => {
