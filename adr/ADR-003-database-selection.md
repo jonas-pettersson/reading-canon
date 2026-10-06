@@ -122,7 +122,7 @@ CREATE INDEX idx_user_reading_status_user_id ON user_reading_status (user_id);
 CREATE INDEX idx_user_reading_status_book_id ON user_reading_status (book_id);
 CREATE INDEX idx_user_reading_status_reading_status ON user_reading_status (reading_status);
 CREATE INDEX idx_user_reading_status_ownership_status ON user_reading_status (ownership_status);
-CREATE INDEX idx_user_reading_status_personal_priority ON user_reading_status (personal_priority);
+-- CREATE INDEX idx_user_reading_status_personal_priority ON user_reading_status (personal_priority); -- REMOVED 2026-10-06
 
 -- User reading status: Composite index for common filter pattern
 CREATE INDEX idx_user_reading_status_user_status 

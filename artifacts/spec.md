@@ -30,7 +30,7 @@ This specification defines requirements across multiple release stages. Each req
 - ✅ Single authenticated user (curator only) - simple authentication, no invitation workflow
 - ✅ Collection management: display, search, filter, sort, view book details (FR-001 to FR-005)
 - ✅ Collection curation: add, edit, remove books (FR-010 to FR-012)
-- ✅ Personal reading management: status, priority, ownership, notes, rating, timestamps (FR-020, FR-021, FR-023 to FR-026)
+- ✅ Personal reading management: status, ownership, notes, rating, timestamps (FR-020, FR-023 to FR-026)
 - ✅ Basic statistics: counts by status and ownership (FR-030, FR-031)
 - ✅ Excel data migration (Section 2.2, UC-004)
 - ✅ Data model with canonical vs. personal data separation
@@ -148,7 +148,7 @@ These features add value but are not essential to prove the core proposition: th
 - Clear all filters action available
 
 #### FR-004: Sort Books
-**Description:** System shall support sorting by title, author, year, primary category, priority, and rating  
+**Description:** System shall support sorting by title, author, year, primary category, and rating  
 **Priority:** Must Have  
 **Release Target:** MVP 0  
 **Source:** intent.md - Common activities  
@@ -157,7 +157,6 @@ These features add value but are not essential to prove the core proposition: th
 - Sort by author (author_display_name, alphabetically)
 - Sort by year (chronologically, oldest or newest first) - **default per UX-010**
 - Sort by primary_category (alphabetically)
-- Sort by personal priority (if set)
 - Sort by personal rating (if set)
 - Sort by date added to collection
 - Sort direction can be reversed (ascending/descending)
@@ -170,7 +169,7 @@ These features add value but are not essential to prove the core proposition: th
 **Acceptance Criteria:**
 - Show all canonical metadata: title, original title, author (author_display_name), year, primary_category, tags, original language, source, inclusion_rationale, author lifespan
 - Show external references (if any) as clickable links with link text
-- Show personal data for current user: reading status, priority, rating, ownership, personal notes
+- Show personal data for current user: reading status, rating, ownership, personal notes
 - Gracefully handle missing optional fields
 - Display timestamps (started, completed) if applicable
 - Tags displayed as readable list (not internal format)
@@ -268,17 +267,20 @@ These features add value but are not essential to prove the core proposition: th
 - System records completed_at when status changes to "Finished"
 
 #### FR-021: Set Personal Priority
-**Description:** User shall set personal reading priority per book  
-**Priority:** Must Have  
-**Release Target:** MVP 0  
+**Status:** REMOVED (2026-10-06)  
+**Removal Rationale:** Reading status + rating is sufficient for user needs. Priority added cognitive overhead without clear value. Users can achieve prioritization through reading_status ("want_to_read") combined with rating for relative importance.  
+**Original Description:** User shall set personal reading priority per book  
+**Priority:** ~~Must Have~~  
 **Source:** design-decisions.md #5 - Priority vs Recommendation (modified per Decision 2)  
-**Acceptance Criteria:**
-- User can set priority: High, Medium, Low, or None
-- Priority answers "when do I want to read this?" (Next/Soon/Someday)
-- Priority is separate from personal rating (which implies recommendation strength)
-- Priority is personal (does not affect other users)
-- User can filter books by priority
-- Priority can be changed at any time
+**Original Acceptance Criteria:**
+- ~~User can set priority: High, Medium, Low, or None~~
+- ~~Priority answers "when do I want to read this?" (Next/Soon/Someday)~~
+- ~~Priority is separate from personal rating (which implies recommendation strength)~~
+- ~~Priority is personal (does not affect other users)~~
+- ~~User can filter books by priority~~
+- ~~Priority can be changed at any time~~
+
+**Replacement:** None needed. Use reading_status and personal_rating instead.
 
 #### FR-022: Assign Recommendation Score
 **Status:** REMOVED  
@@ -376,14 +378,14 @@ These features add value but are not essential to prove the core proposition: th
 - Sort by completion date
 
 #### FR-033: Suggest Next Book
-**Description:** System shall suggest next book to read based on priority and status  
+**Description:** System shall suggest next book to read based on reading status and rating  
 **Priority:** Should Have  
 **Release Target:** Post-MVP  
 **Source:** intent.md - Primary user wants to: prioritize future reading  
-**Rationale for Deferral:** MVP curator can manually filter and sort by priority. Algorithmic suggestions add complexity without proving core value.  
+**Rationale for Deferral:** MVP curator can manually filter and sort books. Algorithmic suggestions add complexity without proving core value.  
 **Acceptance Criteria:**
-- Show books with status "Want to Read" sorted by priority
-- Prioritize books with High priority
+- Show books with status "Want to Read"
+- Sort by rating (highest rated first) to indicate relative importance
 - Consider user's preferred genres (if pattern exists)
 - Highlight books user owns but hasn't read
 - Simple algorithm (future: more sophisticated recommendations)
@@ -755,7 +757,6 @@ Additional values may be added by curator as needed. The vocabulary is intention
 
 **Attributes:**
 - **reading_status:** Current reading state (enumerated: not_started, want_to_read, reading, paused, finished, abandoned; default: not_started)
-- **personal_priority:** Reading priority (enumerated: high, medium, low; optional)
 - **ownership_status:** Book ownership state (enumerated: not_owned, ordered, owned_physical, owned_digital, borrowed; default: not_owned)
 - **personal_notes:** Private notes and reflections (text, free-form, optional)
 - **personal_rating:** Rating from 1-5 (numeric scale 1-5, optional) - represents both enjoyment/value AND recommendation strength (see FR-025)
@@ -764,13 +765,15 @@ Additional values may be added by curator as needed. The vocabulary is intention
 - **created_at:** When this record was created (timestamp, auto-set)
 - **updated_at:** When this record was last modified (timestamp, auto-set)
 
+**Note:** personal_priority attribute was removed 2026-10-06. Reading status + rating is sufficient for user needs.
+
 **Business Rules:**
 - One reading status record per user per book (unique constraint on user + book pair)
 - Personal data is private to the user (see NFR-021)
 - User can have multiple books with status "Reading" simultaneously
 
 **Traceability:**
-- Maps to Excel columns: Lib (ownership), Prio (priority + rating + status, per Decision 3), Read (reading status)
+- Maps to Excel columns: Lib (ownership), Prio (rating + status, per Decision 3 updated), Read (reading status)
 - Separates personal from canonical data (design-decisions.md #3)
 
 #### Users
@@ -909,15 +912,17 @@ Additional values may be added by curator as needed. The vocabulary is intention
 | Author Lifespan | books.author_lifespan | Direct mapping, nullable |
 | External Links | external_references.url + link_text | Parse if present, create multiple reference records if multiple links |
 | Lib | user_reading_status.ownership_status | 'X' → owned_physical, blank → not_owned |
-| Prio | user_reading_status.personal_priority + personal_rating + reading_status | Complex: 'x' → priority=high; '1-5' → rating=1-5; '-' → status=reading; blank → NULL. See Decision 3. |
-| Read | user_reading_status.reading_status | 'X' → finished, blank → not_started |
+| Prio | user_reading_status.personal_rating + reading_status | Complex: 'x' → status=want_to_read; '1-5' → rating=1-5 (inverted); '-' → ignored; blank → NULL. See Decision 3. |
+| Read | user_reading_status.reading_status | 'X' → finished, '-' → reading, blank → not_started |
 
-**Prio Column Migration Detail (Decision 3):**
-The Excel "Prio" column historically mixed three concepts. Migration logic:
-- 'x' → personal_priority = High
-- '1-5' (numeric) → personal_rating = 1-5 stars (also implies recommendation strength per FR-025)
-- '-' → reading_status = Reading
+**Prio Column Migration Detail (Decision 3, Updated 2026-10-06):**
+The Excel "Prio" column historically mixed multiple concepts. Current migration logic:
+- 'x' → reading_status = want_to_read (changed from personal_priority after priority removal)
+- '1-5' (numeric) → personal_rating = 1-5 stars, inverted from German grading (grade 1 → 5★, grade 5 → 1★)
+- '-' → Ignored (deprecated marker)
 - blank → All fields NULL/default
+
+**Note:** Read column takes precedence over Prio column for reading_status. If Read='-' (reading) and Prio='x', the book status is 'reading', not 'want_to_read'.
 
 **Author Migration Detail:**
 The Excel author columns are consolidated into the flexible author model:
@@ -1115,11 +1120,11 @@ Data completeness scoring, enrichment dashboards, and prioritized enrichment wor
 ### 4.1 Curator Stories
 
 **US-001: Discover Next Book**  
-As a curator, I want to see which books I should read next based on my priorities, so I can make thoughtful reading choices.
+As a curator, I want to see which books I should read next, so I can make thoughtful reading choices.
 
 **Acceptance:**
 - View list filtered by "Want to Read" status
-- Sort by personal priority (High first)
+- Sort by rating or title
 - Filter by genre/category of interest
 - See books I already own highlighted
 - Quick action to mark as "Reading"
@@ -1145,7 +1150,7 @@ As a curator, I want to track which books I own so I know what to buy.
 - Mark books as Owned, Ordered, or Not Owned
 - Filter collection by ownership status
 - See count of owned books in statistics
-- Identify high-priority books I don't yet own
+- Identify want-to-read books I don't yet own
 
 ---
 
@@ -1167,7 +1172,7 @@ As a curator, I want to see which books need more metadata, so I can gradually e
 
 **Acceptance:**
 - Dashboard shows books with low completeness scores
-- Sort by priority (enrich high-priority books first)
+- Sort by title or rating
 - See which specific fields are missing
 - Quick-edit to fill in metadata
 
@@ -1243,21 +1248,18 @@ As a reader, I want personalized suggestions for what to read next, so I don't f
 **Main Flow:**
 1. User navigates to "My Books" or dashboard
 2. System displays books filtered by "Want to Read" status
-3. System sorts books by personal priority (High → Medium → Low)
+3. System sorts books by title (alphabetically)
 4. User applies additional filters (e.g., "novels only", "books I own")
-5. User reviews book details for top candidates
-6. User selects a book
-7. User changes status to "Reading"
-8. System records started_at timestamp
-9. System adds book to reading list (books with status "Reading")
+5. User can sort by rating, year, author, or other criteria
+6. User reviews book details for top candidates
+7. User selects a book
+8. User changes status to "Reading"
+9. System records started_at timestamp
+10. System adds book to reading list (books with status "Reading")
 
-**Alternative Flow 3a:** No priority set
-- System shows all "Want to Read" books unsorted
-- User can sort by year, author, or other criteria
-
-**Alternative Flow 7a:** User not ready to commit
-- User adds book to "priority queue" for later decision
-- Status remains "Want to Read" but priority set to High
+**Alternative Flow 8a:** User not ready to commit
+- User keeps status as "Want to Read" for later decision
+- User can optionally add a rating to indicate relative importance
 
 **Postcondition:** Book status is "Reading", started_at recorded
 
@@ -1495,12 +1497,14 @@ As a reader, I want personalized suggestions for what to read next, so I don't f
 **Excel Prio Column Values:**
 The Excel "Prio" column historically contained mixed semantic values requiring interpretation during migration.
 
-**Resolution (Decision 3):**
+**Resolution (Decision 3, Updated 2026-10-06):**
 Excel "Prio" column mixed three concepts:
-- 'x' → personal_priority = High (want to read soon)
-- '1-5' (numeric) → personal_rating = 1-5 stars
-- '-' → reading_status = Reading
+- 'x' → reading_status = want_to_read (changed from personal_priority after priority removal)
+- '1-5' (numeric) → personal_rating = 1-5 stars (inverted: German grade 1→5★, 5→1★)
+- '-' → Ignored (deprecated marker)
 - blank → All fields NULL/default
+
+**Note:** Original mapping used personal_priority=High for 'x', but priority feature was removed 2026-10-06. Migration now maps 'x' to reading_status=want_to_read instead.
 
 See Section 2.2 "Prio Column Migration Detail" for implementation guidance.
 
@@ -1680,7 +1684,7 @@ This matrix ensures all requirements trace back to source documents:
 | FR-001 to FR-005 | intent.md | Initial Scope: Collection Management |
 | FR-010 to FR-014 | intent.md | Initial Scope: Collection Curation |
 | FR-020 | design-decisions.md | #4 Reading Status |
-| FR-021, FR-022 | design-decisions.md | #5 Priority vs Recommendation |
+| ~~FR-021~~, ~~FR-022~~ | design-decisions.md | #5 Priority vs Recommendation (both REMOVED) |
 | FR-023 | design-decisions.md | #6 Ownership / Library Status |
 | FR-024, FR-025, FR-026 | intent.md | Initial Scope: Personal Reading Management |
 | FR-030 to FR-033 | intent.md | Initial Scope: Statistics |

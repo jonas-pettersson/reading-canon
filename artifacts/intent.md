@@ -140,8 +140,8 @@ The curator can:
 Each user can maintain:
 
 - reading status
-- personal reading priority
-- recommendation score
+- ~~personal reading priority~~ (removed 2026-10-06, reading status + rating sufficient)
+- ~~recommendation score~~ (removed, see rating)
 - personal notes
 - ownership status
 - rating
@@ -170,9 +170,11 @@ The application should distinguish between:
 
 ### Recommendation Tracking
 
-A recommendation score indicates how strongly a user would recommend a book to others.
+~~A recommendation score indicates how strongly a user would recommend a book to others.~~
 
-This is distinct from personal reading priority.
+~~This is distinct from personal reading priority.~~
+
+**Note:** Both recommendation score and personal priority were removed. Personal rating now serves to indicate both enjoyment/value and relative importance.
 
 ### Statistics
 
