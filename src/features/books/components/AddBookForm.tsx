@@ -2,6 +2,7 @@ import { useForm, useFieldArray, type SubmitHandler } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useState, useEffect } from 'react'
+import ISO6391 from 'iso-639-1'
 import { useCreateBook, type CreateBookInput } from '../hooks/useCreateBook'
 import { useDuplicateDetection } from '../hooks/useDuplicateDetection'
 import { PRIMARY_CATEGORIES } from '@/constants/categories'
@@ -28,8 +29,17 @@ const bookFormSchema = z.object({
     .string()
     .optional()
     .refine(
-      (val) => !val || /^[A-Z]{2,3}$/.test(val),
-      { message: 'Must be a 2-3 letter uppercase ISO language code (e.g., EN, DE, SV)' }
+      (val) => {
+        if (!val) return true // Empty is valid
+        // Must be 2-3 uppercase letters
+        if (!/^[A-Z]{2,3}$/.test(val)) return false
+        // Allow legacy non-standard codes already in database
+        const legacyCodes = ['GR', 'DK', 'TU', 'CH']
+        if (legacyCodes.includes(val)) return true
+        // Validate against ISO 639-1 standard (2-letter codes)
+        return ISO6391.validate(val.toLowerCase())
+      },
+      { message: 'Must be a valid uppercase ISO 639-1 language code (e.g., EN, DE, SV, FR)' }
     ),
   source: z.string().optional(),
   inclusion_rationale: z.string().optional(),

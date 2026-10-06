@@ -249,26 +249,26 @@ describe('AddBookForm', () => {
       // Try invalid language codes
       const languageInput = screen.getByLabelText(/original language/i)
 
-      // Test lowercase (invalid)
+      // Test lowercase (invalid - must be uppercase)
       await user.type(languageInput, 'en')
       const submitButton = screen.getByRole('button', { name: /add book/i })
       await user.click(submitButton)
 
       await waitFor(() => {
-        expect(screen.getByText(/must be a 2-3 letter uppercase iso language code/i)).toBeInTheDocument()
+        expect(screen.getByText(/must be a valid uppercase iso 639-1 language code/i)).toBeInTheDocument()
       })
 
-      // Clear and try single letter (invalid)
+      // Clear and try single letter (invalid - wrong format)
       await user.clear(languageInput)
       await user.type(languageInput, 'E')
       await user.click(submitButton)
 
       await waitFor(() => {
-        expect(screen.getByText(/must be a 2-3 letter uppercase iso language code/i)).toBeInTheDocument()
+        expect(screen.getByText(/must be a valid uppercase iso 639-1 language code/i)).toBeInTheDocument()
       })
     })
 
-    it('should accept valid language codes', async () => {
+    it('should reject non-existent language codes like ZZ', async () => {
       const user = userEvent.setup()
       renderWithProviders(<AddBookForm onSuccess={() => {}} onCancel={() => {}} />)
 
@@ -276,9 +276,49 @@ describe('AddBookForm', () => {
       await user.type(screen.getByLabelText(/^title \*/i), 'Test Book')
       await user.type(screen.getByLabelText(/author display name/i), 'Test Author')
 
-      // Valid 2-letter code
+      // ZZ is properly formatted but not a real ISO 639-1 code
       const languageInput = screen.getByLabelText(/original language/i)
-      await user.type(languageInput, 'ZZ') // Properly formatted, even if not a real ISO code
+      await user.type(languageInput, 'ZZ')
+
+      const submitButton = screen.getByRole('button', { name: /add book/i })
+      await user.click(submitButton)
+
+      await waitFor(() => {
+        expect(screen.getByText(/must be a valid uppercase iso 639-1 language code/i)).toBeInTheDocument()
+      })
+    })
+
+    it('should accept valid ISO 639-1 language codes', async () => {
+      const user = userEvent.setup()
+      renderWithProviders(<AddBookForm onSuccess={() => {}} onCancel={() => {}} />)
+
+      // Add required fields
+      await user.type(screen.getByLabelText(/^title \*/i), 'Test Book')
+      await user.type(screen.getByLabelText(/author display name/i), 'Test Author')
+
+      // Valid ISO 639-1 code (FR = French)
+      const languageInput = screen.getByLabelText(/original language/i)
+      await user.type(languageInput, 'FR')
+
+      const submitButton = screen.getByRole('button', { name: /add book/i })
+      await user.click(submitButton)
+
+      await waitFor(() => {
+        expect(mockMutate).toHaveBeenCalled()
+      })
+    })
+
+    it('should accept legacy non-standard codes already in database', async () => {
+      const user = userEvent.setup()
+      renderWithProviders(<AddBookForm onSuccess={() => {}} onCancel={() => {}} />)
+
+      // Add required fields
+      await user.type(screen.getByLabelText(/^title \*/i), 'Test Book')
+      await user.type(screen.getByLabelText(/author display name/i), 'Test Author')
+
+      // GR is non-standard (should be EL) but allowed for legacy data
+      const languageInput = screen.getByLabelText(/original language/i)
+      await user.type(languageInput, 'GR')
 
       const submitButton = screen.getByRole('button', { name: /add book/i })
       await user.click(submitButton)
