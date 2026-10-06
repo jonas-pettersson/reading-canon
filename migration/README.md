@@ -12,18 +12,25 @@ This directory contains scripts for migrating Excel data to the Supabase databas
 
 ## Setup
 
-Your `.env.local` should already contain the service role key:
+Add to your `.env.local`:
 
 ```bash
+# Service role key (for database access)
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
+
+# Curator credentials (for authentication)
+CURATOR_EMAIL=your-curator-email@example.com
+CURATOR_PASSWORD=your-curator-password
 ```
 
-If not, get it from: Supabase Dashboard → Settings → API → `service_role` key (secret)
+**Why these credentials?**
+- **Service role key**: Bypasses RLS policies (appropriate for admin operations)
+- **Curator email/password**: Authenticates as the curator so reading statuses are properly associated with the curator user
 
-**Why service role?** 
-- Bypasses RLS policies (appropriate for admin data migration)
-- No authentication required
-- Standard approach for admin operations
+The migration script will:
+1. Sign in as the curator using email/password
+2. Get the curator's user_id from the auth response
+3. Associate all reading statuses with that user_id
 
 ## Usage
 
@@ -43,8 +50,10 @@ npm run migrate migration/test-data.xlsx
 ```
 
 **Prerequisites:**
-- `.env.local` must contain `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`
-- At least one book must exist in database (for curator user_id lookup)
+- `.env.local` must contain:
+  - `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`
+  - `CURATOR_EMAIL` and `CURATOR_PASSWORD`
+- Curator account must exist (create with: `npm run create-curator`)
 
 ### 2. Production Migration (Task 5.2.2)
 

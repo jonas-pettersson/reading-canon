@@ -65,50 +65,34 @@ async function main() {
   console.log('\n=== Starting Migration ===\n')
 
   try {
-    // Get curator user_id (needed for reading status records)
-    let curatorUserId: string | undefined
+    // Authenticate as curator to get user_id
+    const curatorEmail = process.env.CURATOR_EMAIL
+    const curatorPassword = process.env.CURATOR_PASSWORD
 
-    if (serviceRoleKey) {
-      // Using service role key - need to find curator user_id
-      const curatorEmail = process.env.CURATOR_EMAIL
-
-      if (curatorEmail) {
-        // Query by email if provided
-        console.log(`Looking up curator by email: ${curatorEmail}`)
-        const { data: users, error } = await supabase
-          .from('books')
-          .select('created_by_user_id')
-          .limit(1)
-          .single()
-
-        if (!error && users?.created_by_user_id) {
-          curatorUserId = users.created_by_user_id
-          console.log(`Found curator user_id: ${curatorUserId}`)
-        }
-      }
-
-      if (!curatorUserId) {
-        // Fallback: use the first user who created a book (assumes single curator)
-        console.log('Searching for curator user_id from existing books...')
-        const { data: books, error } = await supabase
-          .from('books')
-          .select('created_by_user_id')
-          .not('created_by_user_id', 'is', null)
-          .limit(1)
-
-        if (!error && books && books.length > 0 && books[0].created_by_user_id) {
-          curatorUserId = books[0].created_by_user_id
-          console.log(`Found curator user_id from books: ${curatorUserId}`)
-        }
-      }
-
-      if (!curatorUserId) {
-        console.error('\n⚠️  Warning: Could not determine curator user_id')
-        console.error('Please set CURATOR_EMAIL in .env.local or create a book first')
-        console.error('Migration will proceed but reading statuses may not be assigned correctly')
-        process.exit(1)
-      }
+    if (!curatorEmail || !curatorPassword) {
+      console.error('Error: Curator credentials not found')
+      console.error('Set CURATOR_EMAIL and CURATOR_PASSWORD in .env.local')
+      process.exit(1)
     }
+
+    console.log(`Authenticating as curator: ${curatorEmail}`)
+
+    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+      email: curatorEmail,
+      password: curatorPassword,
+    })
+
+    if (authError || !authData.user) {
+      console.error('\n❌ Failed to authenticate as curator')
+      console.error(authError?.message || 'No user data returned')
+      console.error('\nMake sure:')
+      console.error('  1. CURATOR_EMAIL and CURATOR_PASSWORD are correct in .env.local')
+      console.error('  2. The curator account exists (run: npm run create-curator)')
+      process.exit(1)
+    }
+
+    const curatorUserId = authData.user.id
+    console.log(`✅ Authenticated successfully (user_id: ${curatorUserId})`)
 
     // Run migration
     const result = await runMigration(absolutePath, supabase, curatorUserId)

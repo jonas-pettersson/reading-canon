@@ -23,10 +23,10 @@ import { createTestExcelFile } from './create-test-data'
 import type { Database } from '../src/types/database'
 import * as fs from 'fs'
 
-// Only run these tests when explicitly requested
-const SKIP_MIGRATION_TESTS = !process.env.RUN_MIGRATION_TESTS
+// Skip by default - only run when explicitly testing migration
+const SKIP_TESTS = !process.env.CURATOR_EMAIL || !process.env.CURATOR_PASSWORD
 
-describe.skipIf(SKIP_MIGRATION_TESTS)('Migration Verification (Integration)', () => {
+describe.skipIf(SKIP_TESTS)('Migration Verification (Integration)', () => {
   let supabase: ReturnType<typeof createClient<Database>>
   let testFilePath: string
   let testBookIds: string[] = []
@@ -56,34 +56,30 @@ describe.skipIf(SKIP_MIGRATION_TESTS)('Migration Verification (Integration)', ()
       },
     })
 
-    // Get curator user_id
-    if (serviceRoleKey) {
-      console.log('\nUsing service role key (admin access)')
+    // Authenticate as curator to get user_id
+    const curatorEmail = process.env.CURATOR_EMAIL
+    const curatorPassword = process.env.CURATOR_PASSWORD
 
-      // Find curator user_id from existing books
-      const { data: books, error } = await supabase
-        .from('books')
-        .select('created_by_user_id')
-        .not('created_by_user_id', 'is', null)
-        .limit(1)
-
-      if (error || !books || books.length === 0 || !books[0].created_by_user_id) {
-        throw new Error('Could not find curator user_id. Please create at least one book first.')
-      }
-
-      userId = books[0].created_by_user_id
-      console.log(`Found curator user_id: ${userId}`)
-    } else {
-      console.log('\nUsing anon key - checking authentication')
-
-      // Get current user from auth session
-      const { data: userData, error: userError } = await supabase.auth.getUser()
-      if (userError || !userData.user) {
-        throw new Error('Not authenticated. Please log in first or use service role key.')
-      }
-      userId = userData.user.id
-      console.log(`Using authenticated user: ${userId}`)
+    if (!curatorEmail || !curatorPassword) {
+      throw new Error('CURATOR_EMAIL and CURATOR_PASSWORD must be set in .env.local')
     }
+
+    console.log(`\nAuthenticating as curator: ${curatorEmail}`)
+
+    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+      email: curatorEmail,
+      password: curatorPassword,
+    })
+
+    if (authError || !authData.user) {
+      throw new Error(
+        `Failed to authenticate as curator: ${authError?.message || 'No user data'}\n` +
+        'Make sure CURATOR_EMAIL and CURATOR_PASSWORD are correct in .env.local'
+      )
+    }
+
+    userId = authData.user.id
+    console.log(`✅ Authenticated successfully (user_id: ${userId})`)
 
     // Create test data file
     testFilePath = createTestExcelFile()
