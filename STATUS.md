@@ -1,20 +1,32 @@
 # Project Status
 
-**Current Phase:** MVP 0 - Phase 5 (Excel Data Migration)  
-**Progress:** Phase 5 complete! (4/4 tasks)  
-**Last Updated:** 2026-10-06
+**Current Phase:** MVP 0 - Phase 6 (Polish & MVP 0 Validation)  
+**Progress:** Starting Task 6.0.1 (Critical Styling Fixes)  
+**Last Updated:** 2026-10-07
 
 ---
 
 ## Current Activity
 
-**Phase 5: Excel Data Migration** ✅ Complete
-- ✅ Task 5.1.1: Excel Parser (29 tests)
-- ✅ Task 5.1.2: Migration Script (10 tests)
-- ✅ Task 5.2.1: Run Migration on Test Data (validated with 15 test books)
-- ✅ Task 5.2.2: Run Production Migration (643 books, 5 skipped)
+**Phase 6: Polish & MVP 0 Validation** 🚧 In Progress
 
-**Next:** Phase 6 - Polish & MVP 0 Validation
+**Structure (v1.1 - Revised 2026-10-07):**
+- Section 6.0: Critical Styling Fixes (BLOCKING)
+  - Task 6.0.1: Fix Double/Triple Padding Bug (1h)
+  - Task 6.0.2: Fix Broken Tailwind Pages (5-7h)
+- Section 6.1: UX Polish (reordered)
+  - Task 6.1.4: Responsive Design Testing (5h) - MOVED UP
+  - Task 6.1.2: Loading States and Feedback (3h)
+  - Task 6.1.3: Accessibility Audit (4h)
+  - Task 6.1.1: Empty States (3h) - OPTIONAL
+  - Task 6.1.5: Settings Page (2h) - OPTIONAL
+- Section 6.2: Performance
+  - Task 6.2.1: Performance Testing (3h)
+- Section 6.3: Validation
+  - Task 6.3.1: Curator Acceptance Testing (2-4h)
+  - Task 6.3.2: Bug Fixes from Validation (1-2 days)
+
+**Next Task:** 6.0.1 - Fix Double/Triple Padding Bug
 
 ## Test Metrics
 
@@ -84,13 +96,7 @@
 - ✅ Task 5.1.1: Excel Parser - Comprehensive parsing with validation (29 tests)
 - ✅ Task 5.1.2: Migration Script - Idempotent migration with reporting (10 tests)
 
-## Upcoming Phases
-
-### Phase 6: Polish & Validation (planned)
-- UX polish (empty states, loading states)
-- Accessibility audit with jest-axe
-- Performance testing
-- Curator acceptance testing
+## Completed Phases (continued)
 
 ## MVP 0 Timeline
 
@@ -127,7 +133,7 @@
 - ✅ `artifacts/design-decisions.md` - Design decisions
 - ✅ `artifacts/spec.md` v1.4 - Requirements specification
 - ✅ `adr/ADR-001` through `ADR-008` - Architecture decisions
-- ✅ `artifacts/plan-mvp0.md` - MVP 0 implementation plan
+- ✅ `artifacts/plan-mvp0.md` v1.1 - MVP 0 implementation plan (updated 2026-10-07)
 
 **Living Documents:**
 - 🔄 `CLAUDE.md` - Development guidance for AI assistance

@@ -5,7 +5,36 @@
 **Goal:** Prove it's better than Excel for curator's personal use  
 **Target:** Working localhost application with Excel data migrated  
 **Date Created:** 2026-10-02  
-**Last Updated:** 2026-10-02 (Alignment with spec.md v1.4 and ADRs)
+**Version:** 1.1  
+**Last Updated:** 2026-10-07 (Phase 6 restructure: Integrated critical styling fixes)
+
+---
+
+## Recent Changes (2026-10-07) - Version 1.1
+
+**Phase 6 Restructure:** Integrated critical styling bug fixes discovered during UX investigation.
+
+**Key Changes:**
+
+1. **New Task 6.0.1 (Critical):** Fix double/triple padding bugs in EditBookPage, BookDetailPage, and BookDetail component. These bugs create excessive whitespace (4rem instead of 2rem).
+
+2. **New Task 6.0.2 (Critical):** Convert 7 pages from broken Tailwind classes to working scoped CSS. Tailwind CSS is not installed, so all Tailwind classes are non-functional. Converts to CSS variables approach (already used successfully in 13+ files).
+
+3. **Task Reordering:** Moved Task 6.1.4 (Responsive Design Testing) earlier in sequence - must test responsive behavior AFTER styling is fixed, not before.
+
+4. **Optional Tasks:** Marked Tasks 6.1.1 (Empty States) and 6.1.5 (Settings Page) as optional/deferrable. Core validation can proceed without them. Saves 5 hours if time-constrained.
+
+5. **Effort Adjustment:** Phase 6 increased from 2-3 days to 3-4 days (adds 6-8 hours for styling fixes, reduces 5 hours for optional tasks = net +1-3 hours).
+
+**Rationale:**
+- Critical styling bugs block proper validation of responsive design and accessibility
+- Must fix bugs before testing can validate correct behavior
+- No changes to requirements (UX was always in spec.md UX-001 through UX-011)
+- Styling approach (CSS variables + scoped CSS) already proven in 13+ existing files
+
+**Impact on Timeline:**
+- Minimal: Adds 1 day to Phase 6 (critical work that must be done)
+- Optional tasks provide flexibility to maintain original timeline if needed
 
 ---
 
@@ -2108,13 +2137,186 @@ Choose the order that best fits the curator's validation priorities.
 
 ---
 
-## Phase 6: Polish & MVP 0 Validation (2-3 days)
+## Phase 6: Polish & MVP 0 Validation (3-4 days)
 
-**Goal:** Fix issues, improve UX, validate with curator
+**Goal:** Fix critical styling bugs, improve UX, validate with curator
+
+**Structure:** 
+- 6.0: Critical Styling Fixes (BLOCKING - must complete first)
+- 6.1: UX Polish (reordered to test responsive after styling fixes)
+- 6.2: Performance Optimization
+- 6.3: MVP 0 Validation
+
+**Core Path:** Tasks 6.0.1, 6.0.2, 6.1.4, 6.1.2, 6.1.3, 6.2.1, 6.3.1, 6.3.2 (21-25 hours)  
+**Optional:** Tasks 6.1.1, 6.1.5 (5 hours additional - can defer to post-MVP0)
+
+---
+
+### 6.0: Critical Styling Fixes
+
+#### Task 6.0.1: Fix Double/Triple Padding Bug
+**Effort:** XS (1 hour)  
+**Dependencies:** None (critical blocking bug)  
+**TDD:** Manual verification with DevTools  
+**Priority:** CRITICAL - Must fix before responsive testing
+
+**Problem:**
+- EditBookPage adds 2rem padding on top of AppLayout's 2rem = 4rem total
+- BookDetailPage adds 2rem padding on top of AppLayout's 2rem = 4rem total
+- BookDetail component adds another padding layer = triple padding in some cases
+
+**Files to Modify:**
+
+1. **`src/pages/EditBookPage.tsx`** (Lines ~48, 90, 154, 214)
+   - Remove `padding: 2rem;` from all 4 style blocks
+   - Add comment: `/* Padding provided by AppLayout */`
+
+2. **`src/pages/BookDetailPage.tsx`** (Lines ~69, 111, 176)
+   - Remove `padding: 2rem;` from all 3 style blocks
+   - Add comment: `/* Padding provided by AppLayout */`
+
+3. **`src/features/books/components/BookDetail.tsx`** (Line ~45)
+   - Remove `padding: '2rem'` from inline style
+   - Keep `maxWidth: '800px', margin: '0 auto'`
+
+**Verification:**
+- Open `/books/:id` - measure padding with DevTools (should be 2rem, not 4rem)
+- Open `/books/:id/edit` - measure padding with DevTools (should be 2rem, not 4rem)
+- Check on mobile (375px), tablet (768px), desktop (1200px+)
+
+**Done Criteria:**
+- [ ] EditBookPage: Only 2rem padding from AppLayout (verified with DevTools)
+- [ ] BookDetailPage: Only 2rem padding from AppLayout
+- [ ] BookDetail: No extra padding layer
+- [ ] Consistent spacing across all viewports
+- [ ] No visual regressions
+
+---
+
+#### Task 6.0.2: Fix Broken Tailwind Pages (Convert to Scoped CSS)
+**Effort:** M (5-7 hours)  
+**Dependencies:** 6.0.1  
+**TDD:** Manual verification + test suite regression check  
+**Priority:** CRITICAL - Pages currently have non-functional styling
+
+**Problem:**
+7 files use Tailwind classes but Tailwind is NOT installed in package.json:
+1. `src/pages/StatsPage.tsx`
+2. `src/pages/ReadingDashboardPage.tsx`
+3. `src/features/reading/components/StatsCard.tsx`
+4. `src/features/reading/components/PersonalDataPanel.tsx`
+5. `src/features/books/components/AddBookForm.tsx`
+6. `src/features/books/components/EditBookForm.tsx`
+7. (One more component from investigation)
+
+**Solution:**
+Convert all Tailwind classes to scoped CSS using existing CSS variables from `src/index.css`:
+- `var(--text)` - Body text
+- `var(--text-h)` - Headings
+- `var(--bg)` - Background
+- `var(--border)` - Borders
+- `var(--accent)` - Accent color
+- `var(--shadow)` - Box shadows
+
+**Conversion Pattern (Example):**
+
+Before (broken Tailwind):
+```tsx
+<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-8">
+```
+
+After (working scoped CSS):
+```tsx
+<div className="page-container">
+  <h1 className="page-title">Statistics</h1>
+  
+  <style>{`
+    .page-container {
+      width: 100%;
+      max-width: 1200px; /* Match AppLayout */
+      margin: 0 auto;
+    }
+    
+    .page-title {
+      font-size: 2rem;
+      font-weight: 600;
+      color: var(--text-h);
+      margin-bottom: 2rem;
+    }
+    
+    @media (max-width: 768px) {
+      .page-title {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+      }
+    }
+  `}</style>
+</div>
+```
+
+**Files to Convert (Priority Order):**
+
+**High Priority (User-Facing Pages):**
+1. **`src/pages/StatsPage.tsx`**
+   - Convert all Tailwind classes to scoped CSS
+   - Change max-width from 1280px to 1200px (match AppLayout)
+   - Use CSS variables for colors
+   - Ensure dark mode support
+
+2. **`src/pages/ReadingDashboardPage.tsx`**
+   - Convert all Tailwind classes to scoped CSS
+   - Define consistent button styles (primary, success, warning)
+   - Define card styles with CSS variables
+   - Change max-width to 1200px
+
+**Medium Priority (Components):**
+3. **`src/features/reading/components/StatsCard.tsx`**
+4. **`src/features/reading/components/PersonalDataPanel.tsx`**
+5. **`src/features/books/components/AddBookForm.tsx`**
+6. **`src/features/books/components/EditBookForm.tsx`**
+
+Apply same pattern:
+- Remove all Tailwind classes
+- Add scoped `<style>` block
+- Use CSS variables
+- Define consistent spacing (0.5rem, 1rem, 1.5rem, 2rem)
+- Ensure responsive behavior with @media queries
+
+**Max-Width Standards:**
+- Full-width pages (Collection, Stats, Reading): `1200px` (matches AppLayout)
+- Forms (Add, Edit): `800px` (good for readability)
+- Detail views: `800px` (consistent with forms)
+
+**Verification:**
+- [ ] All 7 pages render correctly with scoped CSS
+- [ ] No Tailwind class references remain
+- [ ] Dark mode works on all pages (CSS variables)
+- [ ] Responsive on mobile (375px), tablet (768px), desktop (1200px+)
+- [ ] All 460+ tests still pass (no regressions)
+- [ ] No console errors about missing CSS classes
+
+**Done Criteria:**
+- [ ] StatsPage converted and functional
+- [ ] ReadingDashboardPage converted and functional
+- [ ] All 4 components converted and functional
+- [ ] All pages use CSS variables for colors
+- [ ] Max-width standardized (1200px for pages, 800px for forms)
+- [ ] Dark mode works correctly
+- [ ] Responsive design verified
+- [ ] Test suite passes with no regressions (460+ tests)
+- [ ] No horizontal scrolling on any viewport
+
+---
 
 ### 6.1: UX Polish
 
-#### Task 6.1.1: Implement Empty States
+#### Task 6.1.4: Responsive Design Testing
+**Effort:** M (5 hours)  
+**Dependencies:** 6.0.1, 6.0.2 (MOVED UP - depends on styling fixes)  
+**TDD:** Manual testing + automated viewport tests
+
+**Note:** This task was moved earlier in the sequence because responsive design cannot be properly tested with broken styling. Must validate responsive behavior AFTER styling is fixed.
 **Effort:** S (3 hours)  
 **Dependencies:** All previous phases  
 **TDD:** Test alongside
@@ -2138,8 +2340,10 @@ Choose the order that best fits the curator's validation priorities.
 
 #### Task 6.1.2: Add Loading States and Feedback
 **Effort:** S (3 hours)  
-**Dependencies:** All previous phases  
+**Dependencies:** 6.0.1, 6.0.2, 6.1.4  
 **TDD:** Test alongside
+
+**Note:** This task was kept in its relative position after responsive testing.
 
 **Steps:**
 1. Review all user actions for feedback (UX-005, UX-009):
@@ -2163,8 +2367,10 @@ Choose the order that best fits the curator's validation priorities.
 
 #### Task 6.1.3: Accessibility Audit
 **Effort:** M (4 hours)  
-**Dependencies:** All previous phases  
+**Dependencies:** 6.0.1, 6.0.2, 6.1.4, 6.1.2  
 **TDD:** Automated + manual testing
+
+**Note:** This task validates accessibility after styling fixes and responsive testing are complete.
 
 **Steps:**
 1. Run automated accessibility tests with jest-axe on all components
@@ -2188,66 +2394,54 @@ Choose the order that best fits the curator's validation priorities.
 
 ---
 
-#### Task 6.1.4: Responsive Design Testing
-**Effort:** M (5 hours)  
+#### Task 6.1.1: Implement Empty States (OPTIONAL - Can Defer)
+**Effort:** S (3 hours)  
 **Dependencies:** All previous phases  
-**TDD:** Manual testing + automated viewport tests
+**TDD:** Test alongside  
+**Priority:** OPTIONAL - Nice-to-have but app works without them
+
+**Deferral Rationale:**
+- App works without empty states
+- 643 books already migrated, so empty collection state unlikely to be tested
+- Can defer to post-MVP0 if time-constrained
+- Saves 3 hours if skipped
+- Core validation can proceed without this task
 
 **Steps:**
-1. **Test essential workflows on mobile (UX-008, UX-011) with explicit checklist:**
-   
-   **Mobile Essential Workflows Checklist (UX-011):**
-   - [ ] View reading list (Reading Dashboard at /reading)
-   - [ ] View books with status "Reading" (mobile-optimized cards)
-   - [ ] View "Want to Read" filtered by priority
-   - [ ] Mark book as Reading (quick action from dashboard)
-   - [ ] Mark book as Finished (with optional rating)
-   - [ ] Update ownership status (from book detail or dashboard)
-   - [ ] View book details (full metadata display)
-   - [ ] Quick search (search bar accessible, debounced input works)
-   - [ ] Navigate between pages (hamburger menu works)
-   - [ ] Update personal notes (textarea accessible and usable)
-   
-   **Non-Essential Workflows (acceptable degradation on mobile):**
-   - Complex filtering (may require scrolling or collapsible UI)
-   - Bulk operations (not implemented in MVP 0)
-   - Adding new books (usable but form may be long)
-   - Statistics dashboard (may reflow, but readable)
-   
-2. Test on viewports: 375px (phone), 768px (tablet), 1024px (desktop)
-3. Fix layout issues:
-   - Navigation collapses on mobile (hamburger menu)
-   - Touch targets ≥44x44px for all interactive elements
-   - No horizontal scroll
-   - Tables reflow or become cards
-   - Form inputs sized appropriately for touch
-   - Dropdowns and selects work on mobile browsers
-4. Document any non-essential workflows with reduced mobile experience
+1. Write tests for empty states (UX-004)
+2. Create empty state components/messages:
+   - Empty collection: "Add your first book" with prominent add button
+   - No search results: "No books match" with clear filters button
+   - Zero books with status "Reading": "Start reading a book" with link to collection
+   - No books with status "Finished": "You haven't finished any books yet"
+3. Add to relevant pages
+4. Tests → Green
 
 **Done Criteria:**
-- [ ] All essential workflows from checklist fully functional on mobile (UX-011 ✅)
-- [ ] Responsive design working 375px to 1920px (UX-008 ✅)
-- [ ] Touch targets appropriately sized (≥44x44px)
-- [ ] No horizontal scroll on any page
-- [ ] Reading Dashboard is mobile-optimized (primary mobile destination)
-- [ ] Desktop-optimized workflows still usable on mobile (acceptable degradation)
-- [ ] Mobile testing checklist completed and documented
+- [ ] All empty states implemented (UX-004 ✅)
+- [ ] Tests passing
+- [ ] Helpful messages guide user to action
 
 ---
 
-#### Task 6.1.5: Create Settings Page
+#### Task 6.1.5: Create Settings Page (OPTIONAL - Can Defer)
 **Effort:** S (2 hours)  
 **Dependencies:** 1.1.1 (auth context)  
-**TDD:** Test alongside
+**TDD:** Test alongside  
+**Priority:** OPTIONAL - Minimal value in MVP0, expands in MVP1
 
-**Decision:** Keep minimal Settings page per UX-001 (Settings View is explicitly listed)
+**Deferral Rationale:**
+- Minimal value in MVP0 (just logout button + user info display)
+- Logout could live in navigation menu temporarily
+- Settings page scope expands significantly in MVP1 (user preferences, profile editing)
+- Can defer to MVP1 when user management features are added
+- Saves 2 hours if skipped
 
-**Rationale:**
+**Original Rationale for Inclusion:**
 - Explicitly in UX-001 specification
 - Natural place for logout button (better UX than nav menu)
 - Establishes route for MVP1 expansion
 - Very low effort (2 hours)
-- Better UX than logout in nav menu
 
 **Steps:**
 1. Write tests:
@@ -2379,16 +2573,22 @@ Choose the order that best fits the curator's validation priorities.
 ---
 
 ### Phase 6 Done Criteria
-- [ ] All empty states implemented (UX-004 ✅)
-- [ ] Feedback and loading states complete (UX-005, UX-009 ✅)
-- [ ] Accessibility validated (UX-006, UX-007 ✅)
+
+**Critical (Must Complete):**
+- [ ] Critical styling bugs fixed (double padding, broken Tailwind pages) ✅
+- [ ] All pages use CSS variables for consistent styling ✅
 - [ ] Responsive design validated (UX-008, UX-011 ✅)
 - [ ] Mobile essential workflows checklist completed ✅
-- [ ] Settings page with user profile and logout ✅
+- [ ] Feedback and loading states complete (UX-005, UX-009 ✅)
+- [ ] Accessibility validated (UX-006, UX-007 ✅)
 - [ ] Performance targets met (NFR-001, NFR-002 ✅)
 - [ ] Curator acceptance testing complete
-- [ ] Critical bugs fixed
+- [ ] Critical bugs from validation fixed
 - [ ] Success criteria validated (SC-001, SC-002, SC-003 ✅)
+
+**Optional (Can Defer to Post-MVP0):**
+- [ ] All empty states implemented (UX-004 ✅)
+- [ ] Settings page with user profile and logout ✅
 
 ---
 
@@ -2492,7 +2692,7 @@ Choose the order that best fits the curator's validation priorities.
 
 ## Appendix A: Effort Summary
 
-**Total Estimated Effort for MVP 0:** ~22-28 days (176-224 hours)
+**Total Estimated Effort for MVP 0:** ~23-29 days (184-232 hours)
 
 **Breakdown by Phase:**
 - Phase 0: Project Foundation → 3.5-4.5 days (added: shared constants, enhanced RLS testing)
@@ -2501,7 +2701,7 @@ Choose the order that best fits the curator's validation priorities.
 - Phase 3: Book Curation (CRUD) → 2.5-3.5 days (added: duplicate detection)
 - Phase 4: Personal Reading Management → 4-5 days (added: reading dashboard page)
 - Phase 5: Excel Data Migration → 2-3 days
-- Phase 6: Polish & Validation → 2.5-3.5 days (added: settings page, mobile testing checklist)
+- Phase 6: Polish & Validation → 3-4 days (v1.1: added critical styling fixes, reordered for logical flow, marked 2 tasks as optional)
 
 **Changes from Original Estimate:**
 - Added 5 new tasks based on comprehensive review
