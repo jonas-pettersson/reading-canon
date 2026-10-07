@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useReadingStatus, useUpdateReadingStatus } from '../hooks/useReadingStatus'
 import { ReadingStatusSelect } from './ReadingStatusSelect'
 import type { Database } from '@/types/database'
+import styles from './PersonalDataPanel.module.css'
 
 type OwnershipStatus = Database['public']['Enums']['ownership_status_enum']
 
@@ -33,7 +34,7 @@ export function PersonalDataPanel({ bookId }: PersonalDataPanelProps) {
   }, [readingStatus?.personal_notes])
 
   if (isLoading) {
-    return <div className="text-gray-500">Loading personal data...</div>
+    return <div className={styles.loadingText}>Loading personal data...</div>
   }
 
   const handleOwnershipChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -81,12 +82,15 @@ export function PersonalDataPanel({ bookId }: PersonalDataPanelProps) {
   const currentRating = readingStatus?.personal_rating || 0
 
   return (
-    <div className="space-y-4 rounded-lg border border-gray-200 bg-gray-50 p-4">
-      <h3 className="text-lg font-semibold text-gray-900">Personal Reading Data</h3>
+    <div className={styles.panel}>
+      <h3 className={styles.panelTitle}>Personal Reading Data</h3>
 
       {/* Reading Status */}
-      <div>
-        <label htmlFor={`status-${bookId}`} className="mb-1 block text-sm font-medium text-gray-700">
+      <div className={styles.field}>
+        <label
+          htmlFor={`status-${bookId}`}
+          className={styles.label}
+        >
           Reading Status
         </label>
         <ReadingStatusSelect
@@ -97,15 +101,18 @@ export function PersonalDataPanel({ bookId }: PersonalDataPanelProps) {
       </div>
 
       {/* Ownership */}
-      <div>
-        <label htmlFor={`ownership-${bookId}`} className="mb-1 block text-sm font-medium text-gray-700">
+      <div className={styles.field}>
+        <label
+          htmlFor={`ownership-${bookId}`}
+          className={styles.label}
+        >
           Ownership
         </label>
         <select
           id={`ownership-${bookId}`}
           value={readingStatus?.ownership_status || 'not_owned'}
           onChange={handleOwnershipChange}
-          className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className={styles.select}
         >
           {Object.entries(OWNERSHIP_LABELS).map(([value, label]) => (
             <option key={value} value={value}>
@@ -116,18 +123,22 @@ export function PersonalDataPanel({ bookId }: PersonalDataPanelProps) {
       </div>
 
       {/* Rating */}
-      <div>
-        <label id={`rating-label-${bookId}`} className="mb-1 block text-sm font-medium text-gray-700">
+      <div className={styles.field}>
+        <label id={`rating-label-${bookId}`} className={styles.label}>
           Rating
         </label>
-        <div className="flex gap-1" role="group" aria-labelledby={`rating-label-${bookId}`}>
+        <div
+          className={styles.ratingStars}
+          role="group"
+          aria-labelledby={`rating-label-${bookId}`}
+        >
           {[1, 2, 3, 4, 5].map((star) => (
             <button
               key={star}
               type="button"
               onClick={() => handleRatingClick(star)}
               aria-label={`Rate ${star} star${star > 1 ? 's' : ''}`}
-              className="text-2xl text-yellow-500 hover:text-yellow-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={styles.ratingStar}
             >
               {star <= currentRating ? '★' : '☆'}
             </button>
@@ -136,8 +147,8 @@ export function PersonalDataPanel({ bookId }: PersonalDataPanelProps) {
       </div>
 
       {/* Personal Notes */}
-      <div>
-        <label htmlFor={`notes-${bookId}`} className="mb-1 block text-sm font-medium text-gray-700">
+      <div className={styles.field}>
+        <label htmlFor={`notes-${bookId}`} className={styles.label}>
           Personal Notes
         </label>
         <textarea
@@ -147,21 +158,23 @@ export function PersonalDataPanel({ bookId }: PersonalDataPanelProps) {
           onBlur={handleNotesBlur}
           rows={4}
           placeholder="Add your thoughts, reflections, or reading notes..."
-          className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className={styles.textarea}
         />
       </div>
 
       {/* Timestamps */}
       {(readingStatus?.started_at || readingStatus?.completed_at) && (
-        <div className="space-y-1 border-t border-gray-300 pt-3 text-sm text-gray-600">
+        <div className={styles.timestampsSection}>
           {readingStatus.started_at && (
-            <div>
-              <span className="font-medium">Started:</span> {formatDate(readingStatus.started_at)}
+            <div className={styles.timestampRow}>
+              <span className={styles.timestampLabel}>Started:</span>{' '}
+              {formatDate(readingStatus.started_at)}
             </div>
           )}
           {readingStatus.completed_at && (
-            <div>
-              <span className="font-medium">Completed:</span> {formatDate(readingStatus.completed_at)}
+            <div className={styles.timestampRow}>
+              <span className={styles.timestampLabel}>Completed:</span>{' '}
+              {formatDate(readingStatus.completed_at)}
             </div>
           )}
         </div>

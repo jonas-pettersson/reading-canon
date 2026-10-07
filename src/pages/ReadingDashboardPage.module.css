@@ -1,0 +1,184 @@
+/* ReadingDashboardPage CSS Module */
+
+.pageContainer {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  /* Padding provided by AppLayout */
+}
+
+.pageTitle {
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--text-h);
+  margin-bottom: 2rem;
+}
+
+.loadingText,
+.emptyText {
+  color: var(--text);
+}
+
+.section {
+  margin-bottom: 3rem;
+}
+
+.sectionTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-h);
+  margin-bottom: 1rem;
+}
+
+.cardList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.bookCard {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  padding: 1.5rem;
+}
+
+.bookCardContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.bookInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.bookLink {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.bookLink:hover {
+  text-decoration: underline;
+}
+
+.bookAuthor {
+  color: var(--text-h);
+  margin-top: 0.25rem;
+}
+
+.bookMeta {
+  font-size: 0.875rem;
+  color: var(--text);
+  margin-top: 0.25rem;
+}
+
+.actionButtons {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+/* Button styles */
+.buttonPrimary,
+.buttonSuccess,
+.buttonWarning {
+  flex: 1;
+  padding: 0.5rem 1rem;
+  min-height: 44px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.buttonPrimary {
+  background: #2563eb;
+}
+
+.buttonPrimary:hover {
+  background: #1d4ed8;
+}
+
+.buttonPrimary:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.buttonSuccess {
+  background: #16a34a;
+}
+
+.buttonSuccess:hover {
+  background: #15803d;
+}
+
+.buttonSuccess:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.buttonWarning {
+  background: #ca8a04;
+}
+
+.buttonWarning:hover {
+  background: #a16207;
+}
+
+.buttonWarning:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Responsive breakpoints */
+@media (min-width: 640px) {
+  .bookCard {
+    padding: 1.5rem;
+  }
+
+  .bookCardContent {
+    flex-direction: row;
+    align-items: start;
+    justify-content: space-between;
+  }
+
+  .actionButtons {
+    flex-direction: column;
+    width: auto;
+  }
+
+  .buttonPrimary,
+  .buttonSuccess,
+  .buttonWarning {
+    flex: initial;
+    width: auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .pageTitle {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .sectionTitle {
+    font-size: 1.25rem;
+  }
+
+  .section {
+    margin-bottom: 2rem;
+  }
+
+  .bookCard {
+    padding: 1rem;
+  }
+}

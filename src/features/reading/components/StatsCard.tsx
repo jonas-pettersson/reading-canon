@@ -1,3 +1,5 @@
+import styles from './StatsCard.module.css'
+
 /**
  * StatsCard Component
  *
@@ -12,20 +14,10 @@ interface StatsCardProps {
 }
 
 export function StatsCard({ label, count, onClick }: StatsCardProps) {
-  const baseClasses =
-    'bg-white dark:bg-gray-800 rounded-lg shadow p-6 transition-colors'
-  const clickableClasses = onClick
-    ? 'cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700'
-    : ''
-
   const content = (
     <>
-      <div className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-        {count}
-      </div>
-      <div className="text-sm font-medium text-gray-600 dark:text-gray-400">
-        {label}
-      </div>
+      <div className={styles.count}>{count}</div>
+      <div className={styles.label}>{label}</div>
     </>
   )
 
@@ -33,7 +25,7 @@ export function StatsCard({ label, count, onClick }: StatsCardProps) {
     return (
       <button
         onClick={onClick}
-        className={`${baseClasses} ${clickableClasses} w-full text-left`}
+        className={`${styles.card} ${styles.cardClickable}`}
         aria-label={`${label}: ${count}`}
       >
         {content}
@@ -41,5 +33,5 @@ export function StatsCard({ label, count, onClick }: StatsCardProps) {
     )
   }
 
-  return <div className={baseClasses}>{content}</div>
+  return <div className={styles.card}>{content}</div>
 }

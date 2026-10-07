@@ -1,0 +1,39 @@
+/* StatsCard CSS Module */
+
+.card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  padding: 1.5rem;
+  transition: background-color 0.2s;
+}
+
+.cardClickable {
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  border: 1px solid var(--border);
+}
+
+.cardClickable:hover {
+  background: var(--accent-bg);
+}
+
+.cardClickable:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.count {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--text-h);
+  margin-bottom: 0.5rem;
+}
+
+.label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text);
+}

@@ -7,6 +7,7 @@ import { useCreateBook, type CreateBookInput } from '../hooks/useCreateBook'
 import { useDuplicateDetection } from '../hooks/useDuplicateDetection'
 import { PRIMARY_CATEGORIES } from '@/constants/categories'
 import type { Database } from '@/types/database'
+import styles from './BookForm.module.css'
 
 type Book = Database['public']['Tables']['books']['Row']
 
@@ -143,47 +144,47 @@ export function AddBookForm({ onSuccess, onCancel }: AddBookFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
       {/* Error Message */}
       {errorMessage && (
-        <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded" role="alert">
+        <div className={`${styles.alert} ${styles.alertError}`} role="alert">
           {errorMessage}
         </div>
       )}
 
       {/* Duplicate Warning */}
       {duplicates.length > 0 && (
-        <div className="bg-yellow-50 border border-yellow-300 text-yellow-900 px-4 py-3 rounded" role="alert">
-          <h4 className="font-semibold mb-2">Similar books found in your collection:</h4>
-          <ul className="list-disc list-inside space-y-1 mb-3">
+        <div className={`${styles.alert} ${styles.alertWarning}`} role="alert">
+          <h4 className={styles.alertTitle}>Similar books found in your collection:</h4>
+          <ul className={styles.alertList}>
             {duplicates.map((duplicate) => (
               <li key={duplicate.id}>
-                <span className="font-medium">{duplicate.title}</span> by {duplicate.author_display_name}
+                <span className={styles.alertBookTitle}>{duplicate.title}</span> by {duplicate.author_display_name}
                 {duplicate.year_published && ` (${duplicate.year_published})`}
                 {' '}
                 <a
                   href={`/books/${duplicate.id}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-700 underline hover:text-blue-900"
+                  className={styles.alertLink}
                 >
                   View
                 </a>
               </li>
             ))}
           </ul>
-          <p className="text-sm">
+          <p className={styles.alertNote}>
             You can still add this book if it's intentionally different from the ones listed above.
           </p>
         </div>
       )}
 
       {/* Required Fields */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Required Information</h3>
+      <div className={styles.section}>
+        <h3 className={styles.sectionTitle}>Required Information</h3>
 
         <div>
-          <label htmlFor="title" className="block text-sm font-medium mb-1">
+          <label htmlFor="title" className={styles.label}>
             Title *
           </label>
           <input
@@ -191,17 +192,17 @@ export function AddBookForm({ onSuccess, onCancel }: AddBookFormProps) {
             type="text"
             {...register('title')}
             aria-describedby={errors.title ? 'title-error' : undefined}
-            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={styles.input}
           />
           {errors.title && (
-            <p id="title-error" className="mt-1 text-sm text-red-600">
+            <p id="title-error" className={styles.errorMessage}>
               {errors.title.message}
             </p>
           )}
         </div>
 
         <div>
-          <label htmlFor="author_display_name" className="block text-sm font-medium mb-1">
+          <label htmlFor="author_display_name" className={styles.label}>
             Author Display Name *
           </label>
           <input
@@ -209,10 +210,10 @@ export function AddBookForm({ onSuccess, onCancel }: AddBookFormProps) {
             type="text"
             {...register('author_display_name')}
             aria-describedby={errors.author_display_name ? 'author-display-name-error' : undefined}
-            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={styles.input}
           />
           {errors.author_display_name && (
-            <p id="author-display-name-error" className="mt-1 text-sm text-red-600">
+            <p id="author-display-name-error" className={styles.errorMessage}>
               {errors.author_display_name.message}
             </p>
           )}
@@ -220,37 +221,37 @@ export function AddBookForm({ onSuccess, onCancel }: AddBookFormProps) {
       </div>
 
       {/* Optional Author Fields */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Author Details</h3>
+      <div className={styles.section}>
+        <h3 className={styles.sectionTitle}>Author Details</h3>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className={styles.grid}>
           <div>
-            <label htmlFor="given_name" className="block text-sm font-medium mb-1">
+            <label htmlFor="given_name" className={styles.label}>
               Given Name
             </label>
             <input
               id="given_name"
               type="text"
               {...register('given_name')}
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={styles.input}
             />
           </div>
 
           <div>
-            <label htmlFor="family_name" className="block text-sm font-medium mb-1">
+            <label htmlFor="family_name" className={styles.label}>
               Family Name
             </label>
             <input
               id="family_name"
               type="text"
               {...register('family_name')}
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={styles.input}
             />
           </div>
         </div>
 
         <div>
-          <label htmlFor="author_lifespan" className="block text-sm font-medium mb-1">
+          <label htmlFor="author_lifespan" className={styles.label}>
             Author Lifespan
           </label>
           <input
@@ -258,30 +259,30 @@ export function AddBookForm({ onSuccess, onCancel }: AddBookFormProps) {
             type="text"
             {...register('author_lifespan')}
             placeholder="e.g., 1564-1616"
-            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={styles.input}
           />
         </div>
       </div>
 
       {/* Book Details */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Book Details</h3>
+      <div className={styles.section}>
+        <h3 className={styles.sectionTitle}>Book Details</h3>
 
         <div>
-          <label htmlFor="title_original" className="block text-sm font-medium mb-1">
+          <label htmlFor="title_original" className={styles.label}>
             Original Title
           </label>
           <input
             id="title_original"
             type="text"
             {...register('title_original')}
-            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={styles.input}
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className={styles.grid}>
           <div>
-            <label htmlFor="year_published" className="block text-sm font-medium mb-1">
+            <label htmlFor="year_published" className={styles.label}>
               Year Published
             </label>
             <input
@@ -289,12 +290,12 @@ export function AddBookForm({ onSuccess, onCancel }: AddBookFormProps) {
               type="text"
               {...register('year_published')}
               placeholder="e.g., 1851 or 8th century BC"
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={styles.input}
             />
           </div>
 
           <div>
-            <label htmlFor="original_language" className="block text-sm font-medium mb-1">
+            <label htmlFor="original_language" className={styles.label}>
               Original Language
             </label>
             <input
@@ -303,10 +304,10 @@ export function AddBookForm({ onSuccess, onCancel }: AddBookFormProps) {
               {...register('original_language')}
               placeholder="e.g., EN, DE, SV"
               aria-describedby={errors.original_language ? 'original-language-error' : undefined}
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={styles.input}
             />
             {errors.original_language && (
-              <p id="original-language-error" className="mt-1 text-sm text-red-600">
+              <p id="original-language-error" className={styles.errorMessage}>
                 {errors.original_language.message}
               </p>
             )}
@@ -314,13 +315,13 @@ export function AddBookForm({ onSuccess, onCancel }: AddBookFormProps) {
         </div>
 
         <div>
-          <label htmlFor="primary_category" className="block text-sm font-medium mb-1">
+          <label htmlFor="primary_category" className={styles.label}>
             Primary Category
           </label>
           <select
             id="primary_category"
             {...register('primary_category')}
-            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={styles.input}
           >
             <option value="">Select a category</option>
             {PRIMARY_CATEGORIES.map((category) => (
@@ -332,7 +333,7 @@ export function AddBookForm({ onSuccess, onCancel }: AddBookFormProps) {
         </div>
 
         <div>
-          <label htmlFor="tags" className="block text-sm font-medium mb-1">
+          <label htmlFor="tags" className={styles.label}>
             Tags
           </label>
           <input
@@ -340,95 +341,95 @@ export function AddBookForm({ onSuccess, onCancel }: AddBookFormProps) {
             type="text"
             {...register('tags')}
             placeholder="Comma-separated tags (e.g., epic, ancient greece)"
-            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={styles.input}
           />
-          <p className="mt-1 text-sm text-gray-500">
+          <p className={styles.helperText}>
             Enter tags separated by commas
           </p>
         </div>
 
         <div>
-          <label htmlFor="source" className="block text-sm font-medium mb-1">
+          <label htmlFor="source" className={styles.label}>
             Source
           </label>
           <input
             id="source"
             type="text"
             {...register('source')}
-            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={styles.input}
           />
         </div>
 
         <div>
-          <label htmlFor="inclusion_rationale" className="block text-sm font-medium mb-1">
+          <label htmlFor="inclusion_rationale" className={styles.label}>
             Inclusion Rationale
           </label>
           <textarea
             id="inclusion_rationale"
             {...register('inclusion_rationale')}
             rows={4}
-            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={styles.input}
           />
         </div>
       </div>
 
       {/* External References */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold">External References</h3>
+      <div className={styles.section}>
+        <div className={styles.referencesSection}>
+          <h3 className={styles.sectionTitle}>External References</h3>
           <button
             type="button"
             onClick={() => append({ url: '', link_text: '', reference_type: '' })}
-            className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+            className={styles.buttonSmall}
           >
             Add Reference
           </button>
         </div>
 
         {fields.map((field, index) => (
-          <div key={field.id} className="border border-gray-200 rounded p-4 space-y-3">
-            <div className="flex justify-between items-center">
-              <h4 className="font-medium">Reference {index + 1}</h4>
+          <div key={field.id} className={styles.referenceItem}>
+            <div className={styles.referenceActions}>
+              <h4>Reference {index + 1}</h4>
               <button
                 type="button"
                 onClick={() => remove(index)}
-                className="text-red-600 hover:text-red-800 text-sm"
+                className={`${styles.buttonSmall} ${styles.buttonDanger}`}
               >
                 Remove
               </button>
             </div>
 
             <div>
-              <label htmlFor={`external_references.${index}.url`} className="block text-sm font-medium mb-1">
+              <label htmlFor={`external_references.${index}.url`} className={styles.label}>
                 URL *
               </label>
               <input
                 id={`external_references.${index}.url`}
                 type="text"
                 {...register(`external_references.${index}.url`)}
-                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={styles.input}
               />
               {errors.external_references?.[index]?.url && (
-                <p className="mt-1 text-sm text-red-600">
+                <p className={styles.errorMessage}>
                   {errors.external_references[index]?.url?.message}
                 </p>
               )}
             </div>
 
             <div>
-              <label htmlFor={`external_references.${index}.link_text`} className="block text-sm font-medium mb-1">
+              <label htmlFor={`external_references.${index}.link_text`} className={styles.label}>
                 Link Text
               </label>
               <input
                 id={`external_references.${index}.link_text`}
                 type="text"
                 {...register(`external_references.${index}.link_text`)}
-                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={styles.input}
               />
             </div>
 
             <div>
-              <label htmlFor={`external_references.${index}.reference_type`} className="block text-sm font-medium mb-1">
+              <label htmlFor={`external_references.${index}.reference_type`} className={styles.label}>
                 Reference Type
               </label>
               <input
@@ -436,7 +437,7 @@ export function AddBookForm({ onSuccess, onCancel }: AddBookFormProps) {
                 type="text"
                 {...register(`external_references.${index}.reference_type`)}
                 placeholder="e.g., analysis, review, full text"
-                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={styles.input}
               />
             </div>
           </div>
@@ -444,18 +445,18 @@ export function AddBookForm({ onSuccess, onCancel }: AddBookFormProps) {
       </div>
 
       {/* Form Actions */}
-      <div className="flex gap-4 justify-end pt-4 border-t">
+      <div className={styles.actions}>
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-50"
+          className={styles.buttonSecondary}
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={isPending}
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+          className={styles.buttonPrimary}
         >
           {isPending ? 'Adding...' : 'Add Book'}
         </button>

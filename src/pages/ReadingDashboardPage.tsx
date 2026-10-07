@@ -3,6 +3,7 @@ import { useReadingBooks, useWantToReadBooks } from '@/features/reading/hooks/us
 import { useUpdateReadingStatus } from '@/features/reading/hooks/useReadingStatus'
 import type { ReadingBook } from '@/features/reading/hooks/useReadingDashboard'
 import type { Database } from '@/types/database'
+import styles from './ReadingDashboardPage.module.css'
 
 type ReadingStatus = Database['public']['Enums']['reading_status_enum']
 
@@ -24,11 +25,9 @@ export function ReadingDashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-8">
-          Reading Dashboard
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400">Loading...</p>
+      <div className={styles.pageContainer}>
+        <h1 className={styles.pageTitle}>Reading Dashboard</h1>
+        <p className={styles.loadingText}>Loading...</p>
       </div>
     )
   }
@@ -37,22 +36,19 @@ export function ReadingDashboardPage() {
   const wantToReadBooks = wantToReadQuery.data || []
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-8">
-        Reading Dashboard
-      </h1>
+    <div className={styles.pageContainer}>
+      <h1 className={styles.pageTitle}>Reading Dashboard</h1>
 
       {/* Currently Reading Section */}
-      <section className="mb-12">
-        <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
-          Currently Reading
-        </h2>
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>Currently Reading</h2>
         {readingBooks.length === 0 ? (
-          <p className="text-gray-600 dark:text-gray-400">
-            No books currently reading. Start reading from your Want to Read list below!
+          <p className={styles.emptyText}>
+            No books currently reading. Start reading from your Want to Read
+            list below!
           </p>
         ) : (
-          <div className="space-y-4">
+          <div className={styles.cardList}>
             {readingBooks.map((book) => (
               <ReadingBookCard
                 key={book.id}
@@ -71,15 +67,13 @@ export function ReadingDashboardPage() {
 
       {/* Want to Read Section */}
       <section>
-        <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
-          Want to Read
-        </h2>
+        <h2 className={styles.sectionTitle}>Want to Read</h2>
         {wantToReadBooks.length === 0 ? (
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className={styles.emptyText}>
             No books in your Want to Read list. Add books from the collection!
           </p>
         ) : (
-          <div className="space-y-4">
+          <div className={styles.cardList}>
             {wantToReadBooks.map((book) => (
               <WantToReadBookCard
                 key={book.id}
@@ -110,38 +104,33 @@ function ReadingBookCard({
   onStatusChange: (status: ReadingStatus) => void
 }) {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 sm:p-6">
-      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-        <div className="flex-1 min-w-0">
-          <Link
-            to={`/books/${book.id}`}
-            className="text-lg font-semibold text-blue-600 dark:text-blue-400 hover:underline"
-          >
+    <div className={styles.bookCard}>
+      <div className={styles.bookCardContent}>
+        <div className={styles.bookInfo}>
+          <Link to={`/books/${book.id}`} className={styles.bookLink}>
             {book.title}
           </Link>
-          <p className="text-gray-700 dark:text-gray-300 mt-1">
+          <p className={styles.bookAuthor}>
             {book.author_display_name}
             {book.year_sort && ` (${book.year_sort})`}
           </p>
           {book.started_at && (
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            <p className={styles.bookMeta}>
               Started: {new Date(book.started_at).toLocaleDateString()}
             </p>
           )}
         </div>
-        <div className="flex flex-row sm:flex-col gap-2 w-full sm:w-auto">
+        <div className={styles.actionButtons}>
           <button
             onClick={() => onStatusChange('finished')}
-            className="flex-1 sm:flex-initial px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700
-                     transition-colors min-h-[44px] text-sm font-medium"
+            className={styles.buttonSuccess}
             aria-label="Mark as Finished"
           >
             Mark as Finished
           </button>
           <button
             onClick={() => onStatusChange('paused')}
-            className="flex-1 sm:flex-initial px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700
-                     transition-colors min-h-[44px] text-sm font-medium"
+            className={styles.buttonWarning}
             aria-label="Mark as Paused"
           >
             Mark as Paused
@@ -163,24 +152,20 @@ function WantToReadBookCard({
   onStatusChange: (status: ReadingStatus) => void
 }) {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 sm:p-6">
-      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-        <div className="flex-1 min-w-0">
-          <Link
-            to={`/books/${book.id}`}
-            className="text-lg font-semibold text-blue-600 dark:text-blue-400 hover:underline"
-          >
+    <div className={styles.bookCard}>
+      <div className={styles.bookCardContent}>
+        <div className={styles.bookInfo}>
+          <Link to={`/books/${book.id}`} className={styles.bookLink}>
             {book.title}
           </Link>
-          <p className="text-gray-700 dark:text-gray-300 mt-1">
+          <p className={styles.bookAuthor}>
             {book.author_display_name}
             {book.year_sort && ` (${book.year_sort})`}
           </p>
         </div>
         <button
           onClick={() => onStatusChange('reading')}
-          className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700
-                   transition-colors min-h-[44px] text-sm font-medium"
+          className={styles.buttonPrimary}
           aria-label="Mark as Reading"
         >
           Mark as Reading
