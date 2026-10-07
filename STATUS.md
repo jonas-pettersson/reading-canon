@@ -1,7 +1,7 @@
 # Project Status
 
 **Current Phase:** MVP 0 - Phase 6 (Polish & MVP 0 Validation)  
-**Progress:** Starting Task 6.0.1 (Critical Styling Fixes)  
+**Progress:** Task 6.0.1 Complete → Next: Task 6.0.2 (Convert to CSS Modules)  
 **Last Updated:** 2026-10-07
 
 ---
@@ -12,7 +12,7 @@
 
 **Structure (v1.1.1 - Updated 2026-10-07):**
 - Section 6.0: Critical Styling Fixes (BLOCKING)
-  - Task 6.0.1: Fix Double/Triple Padding Bug (1h)
+  - ✅ Task 6.0.1: Fix Double/Triple Padding Bug (1h)
   - Task 6.0.2: Convert to CSS Modules (8-9h) - Architecture improved
 - Section 6.1: UX Polish (reordered)
   - Task 6.1.4: Responsive Design Testing (5h) - MOVED UP
@@ -28,11 +28,11 @@
 
 **Architecture Note:** Task 6.0.2 updated to use CSS Modules instead of scoped `<style>` blocks for better maintainability and consistency. Component-centric organization with `.module.css` files.
 
-**Next Task:** 6.0.1 - Fix Double/Triple Padding Bug
+**Next Task:** 6.0.2 - Convert 7 Pages to CSS Modules
 
 ## Test Metrics
 
-**Test Status:** 460 tests passing | 28 skipped (488 total)  
+**Test Status:** 474 tests passing | 34 skipped (508 total)  
 **Coverage:**
 - Statements: 95.3%
 - Branches: 89.18%
@@ -97,6 +97,9 @@
 ### Phase 5: Excel Data Migration ✅ (Completed 2026-10-06)
 - ✅ Task 5.1.1: Excel Parser - Comprehensive parsing with validation (29 tests)
 - ✅ Task 5.1.2: Migration Script - Idempotent migration with reporting (10 tests)
+
+### Phase 6: Polish & MVP 0 Validation 🚧 (In Progress - Started 2026-10-07)
+- ✅ Task 6.0.1: Fix Double/Triple Padding Bug - Removed duplicate padding from EditBookPage, BookDetailPage, BookDetail
 
 ## Completed Phases (continued)
 

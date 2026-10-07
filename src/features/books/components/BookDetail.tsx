@@ -42,7 +42,6 @@ export function BookDetail({ book, onBack, onEdit, onDelete }: BookDetailProps) 
       style={{
         maxWidth: '800px',
         margin: '0 auto',
-        padding: '2rem',
       }}
     >
       {/* Action buttons */}

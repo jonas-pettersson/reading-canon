@@ -67,7 +67,7 @@ export function BookDetailPage() {
         <style>{`
           .book-detail-page {
             width: 100%;
-            padding: 2rem;
+            /* Padding provided by AppLayout */
           }
 
           .loading-container {
@@ -109,7 +109,7 @@ export function BookDetailPage() {
         <style>{`
           .book-detail-page {
             width: 100%;
-            padding: 2rem;
+            /* Padding provided by AppLayout */
           }
 
           .error-container {
@@ -174,7 +174,7 @@ export function BookDetailPage() {
         <style>{`
           .book-detail-page {
             width: 100%;
-            padding: 2rem;
+            /* Padding provided by AppLayout */
           }
 
           .error-container {

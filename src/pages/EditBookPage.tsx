@@ -45,7 +45,7 @@ export function EditBookPage() {
         <style>{`
           .edit-book-page {
             width: 100%;
-            padding: 2rem;
+            /* Padding provided by AppLayout */
           }
 
           .loading-container {
@@ -87,7 +87,7 @@ export function EditBookPage() {
         <style>{`
           .edit-book-page {
             width: 100%;
-            padding: 2rem;
+            /* Padding provided by AppLayout */
           }
 
           .error-container {
@@ -150,7 +150,7 @@ export function EditBookPage() {
         <style>{`
           .edit-book-page {
             width: 100%;
-            padding: 2rem;
+            /* Padding provided by AppLayout */
           }
 
           .error-container {
@@ -212,7 +212,7 @@ export function EditBookPage() {
       <style>{`
         .edit-book-page {
           width: 100%;
-          padding: 2rem;
+          /* Padding provided by AppLayout */
         }
 
         .edit-book-container {
