@@ -10,10 +10,10 @@
 
 **Phase 6: Polish & MVP 0 Validation** 🚧 In Progress
 
-**Structure (v1.1 - Revised 2026-10-07):**
+**Structure (v1.1.1 - Updated 2026-10-07):**
 - Section 6.0: Critical Styling Fixes (BLOCKING)
   - Task 6.0.1: Fix Double/Triple Padding Bug (1h)
-  - Task 6.0.2: Fix Broken Tailwind Pages (5-7h)
+  - Task 6.0.2: Convert to CSS Modules (8-9h) - Architecture improved
 - Section 6.1: UX Polish (reordered)
   - Task 6.1.4: Responsive Design Testing (5h) - MOVED UP
   - Task 6.1.2: Loading States and Feedback (3h)
@@ -25,6 +25,8 @@
 - Section 6.3: Validation
   - Task 6.3.1: Curator Acceptance Testing (2-4h)
   - Task 6.3.2: Bug Fixes from Validation (1-2 days)
+
+**Architecture Note:** Task 6.0.2 updated to use CSS Modules instead of scoped `<style>` blocks for better maintainability and consistency. Component-centric organization with `.module.css` files.
 
 **Next Task:** 6.0.1 - Fix Double/Triple Padding Bug
 
@@ -133,7 +135,7 @@
 - ✅ `artifacts/design-decisions.md` - Design decisions
 - ✅ `artifacts/spec.md` v1.4 - Requirements specification
 - ✅ `adr/ADR-001` through `ADR-008` - Architecture decisions
-- ✅ `artifacts/plan-mvp0.md` v1.1 - MVP 0 implementation plan (updated 2026-10-07)
+- ✅ `artifacts/plan-mvp0.md` v1.1.1 - MVP 0 implementation plan (CSS Modules architecture, 2026-10-07)
 
 **Living Documents:**
 - 🔄 `CLAUDE.md` - Development guidance for AI assistance

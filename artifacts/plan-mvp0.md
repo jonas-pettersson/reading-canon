@@ -5,8 +5,34 @@
 **Goal:** Prove it's better than Excel for curator's personal use  
 **Target:** Working localhost application with Excel data migrated  
 **Date Created:** 2026-10-02  
-**Version:** 1.1  
-**Last Updated:** 2026-10-07 (Phase 6 restructure: Integrated critical styling fixes)
+**Version:** 1.1.1  
+**Last Updated:** 2026-10-07 (Architecture improvement: CSS Modules for styling consistency)
+
+---
+
+## Recent Changes (2026-10-07) - Version 1.1.1
+
+**Task 6.0.2 Architecture Update:** Changed styling approach from scoped `<style>` blocks to CSS Modules.
+
+**What Changed:**
+- Task 6.0.2 now uses **CSS Modules** (`.module.css` files) instead of inline scoped `<style>` blocks
+- Effort increased from 5-7 hours to 8-9 hours (+2 hours for better architecture)
+- Each component gets its own `.module.css` file (component-centric organization)
+
+**Rationale:**
+- ✅ Better maintainability: Separates concerns (JSX vs CSS)
+- ✅ Better performance: Build-time optimization, cached CSS files
+- ✅ Better DX: Autocomplete, TypeScript-safe imports
+- ✅ Scalable: Component-centric organization matches React philosophy
+- ✅ Aligns with ADR-001: CSS Modules explicitly listed as an option
+- ✅ Zero config: Vite supports CSS Modules out of the box
+- ✅ Single consistent pattern: Establishes foundation for all future components
+- ✅ Only +2 hours: Prevents future refactoring work (would save 1-2 days post-MVP0)
+
+**Impact:**
+- Effort: +2 hours to Task 6.0.2 (8-9 hours instead of 5-7 hours)
+- Timeline: No change to Phase 6 overall (still 3-4 days)
+- Architecture: Establishes consistent styling pattern for entire project
 
 ---
 
@@ -18,19 +44,19 @@
 
 1. **New Task 6.0.1 (Critical):** Fix double/triple padding bugs in EditBookPage, BookDetailPage, and BookDetail component. These bugs create excessive whitespace (4rem instead of 2rem).
 
-2. **New Task 6.0.2 (Critical):** Convert 7 pages from broken Tailwind classes to working scoped CSS. Tailwind CSS is not installed, so all Tailwind classes are non-functional. Converts to CSS variables approach (already used successfully in 13+ files).
+2. **New Task 6.0.2 (Critical):** Convert 7 pages from broken Tailwind classes to CSS Modules. Tailwind CSS is not installed, so all Tailwind classes are non-functional. Uses component-centric CSS Modules with existing CSS variables.
 
 3. **Task Reordering:** Moved Task 6.1.4 (Responsive Design Testing) earlier in sequence - must test responsive behavior AFTER styling is fixed, not before.
 
 4. **Optional Tasks:** Marked Tasks 6.1.1 (Empty States) and 6.1.5 (Settings Page) as optional/deferrable. Core validation can proceed without them. Saves 5 hours if time-constrained.
 
-5. **Effort Adjustment:** Phase 6 increased from 2-3 days to 3-4 days (adds 6-8 hours for styling fixes, reduces 5 hours for optional tasks = net +1-3 hours).
+5. **Effort Adjustment:** Phase 6 increased from 2-3 days to 3-4 days (adds 8-9 hours for styling fixes, reduces 5 hours for optional tasks = net +1-2 hours).
 
 **Rationale:**
 - Critical styling bugs block proper validation of responsive design and accessibility
 - Must fix bugs before testing can validate correct behavior
 - No changes to requirements (UX was always in spec.md UX-001 through UX-011)
-- Styling approach (CSS variables + scoped CSS) already proven in 13+ existing files
+- CSS Modules approach aligns with ADR-001 and React/Vite best practices
 
 **Impact on Timeline:**
 - Minimal: Adds 1 day to Phase 6 (critical work that must be done)
@@ -2193,8 +2219,8 @@ Choose the order that best fits the curator's validation priorities.
 
 ---
 
-#### Task 6.0.2: Fix Broken Tailwind Pages (Convert to Scoped CSS)
-**Effort:** M (5-7 hours)  
+#### Task 6.0.2: Fix Broken Tailwind Pages (Convert to CSS Modules)
+**Effort:** M-L (8-9 hours)  
 **Dependencies:** 6.0.1  
 **TDD:** Manual verification + test suite regression check  
 **Priority:** CRITICAL - Pages currently have non-functional styling
@@ -2210,7 +2236,16 @@ Choose the order that best fits the curator's validation priorities.
 7. (One more component from investigation)
 
 **Solution:**
-Convert all Tailwind classes to scoped CSS using existing CSS variables from `src/index.css`:
+Convert all Tailwind classes to **CSS Modules** (not scoped `<style>` blocks). This provides:
+- ✅ Component-centric organization (one .tsx + one .module.css per component)
+- ✅ Automatic scoping (no naming conflicts)
+- ✅ Better maintainability (separate concerns)
+- ✅ Better performance (build-time optimization, cached CSS files)
+- ✅ Works with existing CSS variables from `src/index.css`
+- ✅ Vite supports CSS Modules out of the box (no config needed)
+- ✅ Aligns with ADR-001 (CSS Modules listed as option)
+
+**CSS Variables Available:**
 - `var(--text)` - Body text
 - `var(--text-h)` - Headings
 - `var(--bg)` - Background
@@ -2222,66 +2257,81 @@ Convert all Tailwind classes to scoped CSS using existing CSS variables from `sr
 
 Before (broken Tailwind):
 ```tsx
+// src/pages/StatsPage.tsx
 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
   <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-8">
+    Statistics
+  </h1>
+</div>
 ```
 
-After (working scoped CSS):
+After (CSS Modules):
 ```tsx
-<div className="page-container">
-  <h1 className="page-title">Statistics</h1>
-  
-  <style>{`
-    .page-container {
-      width: 100%;
-      max-width: 1200px; /* Match AppLayout */
-      margin: 0 auto;
-    }
-    
-    .page-title {
-      font-size: 2rem;
-      font-weight: 600;
-      color: var(--text-h);
-      margin-bottom: 2rem;
-    }
-    
-    @media (max-width: 768px) {
-      .page-title {
-        font-size: 1.5rem;
-        margin-bottom: 1rem;
-      }
-    }
-  `}</style>
+// src/pages/StatsPage.tsx
+import styles from './StatsPage.module.css'
+
+<div className={styles.pageContainer}>
+  <h1 className={styles.pageTitle}>Statistics</h1>
 </div>
+```
+
+```css
+/* src/pages/StatsPage.module.css */
+.pageContainer {
+  width: 100%;
+  max-width: 1200px; /* Match AppLayout */
+  margin: 0 auto;
+}
+
+.pageTitle {
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--text-h);
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 768px) {
+  .pageTitle {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+}
 ```
 
 **Files to Convert (Priority Order):**
 
 **High Priority (User-Facing Pages):**
-1. **`src/pages/StatsPage.tsx`**
-   - Convert all Tailwind classes to scoped CSS
+1. **`src/pages/StatsPage.tsx`** → Create `StatsPage.module.css`
+   - Convert all Tailwind classes to CSS Modules
+   - Import: `import styles from './StatsPage.module.css'`
    - Change max-width from 1280px to 1200px (match AppLayout)
    - Use CSS variables for colors
    - Ensure dark mode support
+   - Use semantic class names: `.pageContainer`, `.pageTitle`, `.statsGrid`
 
-2. **`src/pages/ReadingDashboardPage.tsx`**
-   - Convert all Tailwind classes to scoped CSS
-   - Define consistent button styles (primary, success, warning)
-   - Define card styles with CSS variables
+2. **`src/pages/ReadingDashboardPage.tsx`** → Create `ReadingDashboardPage.module.css`
+   - Convert all Tailwind classes to CSS Modules
+   - Import: `import styles from './ReadingDashboardPage.module.css'`
+   - Define consistent button styles (`.buttonPrimary`, `.buttonSuccess`, `.buttonWarning`)
+   - Define card styles with CSS variables (`.readingCard`)
    - Change max-width to 1200px
+   - Use semantic class names, not utility-style names
 
 **Medium Priority (Components):**
-3. **`src/features/reading/components/StatsCard.tsx`**
-4. **`src/features/reading/components/PersonalDataPanel.tsx`**
-5. **`src/features/books/components/AddBookForm.tsx`**
-6. **`src/features/books/components/EditBookForm.tsx`**
+3. **`src/features/reading/components/StatsCard.tsx`** → Create `StatsCard.module.css`
+4. **`src/features/reading/components/PersonalDataPanel.tsx`** → Create `PersonalDataPanel.module.css`
+5. **`src/features/books/components/AddBookForm.tsx`** → Create `AddBookForm.module.css`
+6. **`src/features/books/components/EditBookForm.tsx`** → Create `EditBookForm.module.css`
 
-Apply same pattern:
+Apply same pattern for all:
 - Remove all Tailwind classes
-- Add scoped `<style>` block
-- Use CSS variables
+- Create `.module.css` file next to component
+- Import styles: `import styles from './ComponentName.module.css'`
+- Use CSS variables for colors
+- Use semantic class names (`.bookCard`, `.formSection`, `.inputGroup`)
 - Define consistent spacing (0.5rem, 1rem, 1.5rem, 2rem)
 - Ensure responsive behavior with @media queries
+- Avoid utility-style naming (no `.mt1`, `.gap4`, `.p2` - use semantic names)
 
 **Max-Width Standards:**
 - Full-width pages (Collection, Stats, Reading): `1200px` (matches AppLayout)
@@ -2289,23 +2339,30 @@ Apply same pattern:
 - Detail views: `800px` (consistent with forms)
 
 **Verification:**
-- [ ] All 7 pages render correctly with scoped CSS
+- [ ] All 7 pages render correctly with CSS Modules
+- [ ] Each component has a corresponding `.module.css` file
+- [ ] All components import their styles: `import styles from './ComponentName.module.css'`
 - [ ] No Tailwind class references remain
+- [ ] Class names use semantic naming (not utility-style)
 - [ ] Dark mode works on all pages (CSS variables)
 - [ ] Responsive on mobile (375px), tablet (768px), desktop (1200px+)
 - [ ] All 460+ tests still pass (no regressions)
 - [ ] No console errors about missing CSS classes
+- [ ] Browser DevTools show scoped class names (e.g., `StatsPage_pageContainer_abc123`)
 
 **Done Criteria:**
-- [ ] StatsPage converted and functional
-- [ ] ReadingDashboardPage converted and functional
-- [ ] All 4 components converted and functional
+- [ ] 7 `.module.css` files created (one per component)
+- [ ] StatsPage converted to CSS Modules and functional
+- [ ] ReadingDashboardPage converted to CSS Modules and functional
+- [ ] All 4 components converted to CSS Modules and functional
 - [ ] All pages use CSS variables for colors
+- [ ] Semantic class names used throughout (`.pageContainer`, `.bookCard`, not `.mt1`)
 - [ ] Max-width standardized (1200px for pages, 800px for forms)
 - [ ] Dark mode works correctly
 - [ ] Responsive design verified
 - [ ] Test suite passes with no regressions (460+ tests)
 - [ ] No horizontal scrolling on any viewport
+- [ ] Component-centric organization established (foundation for future consistency)
 
 ---
 
