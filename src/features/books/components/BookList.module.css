@@ -17,6 +17,7 @@
 
 .tableView {
   width: 100%;
+  min-width: 600px; /* Prevent table from being crushed on mobile - will scroll horizontally */
   border-collapse: collapse;
   font-size: 0.875rem;
 }

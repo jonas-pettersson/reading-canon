@@ -76,7 +76,7 @@ export function ReadingStatusSelect({
       onChange={handleChange}
       disabled={isPending}
       aria-label="Reading status"
-      className={`rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
+      className={className}
     >
       {STATUS_OPTIONS.map((status) => (
         <option key={status} value={status}>

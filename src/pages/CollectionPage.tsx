@@ -226,6 +226,23 @@ export function CollectionPage() {
             font-size: 1.5rem;
           }
 
+          .header-actions {
+            width: 100%;
+            flex-direction: column;
+            gap: 0.5rem;
+          }
+
+          .view-toggle {
+            width: 100%;
+          }
+
+          .view-button {
+            flex: 1;
+            padding: 0.625rem;
+            font-size: 0.875rem;
+            text-align: center;
+          }
+
           .add-book-button {
             width: 100%;
             padding: 0.625rem 1rem;
@@ -235,6 +252,10 @@ export function CollectionPage() {
           .filters-section {
             padding: 1rem;
             margin-bottom: 1rem;
+          }
+
+          .books-section {
+            overflow-x: auto;
           }
         }
       `}</style>
