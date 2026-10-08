@@ -1,5 +1,6 @@
 import type { BookWithReferences } from '../hooks/useBook'
 import { PersonalDataPanel } from '@/features/reading/components/PersonalDataPanel'
+import styles from './BookDetail.module.css'
 
 export interface BookDetailProps {
   book: BookWithReferences
@@ -9,17 +10,16 @@ export interface BookDetailProps {
 }
 
 /**
- * BookDetail component displays full details for a single book.
+ * BookDetail component displays full details for a single book in a compact two-column layout.
  *
  * Features:
- * - Displays all canonical book metadata
- * - Shows external references as clickable links
- * - Handles missing optional fields gracefully
- * - Back navigation button
- * - Edit button (for Phase 3)
- * - Delete button (for Phase 3)
- * - Accessible with proper heading hierarchy
- * - Responsive design
+ * - Compact two-column metadata grid
+ * - Inline labels (no large section headings)
+ * - Tight spacing - fits more on screen
+ * - All canonical book metadata
+ * - External references as clickable links
+ * - Personal reading data panel
+ * - Responsive (single column on mobile)
  *
  * @example
  * <BookDetail
@@ -38,285 +38,125 @@ export function BookDetail({ book, onBack, onEdit, onDelete }: BookDetailProps) 
     : null
 
   return (
-    <article
-      style={{
-        maxWidth: '800px',
-        margin: '0 auto',
-      }}
-    >
+    <article className={styles.container}>
       {/* Action buttons */}
-      <div
-        style={{
-          display: 'flex',
-          gap: '1rem',
-          marginBottom: '2rem',
-        }}
-      >
-        <button
-          onClick={onBack}
-          style={{
-            padding: '0.5rem 1rem',
-            background: '#f0f0f0',
-            border: '1px solid #ccc',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            fontSize: '0.9rem',
-          }}
-        >
+      <div className={styles.actions}>
+        <button onClick={onBack} className={`${styles.button} ${styles.buttonBack}`}>
           ← Back to Collection
         </button>
-        <button
-          onClick={onEdit}
-          style={{
-            padding: '0.5rem 1rem',
-            background: '#007bff',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            fontSize: '0.9rem',
-          }}
-        >
+        <button onClick={onEdit} className={`${styles.button} ${styles.buttonEdit}`}>
           Edit
         </button>
-        <button
-          onClick={onDelete}
-          style={{
-            padding: '0.5rem 1rem',
-            background: '#dc3545',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            fontSize: '0.9rem',
-          }}
-        >
+        <button onClick={onDelete} className={`${styles.button} ${styles.buttonDelete}`}>
           Delete
         </button>
       </div>
 
-      {/* Title Section */}
-      <header style={{ marginBottom: '2rem' }}>
-        <h1
-          style={{
-            fontSize: '2rem',
-            fontWeight: 'bold',
-            marginBottom: '0.5rem',
-            lineHeight: 1.2,
-          }}
-        >
-          {book.title}
-        </h1>
+      {/* Title */}
+      <header className={styles.header}>
+        <h1 className={styles.title}>{book.title}</h1>
         {book.title_original && (
-          <p
-            style={{
-              fontSize: '1.25rem',
-              color: '#666',
-              fontStyle: 'italic',
-              marginBottom: '1rem',
-            }}
-          >
-            {book.title_original}
-          </p>
+          <p className={styles.titleOriginal}>{book.title_original}</p>
         )}
       </header>
 
-      {/* Author Section */}
-      <section style={{ marginBottom: '2rem' }}>
-        <h2
-          style={{
-            fontSize: '1.25rem',
-            fontWeight: '600',
-            marginBottom: '0.5rem',
-          }}
-        >
-          Author
-        </h2>
-        <p style={{ fontSize: '1rem', color: '#333' }}>
-          {book.author_display_name}
-          {book.author_lifespan && (
-            <span style={{ color: '#666', marginLeft: '0.5rem' }}>
-              ({book.author_lifespan})
-            </span>
-          )}
-        </p>
-      </section>
+      {/* Two-Column Metadata Grid */}
+      <div className={styles.metadata}>
+        {/* Author */}
+        <div className={styles.metadataItem}>
+          <span className={styles.label}>Author</span>
+          <span className={styles.value}>
+            {book.author_display_name}
+            {book.author_lifespan && (
+              <span className={styles.valueSecondary}> ({book.author_lifespan})</span>
+            )}
+          </span>
+        </div>
 
-      {/* Publication Info */}
-      <section style={{ marginBottom: '2rem' }}>
-        <h2
-          style={{
-            fontSize: '1.25rem',
-            fontWeight: '600',
-            marginBottom: '0.5rem',
-          }}
-        >
-          Publication
-        </h2>
-        <dl style={{ display: 'grid', gap: '0.5rem' }}>
-          {book.year_published && (
-            <>
-              <dt style={{ fontWeight: '600', color: '#666' }}>Year:</dt>
-              <dd style={{ margin: 0 }}>
-                {book.year_published}
-                {yearDisplay && book.year_published !== yearDisplay && (
-                  <span style={{ color: '#666', marginLeft: '0.5rem' }}>
-                    ({yearDisplay})
+        {/* Year */}
+        {book.year_published && (
+          <div className={styles.metadataItem}>
+            <span className={styles.label}>Year Published</span>
+            <span className={styles.value}>
+              {book.year_published}
+              {yearDisplay && book.year_published !== yearDisplay && (
+                <span className={styles.valueSecondary}> ({yearDisplay})</span>
+              )}
+            </span>
+          </div>
+        )}
+
+        {/* Original Language */}
+        {book.original_language && (
+          <div className={styles.metadataItem}>
+            <span className={styles.label}>Original Language</span>
+            <span className={styles.value}>{book.original_language}</span>
+          </div>
+        )}
+
+        {/* Source */}
+        {book.source && (
+          <div className={styles.metadataItem}>
+            <span className={styles.label}>Source</span>
+            <span className={styles.value}>{book.source}</span>
+          </div>
+        )}
+      </div>
+
+      {/* Classification: Category + Tags */}
+      {(book.primary_category || (book.tags && book.tags.length > 0)) && (
+        <div className={styles.classification}>
+          <div className={styles.classificationContent}>
+            {book.primary_category && (
+              <span className={styles.categoryBadge}>{book.primary_category}</span>
+            )}
+            {book.tags && book.tags.length > 0 && (
+              <>
+                {book.tags.map((tag) => (
+                  <span key={tag} className={styles.tag}>
+                    {tag}
                   </span>
-                )}
-              </dd>
-            </>
-          )}
-          {book.original_language && (
-            <>
-              <dt style={{ fontWeight: '600', color: '#666' }}>Original Language:</dt>
-              <dd style={{ margin: 0 }}>{book.original_language}</dd>
-            </>
-          )}
-        </dl>
-      </section>
-
-      {/* Category and Tags */}
-      <section style={{ marginBottom: '2rem' }}>
-        <h2
-          style={{
-            fontSize: '1.25rem',
-            fontWeight: '600',
-            marginBottom: '0.5rem',
-          }}
-        >
-          Classification
-        </h2>
-        {book.primary_category && (
-          <div style={{ marginBottom: '0.75rem' }}>
-            <span
-              style={{
-                display: 'inline-block',
-                padding: '0.25rem 0.75rem',
-                background: '#e3f2fd',
-                color: '#1976d2',
-                borderRadius: '4px',
-                fontSize: '0.875rem',
-                fontWeight: '500',
-              }}
-            >
-              {book.primary_category}
-            </span>
+                ))}
+              </>
+            )}
           </div>
-        )}
-        {book.tags && book.tags.length > 0 && (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-            {book.tags.map((tag) => (
-              <span
-                key={tag}
-                style={{
-                  display: 'inline-block',
-                  padding: '0.25rem 0.5rem',
-                  background: '#f5f5f5',
-                  border: '1px solid #ddd',
-                  borderRadius: '4px',
-                  fontSize: '0.75rem',
-                  color: '#666',
-                }}
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-        )}
-      </section>
+        </div>
+      )}
 
       {/* Inclusion Rationale */}
       {book.inclusion_rationale && (
-        <section style={{ marginBottom: '2rem' }}>
-          <h2
-            style={{
-              fontSize: '1.25rem',
-              fontWeight: '600',
-              marginBottom: '0.5rem',
-            }}
-          >
-            Why This Book?
-          </h2>
-          <p
-            style={{
-              fontSize: '1rem',
-              lineHeight: 1.6,
-              color: '#333',
-            }}
-          >
-            {book.inclusion_rationale}
-          </p>
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>Why This Book?</h2>
+          <p className={styles.sectionContent}>{book.inclusion_rationale}</p>
         </section>
       )}
 
-      {/* Source */}
-      {book.source && (
-        <section style={{ marginBottom: '2rem' }}>
-          <h2
-            style={{
-              fontSize: '1.25rem',
-              fontWeight: '600',
-              marginBottom: '0.5rem',
-            }}
-          >
-            Source
-          </h2>
-          <p style={{ fontSize: '1rem', color: '#333' }}>{book.source}</p>
+      {/* Curator Notes */}
+      {book.curator_notes && (
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>Curator Notes</h2>
+          <p className={styles.sectionContent}>{book.curator_notes}</p>
         </section>
       )}
 
       {/* External References */}
       {book.external_references && book.external_references.length > 0 && (
-        <section style={{ marginBottom: '2rem' }}>
-          <h2
-            style={{
-              fontSize: '1.25rem',
-              fontWeight: '600',
-              marginBottom: '0.5rem',
-            }}
-          >
-            External References
-          </h2>
-          <ul
-            style={{
-              listStyle: 'none',
-              padding: 0,
-              display: 'grid',
-              gap: '0.75rem',
-            }}
-          >
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>External References</h2>
+          <ul className={styles.referencesList}>
             {book.external_references.map((ref) => (
               <li key={ref.id}>
                 <a
                   href={ref.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{
-                    color: '#1976d2',
-                    textDecoration: 'none',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                  }}
+                  className={styles.referenceLink}
                 >
-                  <span style={{ textDecoration: 'underline' }}>
-                    {ref.link_text || ref.url}
-                  </span>
+                  <span>{ref.link_text || ref.url}</span>
                   {ref.reference_type && (
-                    <span
-                      style={{
-                        fontSize: '0.75rem',
-                        color: '#666',
-                        padding: '0.125rem 0.5rem',
-                        background: '#f5f5f5',
-                        borderRadius: '4px',
-                      }}
-                    >
-                      {ref.reference_type}
-                    </span>
+                    <span className={styles.referenceType}>{ref.reference_type}</span>
                   )}
-                  <span style={{ fontSize: '0.75rem' }}>↗</span>
+                  <span className={styles.externalIcon}>↗</span>
                 </a>
               </li>
             ))}
@@ -325,7 +165,7 @@ export function BookDetail({ book, onBack, onEdit, onDelete }: BookDetailProps) 
       )}
 
       {/* Personal Reading Data */}
-      <section style={{ marginTop: '2rem' }}>
+      <section className={styles.personalData}>
         <PersonalDataPanel bookId={book.id} />
       </section>
     </article>

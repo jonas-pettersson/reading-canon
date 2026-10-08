@@ -124,8 +124,8 @@ describe('BookDetail', () => {
 
     it('should display year published', () => {
       render(<BookDetail book={mockBook} />, { wrapper: createWrapper() })
-      // Check for the Year label in the Publication section
-      expect(screen.getByText('Year:')).toBeInTheDocument()
+      // Check for the Year Published label in metadata grid
+      expect(screen.getByText(/year published/i)).toBeInTheDocument()
       // The year value appears multiple times, just verify it's present
       const yearElements = screen.getAllByText(/8th century BCE/)
       expect(yearElements.length).toBeGreaterThan(0)
@@ -150,8 +150,8 @@ describe('BookDetail', () => {
 
     it('should display source', () => {
       render(<BookDetail book={mockBook} />, { wrapper: createWrapper() })
-      // Verify Source section heading exists
-      expect(screen.getByRole('heading', { name: /Source/i })).toBeInTheDocument()
+      // Verify Source label in metadata grid
+      expect(screen.getByText(/source/i)).toBeInTheDocument()
       // Project Gutenberg appears in multiple places, just verify it's there
       const elements = screen.getAllByText(/Project Gutenberg/)
       expect(elements.length).toBeGreaterThan(0)
