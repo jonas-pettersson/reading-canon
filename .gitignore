@@ -59,6 +59,12 @@ test-results/
 playwright-report/
 playwright/.cache/
 
+# Responsive design test artifacts
+responsive-screenshots/
+responsive-test-screenshots/
+responsive-test-results/
+responsive-test-report.json
+
 # ==============================================================================
 # Supabase Local Development
 # ==============================================================================
