@@ -131,14 +131,6 @@ export function BookDetail({ book, onBack, onEdit, onDelete }: BookDetailProps) 
         </section>
       )}
 
-      {/* Curator Notes */}
-      {book.curator_notes && (
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Curator Notes</h2>
-          <p className={styles.sectionContent}>{book.curator_notes}</p>
-        </section>
-      )}
-
       {/* External References */}
       {book.external_references && book.external_references.length > 0 && (
         <section className={styles.section}>
