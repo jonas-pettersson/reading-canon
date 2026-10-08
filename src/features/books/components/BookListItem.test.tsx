@@ -220,49 +220,35 @@ describe('BookListItem', () => {
   })
 
   describe('Hover Behavior', () => {
-    it('should change background color on mouse enter when clickable', async () => {
-      const user = userEvent.setup()
+    it('should apply card class for CSS hover styling when clickable', () => {
       const onClickMock = vi.fn()
-
-      render(<BookListItem book={mockBook} onClick={onClickMock} />)
-
-      const article = screen.getByRole('button')
-      expect(article).toHaveStyle({ backgroundColor: '' })
-
-      await user.hover(article)
-
-      expect(article).toHaveStyle({ backgroundColor: 'rgb(245, 245, 245)' })
-    })
-
-    it('should restore background color on mouse leave', async () => {
-      const user = userEvent.setup()
-      const onClickMock = vi.fn()
-
       render(<BookListItem book={mockBook} onClick={onClickMock} />)
 
       const article = screen.getByRole('button')
 
-      // Hover then unhover
-      await user.hover(article)
-      expect(article).toHaveStyle({ backgroundColor: 'rgb(245, 245, 245)' })
-
-      await user.unhover(article)
-      // Should restore to initial background (empty string or transparent)
-      expect(article.style.backgroundColor).toBe('transparent')
+      // CSS module class provides hover styling via :hover pseudo-class
+      expect(article.className).toContain('card')
+      expect(article).toHaveAttribute('role', 'button')
     })
 
-    it('should not change background when not clickable', async () => {
-      const user = userEvent.setup()
+    it('should have hover styling via CSS module', () => {
+      const onClickMock = vi.fn()
+      render(<BookListItem book={mockBook} onClick={onClickMock} />)
 
+      const article = screen.getByRole('button')
+
+      // CSS module class should be applied (hover styles in CSS)
+      expect(article.className).toContain('card')
+    })
+
+    it('should not have pointer cursor when not clickable', () => {
       render(<BookListItem book={mockBook} />)
 
       const article = screen.getByRole('article')
-      const initialBg = article.style.backgroundColor
 
-      await user.hover(article)
-
-      // Background should not change
-      expect(article.style.backgroundColor).toBe(initialBg)
+      // Should have card class but no pointer interaction
+      expect(article.className).toContain('card')
+      expect(article).not.toHaveAttribute('role', 'button')
     })
   })
 

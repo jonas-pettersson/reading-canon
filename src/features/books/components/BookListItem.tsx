@@ -1,4 +1,5 @@
 import type { Book } from '@/types/database'
+import styles from './BookListItem.module.css'
 
 export interface BookListItemProps {
   book: Book
@@ -14,7 +15,7 @@ export interface BookListItemProps {
  * - Clickable to navigate to detail view
  * - Handles missing optional fields gracefully
  * - Accessible with keyboard navigation
- * - Responsive design
+ * - Compact responsive design
  *
  * @example
  * <BookListItem
@@ -43,87 +44,29 @@ export function BookListItem({ book, onClick }: BookListItemProps) {
 
   return (
     <article
+      className={styles.card}
       onClick={handleClick}
       onKeyPress={handleKeyPress}
       tabIndex={onClick ? 0 : undefined}
       role={onClick ? 'button' : undefined}
-      style={{
-        padding: '1rem',
-        marginBottom: '0.5rem',
-        border: '1px solid #ddd',
-        borderRadius: '4px',
-        cursor: onClick ? 'pointer' : 'default',
-        transition: 'background-color 0.2s',
-      }}
-      onMouseEnter={(e) => {
-        if (onClick) {
-          e.currentTarget.style.backgroundColor = '#f5f5f5'
-        }
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.backgroundColor = 'transparent'
-      }}
     >
       {/* Title and Author */}
-      <div style={{ marginBottom: '0.5rem' }}>
-        <h3
-          style={{
-            margin: 0,
-            fontSize: '1.25rem',
-            fontWeight: 'bold',
-            color: '#333',
-          }}
-        >
-          {book.title}
-        </h3>
-        <p
-          style={{
-            margin: '0.25rem 0 0 0',
-            fontSize: '1rem',
-            color: '#666',
-          }}
-        >
+      <div className={styles.titleSection}>
+        <h3 className={styles.title}>{book.title}</h3>
+        <p className={styles.author}>
           {book.author_display_name}
           {book.author_lifespan && (
-            <span style={{ marginLeft: '0.5rem', fontSize: '0.9rem' }}>
-              ({book.author_lifespan})
-            </span>
+            <span className={styles.authorLifespan}>({book.author_lifespan})</span>
           )}
         </p>
       </div>
 
       {/* Year and Category */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.75rem',
-          marginBottom: '0.5rem',
-          flexWrap: 'wrap',
-        }}
-      >
-        <span
-          style={{
-            fontSize: '0.9rem',
-            color: '#888',
-          }}
-        >
-          {yearDisplay}
-        </span>
+      <div className={styles.metaRow}>
+        <span className={styles.year}>{yearDisplay}</span>
 
         {book.primary_category && (
-          <span
-            data-testid="category-badge"
-            style={{
-              display: 'inline-block',
-              padding: '0.25rem 0.5rem',
-              fontSize: '0.85rem',
-              fontWeight: '500',
-              color: '#0066cc',
-              backgroundColor: '#e6f2ff',
-              borderRadius: '3px',
-            }}
-          >
+          <span data-testid="category-badge" className={styles.categoryBadge}>
             {book.primary_category}
           </span>
         )}
@@ -131,27 +74,9 @@ export function BookListItem({ book, onClick }: BookListItemProps) {
 
       {/* Tags */}
       {book.tags && book.tags.length > 0 && (
-        <div
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: '0.5rem',
-            marginTop: '0.5rem',
-          }}
-        >
+        <div className={styles.tagsRow}>
           {book.tags.map((tag) => (
-            <span
-              key={tag}
-              data-testid="tag"
-              style={{
-                display: 'inline-block',
-                padding: '0.2rem 0.4rem',
-                fontSize: '0.8rem',
-                color: '#666',
-                backgroundColor: '#f0f0f0',
-                borderRadius: '3px',
-              }}
-            >
+            <span key={tag} data-testid="tag" className={styles.tag}>
               {tag}
             </span>
           ))}
@@ -160,13 +85,7 @@ export function BookListItem({ book, onClick }: BookListItemProps) {
 
       {/* Original Language */}
       {book.original_language && (
-        <div
-          style={{
-            marginTop: '0.5rem',
-            fontSize: '0.85rem',
-            color: '#888',
-          }}
-        >
+        <div className={styles.year} style={{ marginTop: '0.375rem' }}>
           Original language: {book.original_language}
         </div>
       )}

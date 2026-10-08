@@ -8,6 +8,7 @@ import {
   getLanguageDisplayName
 } from '../constants'
 import { useLanguages } from '../hooks/useLanguages'
+import styles from './BookFilters.module.css'
 
 export interface BookFiltersState {
   search: string
@@ -26,7 +27,7 @@ export interface BookFiltersProps {
 }
 
 /**
- * BookFilters component provides search, filter, and sort controls for books.
+ * BookFilters component provides compact search, filter, and sort controls for books.
  *
  * Features:
  * - Debounced search input (300ms)
@@ -38,6 +39,7 @@ export interface BookFiltersProps {
  * - Sort controls (title, author, year)
  * - Clear all filters button
  * - Accessible form controls
+ * - Compact design for better space efficiency
  *
  * @example
  * const [filters, setFilters] = useState<BookFiltersState>(defaultFilters)
@@ -92,25 +94,10 @@ export function BookFilters({ filters, onFiltersChange }: BookFiltersProps) {
     filters.sortOrder !== 'asc'
 
   return (
-    <div
-      style={{
-        padding: '1.5rem',
-        backgroundColor: '#f9f9f9',
-        border: '1px solid #ddd',
-        borderRadius: '4px',
-        marginBottom: '1.5rem',
-      }}
-    >
+    <div className={styles.container}>
       {/* Search Input */}
-      <div style={{ marginBottom: '1rem' }}>
-        <label
-          htmlFor="search"
-          style={{
-            display: 'block',
-            marginBottom: '0.5rem',
-            fontWeight: '500',
-          }}
-        >
+      <div className={styles.searchSection}>
+        <label htmlFor="search" className={styles.label}>
           Search
         </label>
         <input
@@ -119,38 +106,18 @@ export function BookFilters({ filters, onFiltersChange }: BookFiltersProps) {
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
           placeholder="Search by title, author, or description..."
-          style={{
-            width: '100%',
-            padding: '0.5rem',
-            fontSize: '1rem',
-            border: '1px solid #ccc',
-            borderRadius: '4px',
-          }}
+          className={styles.input}
         />
-        <small style={{ color: '#666', fontSize: '0.85rem' }}>
+        <small className={styles.helpText}>
           Searches: title, original title, author, inclusion rationale
         </small>
       </div>
 
       {/* Filter Grid */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: '1rem',
-          marginBottom: '1rem',
-        }}
-      >
+      <div className={styles.filterGrid}>
         {/* Category Filter */}
-        <div>
-          <label
-            htmlFor="category"
-            style={{
-              display: 'block',
-              marginBottom: '0.5rem',
-              fontWeight: '500',
-            }}
-          >
+        <div className={styles.filterField}>
+          <label htmlFor="category" className={styles.label}>
             Category
           </label>
           <select
@@ -159,13 +126,7 @@ export function BookFilters({ filters, onFiltersChange }: BookFiltersProps) {
             onChange={(e) =>
               onFiltersChange({ ...filters, category: e.target.value })
             }
-            style={{
-              width: '100%',
-              padding: '0.5rem',
-              fontSize: '1rem',
-              border: '1px solid #ccc',
-              borderRadius: '4px',
-            }}
+            className={styles.select}
           >
             <option value="">All Categories</option>
             {PRIMARY_CATEGORIES.map((cat) => (
@@ -177,15 +138,8 @@ export function BookFilters({ filters, onFiltersChange }: BookFiltersProps) {
         </div>
 
         {/* Tags Filter */}
-        <div>
-          <label
-            htmlFor="tags"
-            style={{
-              display: 'block',
-              marginBottom: '0.5rem',
-              fontWeight: '500',
-            }}
-          >
+        <div className={styles.filterField}>
+          <label htmlFor="tags" className={styles.label}>
             Tags
           </label>
           <input
@@ -200,29 +154,16 @@ export function BookFilters({ filters, onFiltersChange }: BookFiltersProps) {
               onFiltersChange({ ...filters, tags: tagsArray })
             }}
             placeholder="e.g., epic, ancient"
-            style={{
-              width: '100%',
-              padding: '0.5rem',
-              fontSize: '1rem',
-              border: '1px solid #ccc',
-              borderRadius: '4px',
-            }}
+            className={styles.input}
           />
-          <small style={{ color: '#666', fontSize: '0.85rem' }}>
+          <small className={styles.helpText}>
             Separate multiple tags with commas
           </small>
         </div>
 
         {/* Original Language Filter */}
-        <div>
-          <label
-            htmlFor="originalLanguage"
-            style={{
-              display: 'block',
-              marginBottom: '0.5rem',
-              fontWeight: '500',
-            }}
-          >
+        <div className={styles.filterField}>
+          <label htmlFor="originalLanguage" className={styles.label}>
             Original Language
           </label>
           <select
@@ -231,13 +172,7 @@ export function BookFilters({ filters, onFiltersChange }: BookFiltersProps) {
             onChange={(e) =>
               onFiltersChange({ ...filters, originalLanguage: e.target.value })
             }
-            style={{
-              width: '100%',
-              padding: '0.5rem',
-              fontSize: '1rem',
-              border: '1px solid #ccc',
-              borderRadius: '4px',
-            }}
+            className={styles.select}
           >
             <option value="">All Languages</option>
             {languages.map((code) => (
@@ -249,15 +184,8 @@ export function BookFilters({ filters, onFiltersChange }: BookFiltersProps) {
         </div>
 
         {/* Reading Status Filter */}
-        <div>
-          <label
-            htmlFor="readingStatus"
-            style={{
-              display: 'block',
-              marginBottom: '0.5rem',
-              fontWeight: '500',
-            }}
-          >
+        <div className={styles.filterField}>
+          <label htmlFor="readingStatus" className={styles.label}>
             Reading Status
           </label>
           <select
@@ -266,13 +194,7 @@ export function BookFilters({ filters, onFiltersChange }: BookFiltersProps) {
             onChange={(e) =>
               onFiltersChange({ ...filters, readingStatus: e.target.value })
             }
-            style={{
-              width: '100%',
-              padding: '0.5rem',
-              fontSize: '1rem',
-              border: '1px solid #ccc',
-              borderRadius: '4px',
-            }}
+            className={styles.select}
           >
             <option value="">All Statuses</option>
             {READING_STATUSES.map((status) => (
@@ -284,15 +206,8 @@ export function BookFilters({ filters, onFiltersChange }: BookFiltersProps) {
         </div>
 
         {/* Ownership Status Filter */}
-        <div>
-          <label
-            htmlFor="ownershipStatus"
-            style={{
-              display: 'block',
-              marginBottom: '0.5rem',
-              fontWeight: '500',
-            }}
-          >
+        <div className={styles.filterField}>
+          <label htmlFor="ownershipStatus" className={styles.label}>
             Ownership
           </label>
           <select
@@ -301,13 +216,7 @@ export function BookFilters({ filters, onFiltersChange }: BookFiltersProps) {
             onChange={(e) =>
               onFiltersChange({ ...filters, ownershipStatus: e.target.value })
             }
-            style={{
-              width: '100%',
-              padding: '0.5rem',
-              fontSize: '1rem',
-              border: '1px solid #ccc',
-              borderRadius: '4px',
-            }}
+            className={styles.select}
           >
             <option value="">All</option>
             {OWNERSHIP_STATUSES.map((status) => (
@@ -320,24 +229,9 @@ export function BookFilters({ filters, onFiltersChange }: BookFiltersProps) {
       </div>
 
       {/* Sort Controls */}
-      <div
-        style={{
-          display: 'flex',
-          gap: '1rem',
-          alignItems: 'flex-end',
-          marginBottom: '1rem',
-          flexWrap: 'wrap',
-        }}
-      >
-        <div style={{ flex: '1 1 200px' }}>
-          <label
-            htmlFor="sortBy"
-            style={{
-              display: 'block',
-              marginBottom: '0.5rem',
-              fontWeight: '500',
-            }}
-          >
+      <div className={styles.sortSection}>
+        <div className={styles.sortField}>
+          <label htmlFor="sortBy" className={styles.label}>
             Sort By
           </label>
           <select
@@ -349,13 +243,7 @@ export function BookFilters({ filters, onFiltersChange }: BookFiltersProps) {
                 sortBy: e.target.value as 'title' | 'author' | 'year',
               })
             }
-            style={{
-              width: '100%',
-              padding: '0.5rem',
-              fontSize: '1rem',
-              border: '1px solid #ccc',
-              borderRadius: '4px',
-            }}
+            className={styles.select}
           >
             <option value="year">Year</option>
             <option value="title">Title</option>
@@ -363,15 +251,8 @@ export function BookFilters({ filters, onFiltersChange }: BookFiltersProps) {
           </select>
         </div>
 
-        <div style={{ flex: '1 1 200px' }}>
-          <label
-            htmlFor="sortOrder"
-            style={{
-              display: 'block',
-              marginBottom: '0.5rem',
-              fontWeight: '500',
-            }}
-          >
+        <div className={styles.sortField}>
+          <label htmlFor="sortOrder" className={styles.label}>
             Order
           </label>
           <select
@@ -383,13 +264,7 @@ export function BookFilters({ filters, onFiltersChange }: BookFiltersProps) {
                 sortOrder: e.target.value as 'asc' | 'desc',
               })
             }
-            style={{
-              width: '100%',
-              padding: '0.5rem',
-              fontSize: '1rem',
-              border: '1px solid #ccc',
-              borderRadius: '4px',
-            }}
+            className={styles.select}
           >
             <option value="asc">Ascending</option>
             <option value="desc">Descending</option>
@@ -400,17 +275,7 @@ export function BookFilters({ filters, onFiltersChange }: BookFiltersProps) {
         <button
           onClick={handleClearFilters}
           disabled={!hasActiveFilters}
-          style={{
-            padding: '0.5rem 1rem',
-            fontSize: '1rem',
-            fontWeight: '500',
-            color: hasActiveFilters ? '#c00' : '#999',
-            backgroundColor: 'white',
-            border: `1px solid ${hasActiveFilters ? '#c00' : '#ccc'}`,
-            borderRadius: '4px',
-            cursor: hasActiveFilters ? 'pointer' : 'not-allowed',
-            opacity: hasActiveFilters ? 1 : 0.6,
-          }}
+          className={styles.clearButton}
         >
           Clear Filters
         </button>
