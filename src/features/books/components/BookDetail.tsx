@@ -60,70 +60,79 @@ export function BookDetail({ book, onBack, onEdit, onDelete }: BookDetailProps) 
         )}
       </header>
 
-      {/* Two-Column Metadata Grid */}
-      <div className={styles.metadata}>
-        {/* Author */}
-        <div className={styles.metadataItem}>
-          <span className={styles.label}>Author</span>
-          <span className={styles.value}>
-            {book.author_display_name}
-            {book.author_lifespan && (
-              <span className={styles.valueSecondary}> ({book.author_lifespan})</span>
-            )}
-          </span>
-        </div>
-
-        {/* Year */}
-        {book.year_published && (
+      {/* Two-Column Layout: Canonical (left) + Personal (right) */}
+      <div className={styles.twoColumns}>
+        {/* Left Column: Canonical Metadata */}
+        <div className={styles.leftColumn}>
+          {/* Author */}
           <div className={styles.metadataItem}>
-            <span className={styles.label}>Year Published</span>
+            <span className={styles.label}>Author</span>
             <span className={styles.value}>
-              {book.year_published}
-              {yearDisplay && book.year_published !== yearDisplay && (
-                <span className={styles.valueSecondary}> ({yearDisplay})</span>
+              {book.author_display_name}
+              {book.author_lifespan && (
+                <span className={styles.valueSecondary}> ({book.author_lifespan})</span>
               )}
             </span>
           </div>
-        )}
 
-        {/* Original Language */}
-        {book.original_language && (
-          <div className={styles.metadataItem}>
-            <span className={styles.label}>Original Language</span>
-            <span className={styles.value}>{book.original_language}</span>
-          </div>
-        )}
+          {/* Original Language */}
+          {book.original_language && (
+            <div className={styles.metadataItem}>
+              <span className={styles.label}>Original Language</span>
+              <span className={styles.value}>{book.original_language}</span>
+            </div>
+          )}
 
-        {/* Source */}
-        {book.source && (
-          <div className={styles.metadataItem}>
-            <span className={styles.label}>Source</span>
-            <span className={styles.value}>{book.source}</span>
-          </div>
-        )}
+          {/* Year */}
+          {book.year_published && (
+            <div className={styles.metadataItem}>
+              <span className={styles.label}>Year Published</span>
+              <span className={styles.value}>
+                {book.year_published}
+                {yearDisplay && book.year_published !== yearDisplay && (
+                  <span className={styles.valueSecondary}> ({yearDisplay})</span>
+                )}
+              </span>
+            </div>
+          )}
+
+          {/* Categories */}
+          {(book.primary_category || (book.tags && book.tags.length > 0)) && (
+            <div className={styles.metadataItem}>
+              <span className={styles.label}>Categories</span>
+              <div className={styles.categoriesContent}>
+                {book.primary_category && (
+                  <span className={styles.categoryBadge}>{book.primary_category}</span>
+                )}
+                {book.tags && book.tags.length > 0 && (
+                  <>
+                    {book.tags.map((tag) => (
+                      <span key={tag} className={styles.tag}>
+                        {tag}
+                      </span>
+                    ))}
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Source */}
+          {book.source && (
+            <div className={styles.metadataItem}>
+              <span className={styles.label}>Source</span>
+              <span className={styles.value}>{book.source}</span>
+            </div>
+          )}
+        </div>
+
+        {/* Right Column: Personal Reading Data */}
+        <div className={styles.rightColumn}>
+          <PersonalDataPanel bookId={book.id} />
+        </div>
       </div>
 
-      {/* Classification: Category + Tags */}
-      {(book.primary_category || (book.tags && book.tags.length > 0)) && (
-        <div className={styles.classification}>
-          <div className={styles.classificationContent}>
-            {book.primary_category && (
-              <span className={styles.categoryBadge}>{book.primary_category}</span>
-            )}
-            {book.tags && book.tags.length > 0 && (
-              <>
-                {book.tags.map((tag) => (
-                  <span key={tag} className={styles.tag}>
-                    {tag}
-                  </span>
-                ))}
-              </>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Inclusion Rationale */}
+      {/* Bottom: Inclusion Rationale */}
       {book.inclusion_rationale && (
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>Why This Book?</h2>
@@ -155,11 +164,6 @@ export function BookDetail({ book, onBack, onEdit, onDelete }: BookDetailProps) 
           </ul>
         </section>
       )}
-
-      {/* Personal Reading Data */}
-      <section className={styles.personalData}>
-        <PersonalDataPanel bookId={book.id} />
-      </section>
     </article>
   )
 }
