@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { BookFilters } from '@/features/books/components/BookFilters'
-import { BookList } from '@/features/books/components/BookList'
+import { BookList, type ViewMode } from '@/features/books/components/BookList'
 import { useBooks } from '@/features/books/hooks/useBooks'
 import type { BookFiltersState } from '@/features/books/components/BookFilters'
 
@@ -10,12 +10,24 @@ import type { BookFiltersState } from '@/features/books/components/BookFilters'
  *
  * Integrates:
  * - BookFilters for search, filtering, and sorting
- * - BookList for displaying books with loading/empty/error states
+ * - BookList for displaying books with loading/empty/error states (grid or table view)
+ * - View mode toggle with localStorage persistence
  * - useBooks hook for data fetching
  * - Navigation to book detail pages
  */
 export function CollectionPage() {
   const navigate = useNavigate()
+
+  // View mode state (persisted in localStorage)
+  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    const saved = localStorage.getItem('bookListViewMode')
+    return (saved === 'grid' || saved === 'table') ? saved : 'grid'
+  })
+
+  // Persist view mode preference
+  useEffect(() => {
+    localStorage.setItem('bookListViewMode', viewMode)
+  }, [viewMode])
 
   // Filter state management
   const [filters, setFilters] = useState<BookFiltersState>({
@@ -55,13 +67,36 @@ export function CollectionPage() {
     <div className="collection-page">
       <div className="page-header">
         <h1 className="page-heading">Collection</h1>
-        <button
-          className="add-book-button"
-          onClick={() => navigate('/books/new')}
-          aria-label="Add new book"
-        >
-          + Add Book
-        </button>
+        <div className="header-actions">
+          {/* View Mode Toggle */}
+          <div className="view-toggle" role="group" aria-label="View mode">
+            <button
+              className={`view-button ${viewMode === 'grid' ? 'active' : ''}`}
+              onClick={() => setViewMode('grid')}
+              aria-label="Grid view"
+              aria-pressed={viewMode === 'grid'}
+              title="Grid view"
+            >
+              ⊞ Grid
+            </button>
+            <button
+              className={`view-button ${viewMode === 'table' ? 'active' : ''}`}
+              onClick={() => setViewMode('table')}
+              aria-label="Table view"
+              aria-pressed={viewMode === 'table'}
+              title="Table view"
+            >
+              ≡ Table
+            </button>
+          </div>
+          <button
+            className="add-book-button"
+            onClick={() => navigate('/books/new')}
+            aria-label="Add new book"
+          >
+            + Add Book
+          </button>
+        </div>
       </div>
 
       {/* Filters Section */}
@@ -75,6 +110,7 @@ export function CollectionPage() {
           books={books || []}
           isLoading={isLoading}
           error={error}
+          viewMode={viewMode}
           onBookClick={handleBookClick}
         />
       </div>
@@ -96,6 +132,52 @@ export function CollectionPage() {
           font-weight: 600;
           margin: 0;
           color: #2c3e50;
+        }
+
+        .header-actions {
+          display: flex;
+          gap: 0.75rem;
+          align-items: center;
+        }
+
+        .view-toggle {
+          display: flex;
+          gap: 0;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+          overflow: hidden;
+        }
+
+        .view-button {
+          padding: 0.5rem 0.75rem;
+          background-color: white;
+          color: #666;
+          border: none;
+          border-right: 1px solid #ddd;
+          font-size: 0.8125rem;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .view-button:last-child {
+          border-right: none;
+        }
+
+        .view-button:hover {
+          background-color: #f5f5f5;
+          color: #333;
+        }
+
+        .view-button.active {
+          background-color: #2563eb;
+          color: white;
+        }
+
+        .view-button:focus {
+          outline: 2px solid #3b82f6;
+          outline-offset: -2px;
+          z-index: 1;
         }
 
         .add-book-button {
