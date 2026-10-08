@@ -8,6 +8,7 @@
   cursor: pointer;
   transition: background-color 0.15s;
   background: var(--bg);
+  text-align: center;
 }
 
 .card:hover {
@@ -48,6 +49,7 @@
 .metaRow {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.375rem;
   margin-bottom: 0.25rem;
   flex-wrap: wrap;
@@ -73,6 +75,7 @@
 .tagsRow {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 0.25rem;
   margin-top: 0.25rem;
 }
