@@ -159,8 +159,8 @@ describe('BookDetail', () => {
 
     it('should display inclusion rationale', () => {
       render(<BookDetail book={mockBook} />, { wrapper: createWrapper() })
-      // Verify the "Why This Book?" section heading
-      expect(screen.getByRole('heading', { name: /Why This Book\?/i })).toBeInTheDocument()
+      // Verify the "Why This Book?" label in left column
+      expect(screen.getByText(/Why This Book\?/i)).toBeInTheDocument()
       expect(screen.getByText(/Foundational epic of Western literature/)).toBeInTheDocument()
     })
   })

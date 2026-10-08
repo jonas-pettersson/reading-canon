@@ -124,21 +124,21 @@ export function BookDetail({ book, onBack, onEdit, onDelete }: BookDetailProps) 
               <span className={styles.value}>{book.source}</span>
             </div>
           )}
+
+          {/* Why This Book? - at end of left column */}
+          {book.inclusion_rationale && (
+            <div className={styles.metadataItem}>
+              <span className={styles.label}>Why This Book?</span>
+              <p className={styles.rationale}>{book.inclusion_rationale}</p>
+            </div>
+          )}
         </div>
 
-        {/* Right Column: Personal Reading Data (without notes) */}
+        {/* Right Column: Personal Reading Data (with notes) */}
         <div className={styles.rightColumn}>
-          <PersonalDataPanel bookId={book.id} excludeNotes />
+          <PersonalDataPanel bookId={book.id} />
         </div>
       </div>
-
-      {/* Bottom: Inclusion Rationale */}
-      {book.inclusion_rationale && (
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Why This Book?</h2>
-          <p className={styles.sectionContent}>{book.inclusion_rationale}</p>
-        </section>
-      )}
 
       {/* External References */}
       {book.external_references && book.external_references.length > 0 && (
@@ -164,9 +164,6 @@ export function BookDetail({ book, onBack, onEdit, onDelete }: BookDetailProps) 
           </ul>
         </section>
       )}
-
-      {/* Personal Notes at Bottom */}
-      <PersonalDataPanel bookId={book.id} showOnlyNotes />
     </article>
   )
 }
