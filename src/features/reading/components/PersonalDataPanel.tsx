@@ -8,6 +8,8 @@ type OwnershipStatus = Database['public']['Enums']['ownership_status_enum']
 
 interface PersonalDataPanelProps {
   bookId: string
+  showOnlyNotes?: boolean
+  excludeNotes?: boolean
 }
 
 const OWNERSHIP_LABELS: Record<OwnershipStatus, string> = {
@@ -21,8 +23,11 @@ const OWNERSHIP_LABELS: Record<OwnershipStatus, string> = {
 /**
  * Panel component for editing personal reading data
  * Includes status, ownership, rating, notes, and timestamps
+ *
+ * @param showOnlyNotes - When true, shows only the notes field
+ * @param excludeNotes - When true, shows all fields except notes
  */
-export function PersonalDataPanel({ bookId }: PersonalDataPanelProps) {
+export function PersonalDataPanel({ bookId, showOnlyNotes = false, excludeNotes = false }: PersonalDataPanelProps) {
   const { data: readingStatus, isLoading } = useReadingStatus(bookId)
   const { mutate } = useUpdateReadingStatus()
 
@@ -81,6 +86,27 @@ export function PersonalDataPanel({ bookId }: PersonalDataPanelProps) {
 
   const currentRating = readingStatus?.personal_rating || 0
 
+  // Show only notes section
+  if (showOnlyNotes) {
+    return (
+      <div className={styles.panel}>
+        <h3 className={styles.panelTitle}>Personal Notes</h3>
+        <div className={styles.field}>
+          <textarea
+            id={`notes-${bookId}`}
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            onBlur={handleNotesBlur}
+            rows={4}
+            placeholder="Add your thoughts, reflections, or reading notes..."
+            className={styles.textarea}
+          />
+        </div>
+      </div>
+    )
+  }
+
+  // Show all fields (with or without notes based on excludeNotes flag)
   return (
     <div className={styles.panel}>
       <h3 className={styles.panelTitle}>Personal Reading Data</h3>
@@ -146,21 +172,23 @@ export function PersonalDataPanel({ bookId }: PersonalDataPanelProps) {
         </div>
       </div>
 
-      {/* Personal Notes */}
-      <div className={styles.field}>
-        <label htmlFor={`notes-${bookId}`} className={styles.label}>
-          Personal Notes
-        </label>
-        <textarea
-          id={`notes-${bookId}`}
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          onBlur={handleNotesBlur}
-          rows={4}
-          placeholder="Add your thoughts, reflections, or reading notes..."
-          className={styles.textarea}
-        />
-      </div>
+      {/* Personal Notes - only show if not excluded */}
+      {!excludeNotes && (
+        <div className={styles.field}>
+          <label htmlFor={`notes-${bookId}`} className={styles.label}>
+            Personal Notes
+          </label>
+          <textarea
+            id={`notes-${bookId}`}
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            onBlur={handleNotesBlur}
+            rows={4}
+            placeholder="Add your thoughts, reflections, or reading notes..."
+            className={styles.textarea}
+          />
+        </div>
+      )}
 
       {/* Timestamps */}
       {(readingStatus?.started_at || readingStatus?.completed_at) && (

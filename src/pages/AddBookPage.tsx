@@ -27,42 +27,27 @@ export function AddBookPage() {
 
   return (
     <div className="add-book-page">
-      <h1 className="page-heading">Add Book</h1>
-
-      <div className="form-section">
+      <div className="add-book-container">
+        <h1 className="page-heading">Add Book</h1>
         <AddBookForm onSuccess={handleSuccess} onCancel={handleCancel} />
       </div>
 
       <style>{`
         .add-book-page {
           width: 100%;
+          /* Padding provided by AppLayout */
+        }
+
+        .add-book-container {
           max-width: 800px;
+          margin: 0 auto;
         }
 
         .page-heading {
-          font-size: 2rem;
+          font-size: 1.75rem;
           font-weight: 600;
-          margin: 0 0 2rem 0;
-          color: #2c3e50;
-        }
-
-        .form-section {
-          background: #ffffff;
-          padding: 2rem;
-          border-radius: 8px;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-          .page-heading {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-          }
-
-          .form-section {
-            padding: 1rem;
-          }
+          margin-bottom: 2rem;
+          color: #333;
         }
       `}</style>
     </div>

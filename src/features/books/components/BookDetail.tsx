@@ -126,9 +126,9 @@ export function BookDetail({ book, onBack, onEdit, onDelete }: BookDetailProps) 
           )}
         </div>
 
-        {/* Right Column: Personal Reading Data */}
+        {/* Right Column: Personal Reading Data (without notes) */}
         <div className={styles.rightColumn}>
-          <PersonalDataPanel bookId={book.id} />
+          <PersonalDataPanel bookId={book.id} excludeNotes />
         </div>
       </div>
 
@@ -164,6 +164,9 @@ export function BookDetail({ book, onBack, onEdit, onDelete }: BookDetailProps) 
           </ul>
         </section>
       )}
+
+      {/* Personal Notes at Bottom */}
+      <PersonalDataPanel bookId={book.id} showOnlyNotes />
     </article>
   )
 }
