@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase'
 import type { Database } from '@/types/database'
 
@@ -81,13 +82,23 @@ export function useUpdateBook() {
 
       return book
     },
-    onSuccess: (_data, variables) => {
+    onSuccess: (book, variables) => {
       // Invalidate the specific book query
       queryClient.invalidateQueries({ queryKey: ['book', variables.bookId] })
       // Invalidate the books list query
       queryClient.invalidateQueries({ queryKey: ['books'] })
       // Invalidate languages query so updated language codes appear in filter
       queryClient.invalidateQueries({ queryKey: ['languages'] })
+      // Show success toast
+      toast.success('Book updated successfully', {
+        description: `"${book.title}" has been updated.`,
+      })
+    },
+    onError: (error: Error) => {
+      // Show error toast with recovery suggestion
+      toast.error('Failed to update book', {
+        description: error.message || 'Please check your connection and try again.',
+      })
     },
   })
 }

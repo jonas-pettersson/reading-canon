@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase'
 
 export function useDeleteBook() {
@@ -18,6 +19,16 @@ export function useDeleteBook() {
       queryClient.invalidateQueries({ queryKey: ['book', bookId] })
       // Invalidate the books list query
       queryClient.invalidateQueries({ queryKey: ['books'] })
+      // Show success toast
+      toast.success('Book deleted successfully', {
+        description: 'The book has been removed from your collection.',
+      })
+    },
+    onError: (error: Error) => {
+      // Show error toast with recovery suggestion
+      toast.error('Failed to delete book', {
+        description: error.message || 'Please check your connection and try again.',
+      })
     },
   })
 }

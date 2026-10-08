@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase'
 import type { Database } from '@/types/database'
 
@@ -41,11 +42,21 @@ export function useCreateBook() {
 
       return book
     },
-    onSuccess: () => {
+    onSuccess: (book) => {
       // Invalidate books queries to refetch
       queryClient.invalidateQueries({ queryKey: ['books'] })
       // Invalidate languages query so new language codes appear in filter
       queryClient.invalidateQueries({ queryKey: ['languages'] })
+      // Show success toast
+      toast.success('Book added successfully', {
+        description: `"${book.title}" has been added to your collection.`,
+      })
+    },
+    onError: (error: Error) => {
+      // Show error toast with recovery suggestion
+      toast.error('Failed to add book', {
+        description: error.message || 'Please check your connection and try again.',
+      })
     },
   })
 }

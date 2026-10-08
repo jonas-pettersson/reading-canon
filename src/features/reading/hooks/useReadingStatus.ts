@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase'
 import type { UserReadingStatus } from '@/types/database'
 
@@ -92,6 +93,22 @@ export function useUpdateReadingStatus() {
       // Invalidate the full reading status list (used in useBooks for filtering)
       queryClient.invalidateQueries({
         queryKey: ['user-reading-status'],
+      })
+      // Show success toast (brief, unobtrusive)
+      if (variables.updates.reading_status) {
+        toast.success('Status updated')
+      } else if (variables.updates.personal_rating !== undefined) {
+        toast.success('Rating updated')
+      } else if (variables.updates.ownership_status) {
+        toast.success('Ownership updated')
+      } else if (variables.updates.personal_notes !== undefined) {
+        toast.success('Notes saved')
+      }
+    },
+    onError: (error: Error) => {
+      // Show error toast with recovery suggestion
+      toast.error('Failed to update', {
+        description: error.message || 'Please check your connection and try again.',
       })
     },
   })
