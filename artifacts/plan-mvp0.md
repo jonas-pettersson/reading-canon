@@ -2374,24 +2374,38 @@ Apply same pattern for all:
 **TDD:** Manual testing + automated viewport tests
 
 **Note:** This task was moved earlier in the sequence because responsive design cannot be properly tested with broken styling. Must validate responsive behavior AFTER styling is fixed.
-**Effort:** S (3 hours)  
-**Dependencies:** All previous phases  
-**TDD:** Test alongside
 
 **Steps:**
-1. Write tests for empty states (UX-004)
-2. Create empty state components/messages:
-   - Empty collection: "Add your first book" with prominent add button
-   - No search results: "No books match" with clear filters button
-   - Zero books with status "Reading": "Start reading a book" with link to collection
-   - No books with status "Finished": "You haven't finished any books yet"
-3. Add to relevant pages
-4. Tests → Green
+1. Test all pages at three breakpoints (UX-008):
+   - Mobile: 375px width (iPhone SE, common baseline)
+   - Tablet: 768px width (iPad, navigation collapse breakpoint)
+   - Desktop: 1200px+ width (standard desktop)
+2. Test each page:
+   - Collection (BookList, filters, search)
+   - BookDetail (metadata, personal data panel)
+   - Add Book Form (all fields, external references)
+   - Edit Book Form (all fields, external references)
+   - Reading Dashboard (multiple book lists)
+   - Stats Dashboard (stat cards)
+3. Verify responsive requirements:
+   - Navigation collapses to hamburger menu below 768px
+   - Book list reflows to single column on narrow screens
+   - Tables/cards reflow appropriately
+   - Touch targets minimum 44x44 pixels (mobile)
+   - No horizontal scrolling on any viewport
+   - Text remains readable (no tiny fonts)
+4. Use Playwright automation for screenshot capture and scroll detection
+5. Document any issues found
+6. Fix critical responsive issues if found
 
 **Done Criteria:**
-- [ ] All empty states implemented (UX-004 ✅)
-- [ ] Tests passing
-- [ ] Helpful messages guide user to action
+- [ ] All pages tested at mobile (375px), tablet (768px), desktop (1200px+) (UX-008 ✅)
+- [ ] Navigation collapses properly below 768px
+- [ ] No horizontal scroll on any viewport
+- [ ] Touch targets meet 44x44px minimum on mobile
+- [ ] Text readable on all viewports
+- [ ] Screenshots captured for visual verification
+- [ ] Any critical issues fixed or documented
 
 ---
 
