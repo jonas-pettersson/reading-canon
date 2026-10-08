@@ -49,6 +49,9 @@ export function BookFilters({ filters, onFiltersChange }: BookFiltersProps) {
   // Local state for search input (for immediate UI feedback)
   const [searchInput, setSearchInput] = useState(filters.search)
 
+  // Collapsible filters state
+  const [isExpanded, setIsExpanded] = useState(false)
+
   // Fetch available languages dynamically
   const { data: languages = [] } = useLanguages()
 
@@ -95,6 +98,26 @@ export function BookFilters({ filters, onFiltersChange }: BookFiltersProps) {
 
   return (
     <div className={styles.container}>
+      {/* Collapsible Header */}
+      <div className={styles.header}>
+        <h2 className={styles.headerTitle}>
+          Filters {hasActiveFilters && `(${Object.keys(filters).filter(k => {
+            const v = filters[k as keyof BookFiltersState];
+            return v && (Array.isArray(v) ? v.length > 0 : v !== '' && !(k === 'sortBy' && v === 'year') && !(k === 'sortOrder' && v === 'asc'));
+          }).length} active)`}
+        </h2>
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          className={styles.toggleButton}
+          aria-expanded={isExpanded}
+          aria-controls="filter-content"
+        >
+          {isExpanded ? '▲ Hide' : '▼ Show'}
+        </button>
+      </div>
+
+      {/* Collapsible Content */}
+      <div id="filter-content" className={isExpanded ? '' : styles.collapsed}>
       {/* Search Input */}
       <div className={styles.searchSection}>
         <label htmlFor="search" className={styles.label}>
@@ -280,6 +303,8 @@ export function BookFilters({ filters, onFiltersChange }: BookFiltersProps) {
           Clear Filters
         </button>
       </div>
+      </div>
+      {/* End Collapsible Content */}
     </div>
   )
 }

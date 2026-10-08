@@ -88,23 +88,23 @@ export function CollectionPage() {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 2rem;
+          margin-bottom: 0.75rem;
         }
 
         .page-heading {
-          font-size: 2rem;
+          font-size: 1.5rem;
           font-weight: 600;
           margin: 0;
           color: #2c3e50;
         }
 
         .add-book-button {
-          padding: 0.75rem 1.5rem;
+          padding: 0.5rem 1rem;
           background-color: #2563eb;
           color: white;
           border: none;
-          border-radius: 6px;
-          font-size: 1rem;
+          border-radius: 4px;
+          font-size: 0.875rem;
           font-weight: 500;
           cursor: pointer;
           transition: background-color 0.2s ease;
@@ -124,11 +124,7 @@ export function CollectionPage() {
         }
 
         .filters-section {
-          background: #f8f9fa;
-          padding: 1.5rem;
-          border-radius: 8px;
-          margin-bottom: 2rem;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+          margin-bottom: 0.75rem;
         }
 
         .books-section {

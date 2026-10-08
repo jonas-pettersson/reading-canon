@@ -110,7 +110,7 @@ export function AppLayout() {
         .app-header {
           background: #2c3e50;
           color: white;
-          padding: 1rem;
+          padding: 0.625rem 1rem;
           box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
@@ -119,12 +119,12 @@ export function AppLayout() {
           margin: 0 auto;
           display: flex;
           align-items: center;
-          gap: 2rem;
+          gap: 1.5rem;
         }
 
         .app-title {
           margin: 0;
-          font-size: 1.5rem;
+          font-size: 1.25rem;
           font-weight: 600;
         }
 
@@ -203,7 +203,7 @@ export function AppLayout() {
           max-width: 1200px;
           width: 100%;
           margin: 0 auto;
-          padding: 2rem 1rem;
+          padding: 0.75rem 1rem;
         }
 
         /* Mobile styles */

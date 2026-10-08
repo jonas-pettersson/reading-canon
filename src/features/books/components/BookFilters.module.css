@@ -1,11 +1,49 @@
 /* BookFilters CSS Module - Compact Design */
 
 .container {
-  padding: 0.75rem;
+  padding: 0.5rem 0.75rem;
   background-color: var(--code-bg);
   border: 1px solid var(--border);
   border-radius: 4px;
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.headerTitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-h);
+  margin: 0;
+}
+
+.toggleButton {
+  background: none;
+  border: none;
+  color: var(--text);
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  border-radius: 3px;
+  transition: background-color 0.2s;
+}
+
+.toggleButton:hover {
+  background-color: var(--bg);
+}
+
+.toggleButton:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.collapsed {
+  display: none;
 }
 
 .searchSection {
