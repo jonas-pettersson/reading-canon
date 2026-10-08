@@ -47,16 +47,19 @@
 .tableView td {
   padding: 0.5rem;
   color: var(--text);
+  text-align: left;
 }
 
 .tableTitle {
   font-weight: 600;
   color: var(--text-h);
   font-size: 0.9375rem;
+  text-align: left;
 }
 
 .tableAuthor {
   color: var(--text);
+  text-align: left;
 }
 
 .tableYear {
@@ -73,12 +76,14 @@
   background-color: #e6f2ff;
   border-radius: 3px;
   white-space: nowrap;
+  text-align: left;
 }
 
 .tableTags {
   font-size: 0.75rem;
   color: var(--text);
   opacity: 0.8;
+  text-align: left;
 }
 
 /* Responsive: single column on mobile */
