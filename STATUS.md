@@ -1,7 +1,7 @@
 # Project Status
 
 **Current Phase:** MVP 0 - Phase 6 (Polish & MVP 0 Validation)  
-**Progress:** Optional Tasks Complete → Next: Task 6.3.1 (Curator Acceptance Testing)  
+**Progress:** Ready for Curator Acceptance Testing (Task 6.3.1)  
 **Last Updated:** 2026-10-09
 
 ---
@@ -23,7 +23,7 @@
 - Section 6.2: Performance
   - ✅ Task 6.2.1: Performance Testing (3h) - **COMPLETE**
 - Section 6.3: Validation
-  - Task 6.3.1: Curator Acceptance Testing (2-4h)
+  - 📋 Task 6.3.1: Curator Acceptance Testing (2-4h) - READY (documentation prepared)
   - Task 6.3.2: Bug Fixes from Validation (1-2 days)
 
 **Architecture Note:** Task 6.0.2 updated to use CSS Modules instead of scoped `<style>` blocks for better maintainability and consistency. Component-centric organization with `.module.css` files.
@@ -107,6 +107,7 @@
 - ✅ Task 6.2.1: Performance Testing - Documented performance validation; NFR-001 (book list <2s) and NFR-002 (search <1s) both passing; bundle sizes: 733KB JS (213KB gzipped), 20KB CSS (4-5KB gzipped); user-validated good performance with 643 books
 - ✅ Task 6.1.5: Settings Page (OPTIONAL) - MVP0 minimal implementation with user profile display and logout functionality (12 tests)
 - ✅ Task 6.1.1: Empty States (OPTIONAL) - Reusable EmptyState component (13 tests); integrated into BookList with conditional states (empty collection vs filtered results); updated CollectionPage and ReadingDashboardPage with helpful empty states
+- 📋 Task 6.3.1 (Preparation): Acceptance Testing Documentation - Created comprehensive testing checklist (docs/curator-acceptance-test.md) with 14 workflow tests, success criteria evaluation, and feedback collection; setup guide (docs/acceptance-test-setup.md) with troubleshooting and environment configuration
 
 ## Completed Phases (continued)
 
