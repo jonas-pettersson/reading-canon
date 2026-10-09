@@ -42,14 +42,9 @@ export function BookListItem({ book, onClick }: BookListItemProps) {
       : book.year_sort
     : 'Unknown'
 
-  return (
-    <article
-      className={styles.card}
-      onClick={handleClick}
-      onKeyPress={handleKeyPress}
-      tabIndex={onClick ? 0 : undefined}
-      role={onClick ? 'button' : undefined}
-    >
+  // When clickable, wrap in a div with button role (article can't have button role)
+  const content = (
+    <article className={styles.card}>
       {/* Title and Author */}
       <div className={styles.titleSection}>
         <h3 className={styles.title}>{book.title}</h3>
@@ -91,4 +86,22 @@ export function BookListItem({ book, onClick }: BookListItemProps) {
       )}
     </article>
   )
+
+  // If clickable, wrap in a div with button role; otherwise return article directly
+  if (onClick) {
+    return (
+      <div
+        onClick={handleClick}
+        onKeyPress={handleKeyPress}
+        tabIndex={0}
+        role="button"
+        aria-label={`View details for ${book.title} by ${book.author_display_name}`}
+        style={{ cursor: 'pointer' }}
+      >
+        {content}
+      </div>
+    )
+  }
+
+  return content
 }

@@ -224,18 +224,19 @@ describe('BookListItem', () => {
       const onClickMock = vi.fn()
       render(<BookListItem book={mockBook} onClick={onClickMock} />)
 
-      const article = screen.getByRole('button')
+      const button = screen.getByRole('button')
+      const article = screen.getByRole('article')
 
-      // CSS module class provides hover styling via :hover pseudo-class
+      // Button wrapper for accessibility, article inside has card styling
+      expect(button).toHaveAttribute('role', 'button')
       expect(article.className).toContain('card')
-      expect(article).toHaveAttribute('role', 'button')
     })
 
     it('should have hover styling via CSS module', () => {
       const onClickMock = vi.fn()
       render(<BookListItem book={mockBook} onClick={onClickMock} />)
 
-      const article = screen.getByRole('button')
+      const article = screen.getByRole('article')
 
       // CSS module class should be applied (hover styles in CSS)
       expect(article.className).toContain('card')
