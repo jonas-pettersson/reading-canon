@@ -25,6 +25,7 @@ vi.mock('react-router-dom', async () => {
 
 describe('SettingsPage', () => {
   const mockSignOut = vi.fn()
+  const mockSignIn = vi.fn()
   const mockNavigate = vi.fn()
 
   beforeEach(() => {
@@ -35,8 +36,14 @@ describe('SettingsPage', () => {
       user: {
         id: 'test-user-id-123',
         email: 'curator@example.com',
-      },
+        app_metadata: {},
+        user_metadata: {},
+        aud: 'authenticated',
+        created_at: '2024-01-01T00:00:00Z',
+      } as any,
+      session: null,
       loading: false,
+      signIn: mockSignIn,
       signOut: mockSignOut,
     })
 
@@ -157,7 +164,9 @@ describe('SettingsPage', () => {
     it('should show loading state while auth is loading', () => {
       vi.mocked(authContext.useAuth).mockReturnValue({
         user: null,
+        session: null,
         loading: true,
+        signIn: mockSignIn,
         signOut: mockSignOut,
       })
 
@@ -173,7 +182,9 @@ describe('SettingsPage', () => {
     it('should show message when no user is logged in', () => {
       vi.mocked(authContext.useAuth).mockReturnValue({
         user: null,
+        session: null,
         loading: false,
+        signIn: mockSignIn,
         signOut: mockSignOut,
       })
 
