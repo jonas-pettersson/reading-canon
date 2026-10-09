@@ -103,7 +103,7 @@
 - ✅ Task 6.0.2: Convert to CSS Modules - Converted 6 files from broken Tailwind to CSS Modules (StatsPage, ReadingDashboardPage, StatsCard, PersonalDataPanel, AddBookForm, EditBookForm)
 - ✅ Task 6.1.4: Responsive Design Testing - Tested all pages at mobile (375px), tablet (768px), desktop (1200px+); fixed horizontal scroll bug; Re-validated after layout changes (BookDetail two-column, card heights, AddBookPage styling) - all tests passing
 - ✅ Task 6.1.2: Loading States and Feedback - Implemented Sonner toast notifications for all mutations; verified loading states on all pages; error handling with recovery suggestions
-- ✅ Task 6.1.3: Accessibility Audit - Installed jest-axe; created 18 accessibility tests (all passing); fixed 1 ARIA violation (BookListItem); verified keyboard navigation; documented manual testing requirements (18 a11y tests)
+- ✅ Task 6.1.3: Accessibility Audit - Installed jest-axe; created 18 accessibility tests (all passing); fixed 1 ARIA violation (BookListItem); verified keyboard navigation; documented manual testing requirements; PLUS styling fixes: grid card heights, text alignment consistency, centralized typography system (CSS custom properties + utility classes)
 
 ## Completed Phases (continued)
 
