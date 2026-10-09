@@ -6,6 +6,7 @@
 }
 
 :root {
+  /* Color tokens */
   --text: #6b6375;
   --text-h: #08060d;
   --bg: #fff;
@@ -18,9 +19,19 @@
   --shadow:
     rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
+  /* Font families */
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
   --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
+
+  /* Typography scale - centralized font sizes */
+  --font-xs: 0.6875rem;    /* 11px - smallest text (tiny tags) */
+  --font-sm: 0.75rem;      /* 12px - small text (labels, help text) */
+  --font-base: 0.875rem;   /* 14px - body text, descriptions */
+  --font-md: 0.9375rem;    /* 15px - slightly larger body text */
+  --font-lg: 1rem;         /* 16px - headings, titles in cards */
+  --font-xl: 1.25rem;      /* 20px - section headings */
+  --font-2xl: 1.5rem;      /* 24px - page titles, main headings */
 
   font: 18px/145% var(--sans);
   letter-spacing: 0.18px;

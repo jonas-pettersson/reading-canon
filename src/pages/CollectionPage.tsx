@@ -128,7 +128,7 @@ export function CollectionPage() {
         }
 
         .page-heading {
-          font-size: 1.5rem;
+          font-size: var(--font-2xl);
           font-weight: 600;
           margin: 0;
           color: #2c3e50;
@@ -154,7 +154,7 @@ export function CollectionPage() {
           color: #666;
           border: none;
           border-right: 1px solid #ddd;
-          font-size: 0.8125rem;
+          font-size: var(--font-base);
           font-weight: 500;
           cursor: pointer;
           transition: all 0.2s ease;
@@ -186,7 +186,7 @@ export function CollectionPage() {
           color: white;
           border: none;
           border-radius: 4px;
-          font-size: 0.875rem;
+          font-size: var(--font-base);
           font-weight: 500;
           cursor: pointer;
           transition: background-color 0.2s ease;
@@ -223,7 +223,7 @@ export function CollectionPage() {
           }
 
           .page-heading {
-            font-size: 1.5rem;
+            font-size: var(--font-2xl);
           }
 
           .header-actions {
@@ -239,14 +239,14 @@ export function CollectionPage() {
           .view-button {
             flex: 1;
             padding: 0.625rem;
-            font-size: 0.875rem;
+            font-size: var(--font-base);
             text-align: center;
           }
 
           .add-book-button {
             width: 100%;
             padding: 0.625rem 1rem;
-            font-size: 0.875rem;
+            font-size: var(--font-base);
           }
 
           .filters-section {
