@@ -96,7 +96,12 @@ export function BookListItem({ book, onClick }: BookListItemProps) {
         tabIndex={0}
         role="button"
         aria-label={`View details for ${book.title} by ${book.author_display_name}`}
-        style={{ cursor: 'pointer' }}
+        style={{
+          cursor: 'pointer',
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
       >
         {content}
       </div>
