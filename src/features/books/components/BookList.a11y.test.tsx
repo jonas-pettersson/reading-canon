@@ -3,32 +3,46 @@ import { render } from '@testing-library/react'
 import { axe } from 'jest-axe'
 import { MemoryRouter } from 'react-router-dom'
 import { BookList } from './BookList'
-import { Book } from '@/types/database'
+import type { Book } from '@/types/database'
 
 const mockBooks: Book[] = [
   {
     id: '1',
     title: 'Test Book 1',
-    author: 'Test Author 1',
-    publication_year: 2020,
+    author_display_name: 'Test Author 1',
+    author_lifespan: null,
+    given_name: null,
+    family_name: null,
+    title_original: null,
+    year_published: '2020',
+    year_sort: 2020,
     primary_category: 'Fiction',
     tags: ['literary'],
     original_language: 'en',
+    source: null,
     inclusion_rationale: 'Test rationale',
     created_at: '2024-01-01T00:00:00Z',
     updated_at: '2024-01-01T00:00:00Z',
+    created_by_user_id: null,
   },
   {
     id: '2',
     title: 'Test Book 2',
-    author: 'Test Author 2',
-    publication_year: 2021,
+    author_display_name: 'Test Author 2',
+    author_lifespan: null,
+    given_name: null,
+    family_name: null,
+    title_original: null,
+    year_published: '2021',
+    year_sort: 2021,
     primary_category: 'Non-Fiction',
     tags: ['history'],
     original_language: 'es',
+    source: null,
     inclusion_rationale: 'Test rationale 2',
     created_at: '2024-01-01T00:00:00Z',
     updated_at: '2024-01-01T00:00:00Z',
+    created_by_user_id: null,
   },
 ]
 

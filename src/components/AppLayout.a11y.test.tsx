@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render } from '@testing-library/react'
 import { axe } from 'jest-axe'
-import { MemoryRouter } from 'react-router-dom'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AppLayout } from './AppLayout'
 
 // Mock the auth context
@@ -13,28 +13,29 @@ vi.mock('@/lib/auth-context', () => ({
   }),
 }))
 
+// Helper to render AppLayout with router
+function renderAppLayout() {
+  return render(
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<AppLayout />}>
+          <Route index element={<div>Test content</div>} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
+  )
+}
+
 describe('AppLayout Accessibility', () => {
   it('should have no accessibility violations', async () => {
-    const { container } = render(
-      <MemoryRouter>
-        <AppLayout>
-          <div>Test content</div>
-        </AppLayout>
-      </MemoryRouter>
-    )
+    const { container } = renderAppLayout()
 
     const results = await axe(container)
     expect(results).toHaveNoViolations()
   })
 
   it('should have proper navigation landmarks', () => {
-    const { container } = render(
-      <MemoryRouter>
-        <AppLayout>
-          <div>Test content</div>
-        </AppLayout>
-      </MemoryRouter>
-    )
+    const { container } = renderAppLayout()
 
     const nav = container.querySelector('nav')
     const main = container.querySelector('main')
@@ -44,13 +45,7 @@ describe('AppLayout Accessibility', () => {
   })
 
   it('should have accessible navigation links', () => {
-    const { getByRole } = render(
-      <MemoryRouter>
-        <AppLayout>
-          <div>Test content</div>
-        </AppLayout>
-      </MemoryRouter>
-    )
+    const { getByRole } = renderAppLayout()
 
     // All navigation links should be accessible
     expect(getByRole('link', { name: /collection/i })).toBeInTheDocument()

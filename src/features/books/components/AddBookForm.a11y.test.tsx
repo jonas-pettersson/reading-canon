@@ -13,10 +13,11 @@ const queryClient = new QueryClient({
 describe('AddBookForm Accessibility', () => {
   it('should have no accessibility violations', async () => {
     const onSuccess = vi.fn()
+    const onCancel = vi.fn()
 
     const { container } = render(
       <QueryClientProvider client={queryClient}>
-        <AddBookForm onSuccess={onSuccess} />
+        <AddBookForm onSuccess={onSuccess} onCancel={onCancel} />
       </QueryClientProvider>
     )
 
@@ -31,10 +32,11 @@ describe('AddBookForm Accessibility', () => {
 
   it('should have accessible form labels', async () => {
     const onSuccess = vi.fn()
+    const onCancel = vi.fn()
 
     const { getByLabelText } = render(
       <QueryClientProvider client={queryClient}>
-        <AddBookForm onSuccess={onSuccess} />
+        <AddBookForm onSuccess={onSuccess} onCancel={onCancel} />
       </QueryClientProvider>
     )
 
@@ -52,10 +54,11 @@ describe('AddBookForm Accessibility', () => {
 
   it('should have accessible buttons', async () => {
     const onSuccess = vi.fn()
+    const onCancel = vi.fn()
 
     const { getByRole } = render(
       <QueryClientProvider client={queryClient}>
-        <AddBookForm onSuccess={onSuccess} />
+        <AddBookForm onSuccess={onSuccess} onCancel={onCancel} />
       </QueryClientProvider>
     )
 

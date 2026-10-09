@@ -51,8 +51,8 @@ describe('ConfirmDialog Accessibility', () => {
         isOpen={true}
         title="Confirm Action"
         message="Are you sure you want to proceed?"
-        confirmText="Confirm"
-        cancelText="Cancel"
+        confirmLabel="Confirm"
+        cancelLabel="Cancel"
         onConfirm={onConfirm}
         onCancel={onCancel}
       />
