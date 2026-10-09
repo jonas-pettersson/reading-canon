@@ -1,4 +1,5 @@
 import { BookListItem } from './BookListItem'
+import { EmptyState } from '@/components/EmptyState'
 import type { Book } from '@/types/database'
 import styles from './BookList.module.css'
 
@@ -10,6 +11,9 @@ export interface BookListProps {
   error?: Error | null
   onBookClick?: (bookId: string) => void
   viewMode?: ViewMode
+  hasActiveFilters?: boolean
+  onClearFilters?: () => void
+  onAddBook?: () => void
 }
 
 /**
@@ -34,7 +38,16 @@ export interface BookListProps {
  *   onBookClick={(id) => navigate(`/books/${id}`)}
  * />
  */
-export function BookList({ books, isLoading, error, onBookClick, viewMode = 'grid' }: BookListProps) {
+export function BookList({
+  books,
+  isLoading,
+  error,
+  onBookClick,
+  viewMode = 'grid',
+  hasActiveFilters = false,
+  onClearFilters,
+  onAddBook,
+}: BookListProps) {
   // Error state (prioritize errors over loading)
   if (error) {
     return (
@@ -95,21 +108,42 @@ export function BookList({ books, isLoading, error, onBookClick, viewMode = 'gri
     )
   }
 
-  // Empty state
+  // Empty state - distinguish between empty collection and no search results
   if (!books || books.length === 0) {
+    // No search results (filters are active)
+    if (hasActiveFilters) {
+      return (
+        <EmptyState
+          icon="🔍"
+          title="No books match your filters"
+          message="Try adjusting your search or filter criteria to find what you're looking for."
+          action={
+            onClearFilters
+              ? {
+                  label: 'Clear Filters',
+                  onClick: onClearFilters,
+                }
+              : undefined
+          }
+        />
+      )
+    }
+
+    // Empty collection (no books at all)
     return (
-      <div
-        role="status"
-        style={{
-          padding: '3rem',
-          textAlign: 'center',
-          color: '#666',
-        }}
-      >
-        <p style={{ fontSize: '1.1rem', margin: 0 }}>
-          No books found. Try adjusting your filters.
-        </p>
-      </div>
+      <EmptyState
+        icon="📚"
+        title="No books in your collection yet"
+        message="Get started by adding your first book to the collection."
+        action={
+          onAddBook
+            ? {
+                label: 'Add Your First Book',
+                onClick: onAddBook,
+              }
+            : undefined
+        }
+      />
     )
   }
 

@@ -194,7 +194,7 @@ describe('CollectionPage', () => {
       renderCollectionPage()
 
       await waitFor(() => {
-        expect(screen.getByText(/no books found/i)).toBeInTheDocument()
+        expect(screen.getByText(/no books in your collection yet/i)).toBeInTheDocument()
       })
     })
 

@@ -1,7 +1,7 @@
 # Project Status
 
 **Current Phase:** MVP 0 - Phase 6 (Polish & MVP 0 Validation)  
-**Progress:** Task 6.2.1 Complete → Next: Task 6.3.1 (Curator Acceptance Testing)  
+**Progress:** Optional Tasks Complete → Next: Task 6.3.1 (Curator Acceptance Testing)  
 **Last Updated:** 2026-10-09
 
 ---
@@ -18,8 +18,8 @@
   - ✅ Task 6.1.4: Responsive Design Testing (5h) - MOVED UP, **COMPLETE**
   - ✅ Task 6.1.2: Loading States and Feedback (3h) - **COMPLETE**
   - ✅ Task 6.1.3: Accessibility Audit (4h) - **COMPLETE**
-  - Task 6.1.1: Empty States (3h) - OPTIONAL
-  - Task 6.1.5: Settings Page (2h) - OPTIONAL
+  - ✅ Task 6.1.1: Empty States (3h) - OPTIONAL, **COMPLETE**
+  - ✅ Task 6.1.5: Settings Page (2h) - OPTIONAL, **COMPLETE**
 - Section 6.2: Performance
   - ✅ Task 6.2.1: Performance Testing (3h) - **COMPLETE**
 - Section 6.3: Validation
@@ -32,7 +32,7 @@
 
 ## Test Metrics
 
-**Test Status:** 492 tests passing | 34 skipped (526 total)  
+**Test Status:** 520 tests passing | 34 skipped (554 total)  
 **Coverage:**
 - Statements: 95.3%
 - Branches: 89.18%
@@ -105,6 +105,8 @@
 - ✅ Task 6.1.2: Loading States and Feedback - Implemented Sonner toast notifications for all mutations; verified loading states on all pages; error handling with recovery suggestions
 - ✅ Task 6.1.3: Accessibility Audit - Installed jest-axe; created 18 accessibility tests (all passing); fixed 1 ARIA violation (BookListItem); verified keyboard navigation; documented manual testing requirements; PLUS styling fixes: grid card heights, text alignment consistency, centralized typography system (CSS custom properties + utility classes)
 - ✅ Task 6.2.1: Performance Testing - Documented performance validation; NFR-001 (book list <2s) and NFR-002 (search <1s) both passing; bundle sizes: 733KB JS (213KB gzipped), 20KB CSS (4-5KB gzipped); user-validated good performance with 643 books
+- ✅ Task 6.1.5: Settings Page (OPTIONAL) - MVP0 minimal implementation with user profile display and logout functionality (12 tests)
+- ✅ Task 6.1.1: Empty States (OPTIONAL) - Reusable EmptyState component (13 tests); integrated into BookList with conditional states (empty collection vs filtered results); updated CollectionPage and ReadingDashboardPage with helpful empty states
 
 ## Completed Phases (continued)
 

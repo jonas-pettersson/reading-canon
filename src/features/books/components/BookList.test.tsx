@@ -100,29 +100,48 @@ describe('BookList', () => {
   })
 
   describe('Empty State', () => {
-    it('should display empty state when books array is empty', () => {
-      render(<BookList books={[]} />)
+    it('should display empty collection state when books array is empty and no filters', () => {
+      render(<BookList books={[]} hasActiveFilters={false} />)
 
-      expect(screen.getByRole('status')).toBeInTheDocument()
+      expect(screen.getByText(/no books in your collection yet/i)).toBeInTheDocument()
+      expect(screen.getByText(/get started by adding your first book/i)).toBeInTheDocument()
+    })
+
+    it('should display no search results state when books is empty with active filters', () => {
+      render(<BookList books={[]} hasActiveFilters={true} />)
+
+      expect(screen.getByText(/no books match your filters/i)).toBeInTheDocument()
       expect(
-        screen.getByText('No books found. Try adjusting your filters.')
+        screen.getByText(/try adjusting your search or filter criteria/i)
       ).toBeInTheDocument()
     })
 
     it('should display empty state when books is undefined', () => {
-      render(<BookList books={undefined as any} />)
+      render(<BookList books={undefined as any} hasActiveFilters={false} />)
 
-      expect(
-        screen.getByText('No books found. Try adjusting your filters.')
-      ).toBeInTheDocument()
+      expect(screen.getByText(/no books in your collection yet/i)).toBeInTheDocument()
     })
 
     it('should not display empty state while loading', () => {
       render(<BookList books={[]} isLoading={true} />)
 
-      expect(
-        screen.queryByText('No books found. Try adjusting your filters.')
-      ).not.toBeInTheDocument()
+      expect(screen.queryByText(/no books/i)).not.toBeInTheDocument()
+    })
+
+    it('should show clear filters button when filters are active', () => {
+      const onClearFilters = vi.fn()
+      render(<BookList books={[]} hasActiveFilters={true} onClearFilters={onClearFilters} />)
+
+      const clearButton = screen.getByRole('button', { name: /clear filters/i })
+      expect(clearButton).toBeInTheDocument()
+    })
+
+    it('should show add book button when collection is empty', () => {
+      const onAddBook = vi.fn()
+      render(<BookList books={[]} hasActiveFilters={false} onAddBook={onAddBook} />)
+
+      const addButton = screen.getByRole('button', { name: /add your first book/i })
+      expect(addButton).toBeInTheDocument()
     })
   })
 
@@ -197,10 +216,10 @@ describe('BookList', () => {
       expect(screen.getByRole('status')).toBeInTheDocument()
     })
 
-    it('should use role="status" for empty state', () => {
-      render(<BookList books={[]} />)
+    it('should display empty state with heading', () => {
+      render(<BookList books={[]} hasActiveFilters={false} />)
 
-      expect(screen.getByRole('status')).toBeInTheDocument()
+      expect(screen.getByRole('heading', { name: /no books in your collection yet/i })).toBeInTheDocument()
     })
   })
 })

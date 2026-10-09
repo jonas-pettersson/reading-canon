@@ -1,6 +1,7 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useReadingBooks, useWantToReadBooks } from '@/features/reading/hooks/useReadingDashboard'
 import { useUpdateReadingStatus } from '@/features/reading/hooks/useReadingStatus'
+import { EmptyState } from '@/components/EmptyState'
 import type { ReadingBook } from '@/features/reading/hooks/useReadingDashboard'
 import type { Database } from '@/types/database'
 import styles from './ReadingDashboardPage.module.css'
@@ -17,6 +18,7 @@ type ReadingStatus = Database['public']['Enums']['reading_status_enum']
  * - Mobile-optimized per UX-011
  */
 export function ReadingDashboardPage() {
+  const navigate = useNavigate()
   const readingQuery = useReadingBooks()
   const wantToReadQuery = useWantToReadBooks()
   const updateStatus = useUpdateReadingStatus()
@@ -43,10 +45,15 @@ export function ReadingDashboardPage() {
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>Currently Reading</h2>
         {readingBooks.length === 0 ? (
-          <p className={styles.emptyText}>
-            No books currently reading. Start reading from your Want to Read
-            list below!
-          </p>
+          <EmptyState
+            icon="📖"
+            title="No books currently reading"
+            message="Start reading a book from your collection or Want to Read list to track your progress here."
+            action={{
+              label: 'Browse Collection',
+              onClick: () => navigate('/'),
+            }}
+          />
         ) : (
           <div className={styles.cardList}>
             {readingBooks.map((book) => (
@@ -69,9 +76,15 @@ export function ReadingDashboardPage() {
       <section>
         <h2 className={styles.sectionTitle}>Want to Read</h2>
         {wantToReadBooks.length === 0 ? (
-          <p className={styles.emptyText}>
-            No books in your Want to Read list. Add books from the collection!
-          </p>
+          <EmptyState
+            icon="📋"
+            title="Want to Read list is empty"
+            message="Add books from your collection that you'd like to read next. This helps you decide what to read!"
+            action={{
+              label: 'Browse Collection',
+              onClick: () => navigate('/'),
+            }}
+          />
         ) : (
           <div className={styles.cardList}>
             {wantToReadBooks.map((book) => (

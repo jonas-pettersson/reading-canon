@@ -157,7 +157,7 @@ describe('ReadingDashboardPage', () => {
     renderPage()
 
     await waitFor(() => {
-      expect(screen.getByText(/no books in your want to read list/i)).toBeInTheDocument()
+      expect(screen.getByText(/want to read list is empty/i)).toBeInTheDocument()
     })
   })
 

@@ -63,6 +63,29 @@ export function CollectionPage() {
     navigate(`/books/${bookId}`)
   }
 
+  // Check if any filters are active
+  const hasActiveFilters =
+    Boolean(filters.search) ||
+    Boolean(filters.category) ||
+    filters.tags.length > 0 ||
+    Boolean(filters.originalLanguage) ||
+    Boolean(filters.readingStatus) ||
+    Boolean(filters.ownershipStatus)
+
+  // Clear all filters
+  const handleClearFilters = () => {
+    setFilters({
+      search: '',
+      category: '',
+      tags: [],
+      originalLanguage: '',
+      readingStatus: '',
+      ownershipStatus: '',
+      sortBy: 'year',
+      sortOrder: 'asc',
+    })
+  }
+
   return (
     <div className="collection-page">
       <div className="page-header">
@@ -112,6 +135,9 @@ export function CollectionPage() {
           error={error}
           viewMode={viewMode}
           onBookClick={handleBookClick}
+          hasActiveFilters={hasActiveFilters}
+          onClearFilters={handleClearFilters}
+          onAddBook={() => navigate('/books/new')}
         />
       </div>
 
