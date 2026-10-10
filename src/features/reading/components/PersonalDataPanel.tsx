@@ -151,9 +151,9 @@ export function PersonalDataPanel({ bookId, showOnlyNotes = false, excludeNotes 
 
       {/* Rating */}
       <div className={styles.field}>
-        <label id={`rating-label-${bookId}`} className={styles.label}>
+        <div id={`rating-label-${bookId}`} className={styles.label}>
           Rating
-        </label>
+        </div>
         <div
           className={styles.ratingStars}
           role="group"
