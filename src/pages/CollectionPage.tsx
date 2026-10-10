@@ -29,17 +29,32 @@ export function CollectionPage() {
     localStorage.setItem('bookListViewMode', viewMode)
   }, [viewMode])
 
-  // Filter state management
-  const [filters, setFilters] = useState<BookFiltersState>({
-    search: '',
-    category: '',
-    tags: [],
-    originalLanguage: '',
-    readingStatus: '',
-    ownershipStatus: '',
-    sortBy: 'year',
-    sortOrder: 'asc',
+  // Filter state management (persisted in localStorage)
+  const [filters, setFilters] = useState<BookFiltersState>(() => {
+    const saved = localStorage.getItem('bookListFilters')
+    if (saved) {
+      try {
+        return JSON.parse(saved)
+      } catch {
+        // If parsing fails, return default
+      }
+    }
+    return {
+      search: '',
+      category: '',
+      tags: [],
+      originalLanguage: '',
+      readingStatus: '',
+      ownershipStatus: '',
+      sortBy: 'year',
+      sortOrder: 'asc',
+    }
   })
+
+  // Persist filter state
+  useEffect(() => {
+    localStorage.setItem('bookListFilters', JSON.stringify(filters))
+  }, [filters])
 
   // Fetch books with current filters
   const { data: books, isLoading, error } = useBooks({
