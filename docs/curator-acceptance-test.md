@@ -404,7 +404,7 @@ This document guides the curator through acceptance testing of MVP 0 to validate
 (Describe any errors, broken features, or incorrect behavior)
 
 1. **Reading Dashboard UI not updating immediately:** When pressing "Mark as Reading" button on a book in the Want to Read section, the book does not immediately move to the Currently Reading section. Page refresh is required to see the change. (Tested: 2026-10-10)
-2. 
+2. **Add Book form: Author name field requirements unintuitive:** Author Display Name is marked as mandatory (*) while Given Name and Family Name are optional. Expected behavior: Given Name and Family Name should be required fields, and Author Display Name should be automatically derived/generated from them. (Tested: 2026-10-10)
 3. 
 4. 
 5. 
