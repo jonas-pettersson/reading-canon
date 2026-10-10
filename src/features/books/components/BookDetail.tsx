@@ -96,23 +96,24 @@ export function BookDetail({ book, onBack, onEdit, onDelete }: BookDetailProps) 
             </div>
           )}
 
-          {/* Categories */}
-          {(book.primary_category || (book.tags && book.tags.length > 0)) && (
+          {/* Primary Category */}
+          {book.primary_category && (
             <div className={styles.metadataItem}>
-              <span className={styles.label}>Categories</span>
-              <div className={styles.categoriesContent}>
-                {book.primary_category && (
-                  <span className={styles.categoryBadge}>{book.primary_category}</span>
-                )}
-                {book.tags && book.tags.length > 0 && (
-                  <>
-                    {book.tags.map((tag) => (
-                      <span key={tag} className={styles.tag}>
-                        {tag}
-                      </span>
-                    ))}
-                  </>
-                )}
+              <span className={styles.label}>Category</span>
+              <span className={styles.categoryBadge}>{book.primary_category}</span>
+            </div>
+          )}
+
+          {/* Tags */}
+          {book.tags && book.tags.length > 0 && (
+            <div className={styles.metadataItem}>
+              <span className={styles.label}>Tags</span>
+              <div className={styles.tagsContent}>
+                {book.tags.map((tag) => (
+                  <span key={tag} className={styles.tag}>
+                    {tag}
+                  </span>
+                ))}
               </div>
             </div>
           )}
