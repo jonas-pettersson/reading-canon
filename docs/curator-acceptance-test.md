@@ -403,7 +403,7 @@ This document guides the curator through acceptance testing of MVP 0 to validate
 **Bugs or errors encountered:**
 (Describe any errors, broken features, or incorrect behavior)
 
-1. 
+1. **Reading Dashboard UI not updating immediately:** When pressing "Mark as Reading" button on a book in the Want to Read section, the book does not immediately move to the Currently Reading section. Page refresh is required to see the change. (Tested: 2026-10-10)
 2. 
 3. 
 4. 
