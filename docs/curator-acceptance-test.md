@@ -343,11 +343,12 @@ This document guides the curator through acceptance testing of MVP 0 to validate
 
 **SC-001: Do you prefer this app over Excel for managing the collection?**
 - [ ] Yes, definitely
-- [ ] Yes, with some reservations
+- [x] Yes, with some reservations
 - [ ] No, not yet
 - [ ] No, prefer Excel
 
 **Why?**
+Yes, but it needs to be deployed first so it's accessible without running locally.
 
 ---
 
