@@ -100,7 +100,9 @@ export function BookDetail({ book, onBack, onEdit, onDelete }: BookDetailProps) 
           {book.primary_category && (
             <div className={styles.metadataItem}>
               <span className={styles.label}>Category</span>
-              <span className={styles.categoryBadge}>{book.primary_category}</span>
+              <div className={styles.categoryContent}>
+                <span className={styles.categoryBadge}>{book.primary_category}</span>
+              </div>
             </div>
           )}
 

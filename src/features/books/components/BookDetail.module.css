@@ -113,12 +113,14 @@
   margin: 0.25rem 0 0 0;
 }
 
-/* Tags display */
+/* Category and Tags display - both centered */
+.categoryContent,
 .tagsContent {
   display: flex;
   flex-wrap: wrap;
   gap: 0.375rem;
   align-items: center;
+  justify-content: center;
 }
 
 .categoryBadge {
