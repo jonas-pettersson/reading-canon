@@ -353,22 +353,24 @@ Yes, but it needs to be deployed first so it's accessible without running locall
 ---
 
 **SC-002: Is deciding what to read next easier than before?**
-- [ ] Yes, much easier
+- [x] Yes, much easier
 - [ ] Yes, somewhat easier
 - [ ] About the same
 - [ ] No, harder
 
 **Why?**
+The Reading Dashboard and filtering options make it much easier to see what's available and choose the next book.
 
 ---
 
 **SC-003: Is updating reading progress easier than before?**
-- [ ] Yes, much easier
+- [x] Yes, much easier
 - [ ] Yes, somewhat easier
 - [ ] About the same
 - [ ] No, harder
 
 **Why?**
+Quick actions on the Reading Dashboard and auto-save make updating status much faster than Excel.
 
 ---
 
