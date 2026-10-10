@@ -405,7 +405,7 @@ This document guides the curator through acceptance testing of MVP 0 to validate
 
 1. **Reading Dashboard UI not updating immediately:** When pressing "Mark as Reading" button on a book in the Want to Read section, the book does not immediately move to the Currently Reading section. Page refresh is required to see the change. (Tested: 2026-10-10)
 2. **Add Book form: Author name field requirements unintuitive:** Author Display Name is marked as mandatory (*) while Given Name and Family Name are optional. Expected behavior: Given Name and Family Name should be required fields, and Author Display Name should be automatically derived/generated from them. (Tested: 2026-10-10)
-3. 
+3. **Collection page arrow key navigation unintuitive:** When navigating the book list/grid using arrow keys, navigation steps through individual text fields within each book card rather than moving between book cards. Expected behavior: Down arrow should move to the book below, Right arrow should move to the book to the right (in grid view), etc. Tab key navigation works well. (Tested: 2026-10-10)
 4. 
 5. 
 
