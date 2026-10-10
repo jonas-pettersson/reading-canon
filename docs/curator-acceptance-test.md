@@ -414,9 +414,11 @@ Quick actions on the Reading Dashboard and auto-save make updating status much f
 
 **Would you use this app as your primary tool for managing your reading canon?**
 - [ ] Yes, ready to use as-is
-- [ ] Yes, after fixing critical issues
+- [x] Yes, after fixing critical issues
 - [ ] Not yet, needs significant improvements
 - [ ] No, missing essential features
+
+**Notes:** Yes, but needs to be deployed first. Working locally does not make sense.
 
 ---
 
@@ -425,7 +427,7 @@ Quick actions on the Reading Dashboard and auto-save make updating status much f
 Based on the feedback above, list action items by priority:
 
 ### Blocking Issues (Must fix before MVP 0 release)
-1. 
+1. **Deploy application to production environment** - Running locally is not practical for day-to-day use
 2. 
 3. 
 
