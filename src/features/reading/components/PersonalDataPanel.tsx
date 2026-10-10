@@ -120,6 +120,7 @@ export function PersonalDataPanel({ bookId, showOnlyNotes = false, excludeNotes 
           Reading Status
         </label>
         <ReadingStatusSelect
+          id={`status-${bookId}`}
           bookId={bookId}
           currentStatus={readingStatus?.reading_status || 'not_started'}
           className={styles.select}

@@ -9,6 +9,7 @@ interface ReadingStatusSelectProps {
   currentStatus: ReadingStatus
   onStatusChange?: (status: ReadingStatus) => void
   className?: string
+  id?: string
 }
 
 const STATUS_LABELS: Record<ReadingStatus, string> = {
@@ -38,6 +39,7 @@ export function ReadingStatusSelect({
   currentStatus,
   onStatusChange,
   className = '',
+  id,
 }: ReadingStatusSelectProps) {
   const [selectedStatus, setSelectedStatus] = useState<ReadingStatus>(currentStatus)
   const { mutate, isPending } = useUpdateReadingStatus()
@@ -72,6 +74,7 @@ export function ReadingStatusSelect({
 
   return (
     <select
+      id={id}
       value={selectedStatus}
       onChange={handleChange}
       disabled={isPending}
