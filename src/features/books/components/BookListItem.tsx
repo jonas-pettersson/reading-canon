@@ -70,8 +70,8 @@ export function BookListItem({ book, onClick }: BookListItemProps) {
       {/* Tags */}
       {book.tags && book.tags.length > 0 && (
         <div className={styles.tagsRow}>
-          {book.tags.map((tag) => (
-            <span key={tag} data-testid="tag" className={styles.tag}>
+          {book.tags.map((tag, index) => (
+            <span key={`${tag}-${index}`} data-testid="tag" className={styles.tag}>
               {tag}
             </span>
           ))}
