@@ -94,6 +94,13 @@ export function useUpdateReadingStatus() {
       queryClient.invalidateQueries({
         queryKey: ['user-reading-status'],
       })
+      // Invalidate Reading Dashboard queries
+      queryClient.invalidateQueries({
+        queryKey: ['reading-books'],
+      })
+      queryClient.invalidateQueries({
+        queryKey: ['want-to-read-books'],
+      })
       // Show success toast (brief, unobtrusive)
       if (variables.updates.reading_status) {
         toast.success('Status updated')
