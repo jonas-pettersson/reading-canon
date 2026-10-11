@@ -10,32 +10,25 @@
 
 These issues were noticed during initial exploration before the formal acceptance test session. They should be validated and documented during the acceptance test.
 
-### 1. Page Title Inconsistency
+### 1. ~~Page Title Inconsistency~~
+
+**Status:** ✅ RESOLVED
 
 **Description:** Top-level page titles (Collection, Reading, Stats, Settings) have different sizes, styles, and colors.
 
-**Observation:** Collection page title appears to have different styling compared to other pages.
-
-**Validation During Test:**
-- Check all page titles (Collection, Reading, Stats, Settings)
-- Document specific differences (size, color, font-weight)
-- Rate severity and impact on overall experience
+**Resolution:** Page titles are now consistent across all pages (confirmed 2026-10-11)
 
 **Category:** Visual consistency / Polish
 
 ---
 
-### 2. Filter State Lost on Navigation
+### 2. ~~Filter State Lost on Navigation~~
+
+**Status:** ✅ RESOLVED (2026-10-07)
 
 **Description:** When filters are applied on Collection page, clicking a book to view details, then navigating back (via back button or browser back), the filters are cleared.
 
-**Expected Behavior:** Filters should be preserved when navigating back from book detail page.
-
-**Validation During Test:**
-- Apply search filter → view book → back → verify filters lost
-- Apply category filter → view book → back → verify filters lost
-- Apply multiple filters → view book → back → verify filters lost
-- Document impact on workflow (how frustrating is this?)
+**Resolution:** Filters are now persisted in localStorage and restored when navigating back to the Collection page.
 
 **Category:** User Experience / Navigation
 
@@ -64,22 +57,13 @@ These links were not extracted during the data migration.
 
 ---
 
-### 4. Category vs Tags Display Confusion
+### 4. ~~Category vs Tags Display Confusion~~
 
-**Description:** On book detail page, categories and tags are not clearly separated:
-- Some items appear uppercase with blue color
-- Other items appear lowercase with grey color
-- No clear visual distinction between category (singular) and tags (multiple)
+**Status:** ✅ RESOLVED (2026-10-10)
 
-**Expected Behavior:** Clear separation between:
-- Primary Category (single value)
-- Tags (multiple values)
+**Description:** On book detail page, categories and tags were not clearly separated visually.
 
-**Validation During Test:**
-- Check multiple book detail pages
-- Document which is which (category vs tags)
-- Assess if the distinction is clear or confusing
-- Take screenshot if helpful
+**Resolution:** Category and Tags now have separate labeled sections with clear visual hierarchy. Category is displayed with its own label, and tags are displayed below in their own section.
 
 **Category:** Information Display / Clarity
 
