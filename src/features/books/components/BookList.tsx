@@ -1,3 +1,4 @@
+import { useRef, useCallback, useEffect, useState } from 'react'
 import { BookListItem } from './BookListItem'
 import { EmptyState } from '@/components/EmptyState'
 import type { Book } from '@/types/database'
@@ -48,6 +49,104 @@ export function BookList({
   onClearFilters,
   onAddBook,
 }: BookListProps) {
+  // Track focused book index for keyboard navigation (roving tabindex pattern)
+  const [focusedIndex, setFocusedIndex] = useState(0)
+  const containerRef = useRef<HTMLUListElement | HTMLTableElement>(null)
+  const itemRefs = useRef<Map<number, HTMLElement>>(new Map())
+
+  // Reset focused index when books change
+  useEffect(() => {
+    setFocusedIndex(0)
+  }, [books])
+
+  // Calculate number of columns in grid view (for 2D navigation)
+  const getGridColumns = useCallback(() => {
+    if (!containerRef.current || viewMode !== 'grid') return 1
+
+    // Get computed style to find actual column count
+    const gridElement = containerRef.current
+    const computedStyle = window.getComputedStyle(gridElement)
+    const columnCount = computedStyle.gridTemplateColumns.split(' ').length
+    return columnCount || 1
+  }, [viewMode])
+
+  // Handle arrow key navigation
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (!books || books.length === 0) return
+
+    const totalBooks = books.length
+    let nextIndex = focusedIndex
+
+    if (viewMode === 'grid') {
+      // 2D navigation for grid view
+      const columns = getGridColumns()
+
+      switch (e.key) {
+        case 'ArrowDown':
+          e.preventDefault()
+          nextIndex = focusedIndex + columns
+          if (nextIndex >= totalBooks) {
+            // Wrap to first row, same column
+            nextIndex = focusedIndex % columns
+          }
+          break
+        case 'ArrowUp':
+          e.preventDefault()
+          nextIndex = focusedIndex - columns
+          if (nextIndex < 0) {
+            // Wrap to last row, same column
+            const lastRowStart = Math.floor((totalBooks - 1) / columns) * columns
+            nextIndex = lastRowStart + (focusedIndex % columns)
+            if (nextIndex >= totalBooks) {
+              // If that position doesn't exist, go to previous row
+              nextIndex = nextIndex - columns
+            }
+          }
+          break
+        case 'ArrowRight':
+          e.preventDefault()
+          nextIndex = (focusedIndex + 1) % totalBooks
+          break
+        case 'ArrowLeft':
+          e.preventDefault()
+          nextIndex = (focusedIndex - 1 + totalBooks) % totalBooks
+          break
+        default:
+          return // Don't prevent default for other keys
+      }
+    } else {
+      // Linear navigation for table view
+      switch (e.key) {
+        case 'ArrowDown':
+          e.preventDefault()
+          nextIndex = (focusedIndex + 1) % totalBooks
+          break
+        case 'ArrowUp':
+          e.preventDefault()
+          nextIndex = (focusedIndex - 1 + totalBooks) % totalBooks
+          break
+        default:
+          return
+      }
+    }
+
+    setFocusedIndex(nextIndex)
+    // Focus the new element
+    const nextElement = itemRefs.current.get(nextIndex)
+    if (nextElement) {
+      nextElement.focus()
+    }
+  }, [books, focusedIndex, viewMode, getGridColumns])
+
+  // Register item ref for keyboard navigation
+  const setItemRef = useCallback((index: number, element: HTMLElement | null) => {
+    if (element) {
+      itemRefs.current.set(index, element)
+    } else {
+      itemRefs.current.delete(index)
+    }
+  }, [])
+
   // Error state (prioritize errors over loading)
   if (error) {
     return (
@@ -156,7 +255,7 @@ export function BookList({
   // Table view
   if (viewMode === 'table') {
     return (
-      <table className={styles.tableView}>
+      <table className={styles.tableView} ref={containerRef as React.RefObject<HTMLTableElement>}>
         <thead>
           <tr>
             <th>Title</th>
@@ -167,17 +266,20 @@ export function BookList({
           </tr>
         </thead>
         <tbody>
-          {books.map((book) => (
+          {books.map((book, index) => (
             <tr
               key={book.id}
+              ref={(el) => setItemRef(index, el)}
               onClick={() => onBookClick?.(book.id)}
-              tabIndex={onBookClick ? 0 : undefined}
+              tabIndex={onBookClick ? (index === focusedIndex ? 0 : -1) : undefined}
+              onKeyDown={handleKeyDown}
               onKeyPress={(e) => {
                 if (onBookClick && (e.key === 'Enter' || e.key === ' ')) {
                   e.preventDefault()
                   onBookClick(book.id)
                 }
               }}
+              onFocus={() => setFocusedIndex(index)}
             >
               <td className={styles.tableTitle}>{book.title}</td>
               <td className={styles.tableAuthor}>
@@ -206,10 +308,21 @@ export function BookList({
 
   // Grid view (default)
   return (
-    <ul role="list" className={styles.gridView}>
-      {books.map((book) => (
+    <ul
+      role="list"
+      className={styles.gridView}
+      ref={containerRef as React.RefObject<HTMLUListElement>}
+    >
+      {books.map((book, index) => (
         <li key={book.id}>
-          <BookListItem book={book} onClick={onBookClick} />
+          <BookListItem
+            book={book}
+            onClick={onBookClick}
+            tabIndex={onBookClick ? (index === focusedIndex ? 0 : -1) : undefined}
+            onKeyDown={handleKeyDown}
+            onFocus={() => setFocusedIndex(index)}
+            ref={(el) => setItemRef(index, el)}
+          />
         </li>
       ))}
     </ul>

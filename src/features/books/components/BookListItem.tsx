@@ -1,9 +1,13 @@
+import { forwardRef } from 'react'
 import type { Book } from '@/types/database'
 import styles from './BookListItem.module.css'
 
 export interface BookListItemProps {
   book: Book
   onClick?: (bookId: string) => void
+  tabIndex?: number
+  onKeyDown?: (e: React.KeyboardEvent) => void
+  onFocus?: () => void
 }
 
 /**
@@ -14,7 +18,7 @@ export interface BookListItemProps {
  * - Shows category badge and tags
  * - Clickable to navigate to detail view
  * - Handles missing optional fields gracefully
- * - Accessible with keyboard navigation
+ * - Accessible with keyboard navigation (arrow keys + Enter/Space)
  * - Compact responsive design
  *
  * @example
@@ -23,90 +27,97 @@ export interface BookListItemProps {
  *   onClick={(id) => navigate(`/books/${id}`)}
  * />
  */
-export function BookListItem({ book, onClick }: BookListItemProps) {
-  const handleClick = () => {
-    onClick?.(book.id)
-  }
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault()
+export const BookListItem = forwardRef<HTMLDivElement, BookListItemProps>(
+  ({ book, onClick, tabIndex, onKeyDown, onFocus }, ref) => {
+    const handleClick = () => {
       onClick?.(book.id)
     }
-  }
 
-  // Format year display
-  const yearDisplay = book.year_sort
-    ? book.year_sort < 0
-      ? `${Math.abs(book.year_sort)} BCE`
-      : book.year_sort
-    : 'Unknown'
+    const handleKeyPress = (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault()
+        onClick?.(book.id)
+      }
+    }
 
-  // When clickable, wrap in a div with button role (article can't have button role)
-  const content = (
-    <article className={styles.card}>
-      {/* Title and Author */}
-      <div className={styles.titleSection}>
-        <h3 className={styles.title}>{book.title}</h3>
-        <p className={styles.author}>
-          {book.author_display_name}
-          {book.author_lifespan && (
-            <span className={styles.authorLifespan}>({book.author_lifespan})</span>
-          )}
-        </p>
-      </div>
+    // Format year display
+    const yearDisplay = book.year_sort
+      ? book.year_sort < 0
+        ? `${Math.abs(book.year_sort)} BCE`
+        : book.year_sort
+      : 'Unknown'
 
-      {/* Year and Category */}
-      <div className={styles.metaRow}>
-        <span className={styles.year}>{yearDisplay}</span>
+    // When clickable, wrap in a div with button role (article can't have button role)
+    const content = (
+      <article className={styles.card}>
+        {/* Title and Author */}
+        <div className={styles.titleSection}>
+          <h3 className={styles.title}>{book.title}</h3>
+          <p className={styles.author}>
+            {book.author_display_name}
+            {book.author_lifespan && (
+              <span className={styles.authorLifespan}>({book.author_lifespan})</span>
+            )}
+          </p>
+        </div>
 
-        {book.primary_category && (
-          <span data-testid="category-badge" className={styles.categoryBadge}>
-            {book.primary_category}
-          </span>
-        )}
-      </div>
+        {/* Year and Category */}
+        <div className={styles.metaRow}>
+          <span className={styles.year}>{yearDisplay}</span>
 
-      {/* Tags */}
-      {book.tags && book.tags.length > 0 && (
-        <div className={styles.tagsRow}>
-          {book.tags.map((tag, index) => (
-            <span key={`${tag}-${index}`} data-testid="tag" className={styles.tag}>
-              {tag}
+          {book.primary_category && (
+            <span data-testid="category-badge" className={styles.categoryBadge}>
+              {book.primary_category}
             </span>
-          ))}
+          )}
         </div>
-      )}
 
-      {/* Original Language */}
-      {book.original_language && (
-        <div className={styles.year} style={{ marginTop: '0.375rem' }}>
-          Original language: {book.original_language}
-        </div>
-      )}
-    </article>
-  )
+        {/* Tags */}
+        {book.tags && book.tags.length > 0 && (
+          <div className={styles.tagsRow}>
+            {book.tags.map((tag, index) => (
+              <span key={`${tag}-${index}`} data-testid="tag" className={styles.tag}>
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
 
-  // If clickable, wrap in a div with button role; otherwise return article directly
-  if (onClick) {
-    return (
-      <div
-        onClick={handleClick}
-        onKeyPress={handleKeyPress}
-        tabIndex={0}
-        role="button"
-        aria-label={`View details for ${book.title} by ${book.author_display_name}`}
-        style={{
-          cursor: 'pointer',
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-      >
-        {content}
-      </div>
+        {/* Original Language */}
+        {book.original_language && (
+          <div className={styles.year} style={{ marginTop: '0.375rem' }}>
+            Original language: {book.original_language}
+          </div>
+        )}
+      </article>
     )
-  }
 
-  return content
-}
+    // If clickable, wrap in a div with button role; otherwise return article directly
+    if (onClick) {
+      return (
+        <div
+          ref={ref}
+          onClick={handleClick}
+          onKeyPress={handleKeyPress}
+          onKeyDown={onKeyDown}
+          onFocus={onFocus}
+          tabIndex={tabIndex ?? 0}
+          role="button"
+          aria-label={`View details for ${book.title} by ${book.author_display_name}`}
+          style={{
+            cursor: 'pointer',
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          {content}
+        </div>
+      )
+    }
+
+    return content
+  }
+)
+
+BookListItem.displayName = 'BookListItem'
