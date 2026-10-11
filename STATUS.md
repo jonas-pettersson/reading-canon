@@ -1,34 +1,49 @@
 # Project Status
 
-**Current Phase:** MVP 0 - Phase 6 (Polish & MVP 0 Validation)  
-**Progress:** Ready for Curator Acceptance Testing (Task 6.3.1)  
-**Last Updated:** 2026-10-09
+**Current Phase:** ✅ MVP 0 - COMPLETE AND DEPLOYED  
+**Production URL:** https://reading-canon.vercel.app/  
+**Deployment Date:** 2026-10-11  
+**Last Updated:** 2026-10-11
 
 ---
 
-## Current Activity
+## 🎉 MVP 0 Complete!
 
-**Phase 6: Polish & MVP 0 Validation** 🚧 In Progress
+**Status:** All 46 tasks complete, all acceptance test issues resolved, deployed to production.
 
-**Structure (v1.1.1 - Updated 2026-10-07):**
-- Section 6.0: Critical Styling Fixes (BLOCKING) ✅ **COMPLETE**
-  - ✅ Task 6.0.1: Fix Double/Triple Padding Bug (1h)
-  - ✅ Task 6.0.2: Convert to CSS Modules (8-9h) - Architecture improved
-- Section 6.1: UX Polish (reordered)
-  - ✅ Task 6.1.4: Responsive Design Testing (5h) - MOVED UP, **COMPLETE**
-  - ✅ Task 6.1.2: Loading States and Feedback (3h) - **COMPLETE**
-  - ✅ Task 6.1.3: Accessibility Audit (4h) - **COMPLETE**
-  - ✅ Task 6.1.1: Empty States (3h) - OPTIONAL, **COMPLETE**
-  - ✅ Task 6.1.5: Settings Page (2h) - OPTIONAL, **COMPLETE**
-- Section 6.2: Performance
-  - ✅ Task 6.2.1: Performance Testing (3h) - **COMPLETE**
-- Section 6.3: Validation
-  - 📋 Task 6.3.1: Curator Acceptance Testing (2-4h) - READY (documentation prepared)
-  - Task 6.3.2: Bug Fixes from Validation (1-2 days)
+**Phase 6: Polish & MVP 0 Validation** ✅ **COMPLETE**
 
-**Architecture Note:** Task 6.0.2 updated to use CSS Modules instead of scoped `<style>` blocks for better maintainability and consistency. Component-centric organization with `.module.css` files.
+**All Sections Complete:**
+- Section 6.0: Critical Styling Fixes ✅
+  - ✅ Task 6.0.1: Fix Double/Triple Padding Bug
+  - ✅ Task 6.0.2: Convert to CSS Modules
+- Section 6.1: UX Polish ✅
+  - ✅ Task 6.1.4: Responsive Design Testing
+  - ✅ Task 6.1.2: Loading States and Feedback
+  - ✅ Task 6.1.3: Accessibility Audit
+  - ✅ Task 6.1.1: Empty States
+  - ✅ Task 6.1.5: Settings Page
+- Section 6.2: Performance ✅
+  - ✅ Task 6.2.1: Performance Testing
+- Section 6.3: Validation ✅
+  - ✅ Task 6.3.1: Curator Acceptance Testing
+  - ✅ Task 6.3.2: Bug Fixes from Validation (all issues resolved)
 
-**Next Task:** 6.3.1 - Curator Acceptance Testing (MVP 0 Validation)
+**Post-Deployment Enhancements (2026-10-11):**
+- ✅ Added Wikipedia lookup button to book detail pages
+- ✅ Split "Want to Read" by ownership status (On Your Shelf / To Acquire)
+- ✅ Changed sorting to author-based (family name, given name, title)
+- ✅ Improved mobile responsive layout for action buttons
+
+**Production Features:**
+- 643 books from Excel migration
+- Full CRUD for book management
+- Personal reading tracking
+- Search, filter, and sort
+- Reading Dashboard with prioritization
+- Statistics and insights
+- Mobile responsive
+- Accessibility compliant (WCAG 2.1 AA)
 
 ## Test Metrics
 
@@ -114,8 +129,15 @@
 ## MVP 0 Timeline
 
 **Estimated Total Effort:** 20-25 days (160-200 hours)  
-**Completed:** ~12 days  
-**Remaining:** ~8-13 days
+**Actual:** ~13 days (2026-09-28 to 2026-10-11)  
+**Status:** ✅ COMPLETE AND DEPLOYED
+
+**Deployment:**
+- Platform: Vercel (free tier)
+- Database: Supabase (free tier)
+- URL: https://reading-canon.vercel.app/
+- CI/CD: GitHub Actions → Vercel auto-deploy
+- Cost: $0/month
 
 ## Quality Metrics
 
