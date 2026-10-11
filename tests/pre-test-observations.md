@@ -34,24 +34,22 @@ These issues were noticed during initial exploration before the formal acceptanc
 
 ---
 
-### 3. Missing Wikipedia Links from Excel Migration
+### 3. ~~Missing Wikipedia Links from Excel Migration~~
 
-**Description:** The Excel file contained hyperlinks for authors and books to Wikipedia pages. These were embedded in:
-- Author column (author Wikipedia links)
-- Title (EN) column (book Wikipedia links)
-- Original Title column (book Wikipedia links)
+**Status:** ✅ RESOLVED (2026-10-11) - Better solution implemented
 
-These links were not extracted during the data migration.
+**Description:** The Excel file contained hyperlinks for authors and books to Wikipedia pages embedded in various columns.
 
-**Impact:** Lost valuable reference data. Need to determine if:
-- Links should be re-migrated from Excel
-- Links should be manually re-added
-- This is acceptable loss
+**Resolution:** Instead of re-migrating static Wikipedia links, added a dynamic Wikipedia search button to all book detail pages. This button:
+- Opens Wikipedia search with book title and author
+- Works for ALL books (not just those with curated links)
+- Never outdated or broken
+- Positioned in top action bar for easy access
 
-**Validation During Test:**
-- Check several book detail pages for external references
-- Note which books you know had Wikipedia links in Excel
-- Assess how much you miss having these links
+**Better than static links because:**
+- Always available for every book
+- Never breaks (dynamic search vs. static URL)
+- Simpler UX (one button vs. managing reference URLs)
 
 **Category:** Data Migration / External References
 

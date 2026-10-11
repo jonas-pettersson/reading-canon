@@ -8,8 +8,11 @@ A curated reading companion application for tracking and exploring significant l
 
 Reading Canon transforms a carefully curated collection of books into a personal reading companion that helps readers discover, prioritize, read, and reflect on significant works. This project is also a learning exercise in practicing an AI-native software development lifecycle with clear requirements, traceable decisions, and documented architecture.
 
-**Current Status:** MVP 0 in progress  
-📊 **Detailed Progress:** See [STATUS.md](STATUS.md) for current phase, tasks, and test metrics
+**Current Status:** ✅ MVP 0 Deployed to Production  
+🚀 **Live App:** https://reading-canon.vercel.app/  
+📊 **Detailed Progress:** See [STATUS.md](STATUS.md) for complete development history
+
+**Production Release:** 2026-10-11
 
 ## Core Concepts
 
@@ -40,7 +43,26 @@ Reading Canon transforms a carefully curated collection of books into a personal
 
 See [adr/README.md](adr/README.md) for complete architecture documentation.
 
-## Getting Started
+## Production Deployment
+
+**Live Application:** https://reading-canon.vercel.app/
+
+The application is deployed to Vercel with continuous deployment from the `master` branch. Every push triggers:
+1. GitHub Actions CI (tests and lint)
+2. Automatic Vercel deployment (if CI passes)
+
+**Deployment Details:**
+- **Platform:** Vercel (free tier)
+- **Database:** Supabase PostgreSQL
+- **Domain:** reading-canon.vercel.app
+- **CI/CD:** GitHub Actions → Vercel
+- **Cost:** $0/month
+
+**Deployment Documentation:**
+- [DEPLOYMENT.md](DEPLOYMENT.md) - Complete deployment guide
+- [DEPLOYMENT-SUCCESS.md](DEPLOYMENT-SUCCESS.md) - Production deployment details
+
+## Local Development Setup
 
 ### Prerequisites
 - Node.js 20.x or later
@@ -162,6 +184,7 @@ Private project for personal use.
 
 ---
 
-**Last Updated:** 2026-10-05  
-**Project Phase:** MVP 0 Implementation - Phase 3 Book Curation  
-**For detailed status:** See [STATUS.md](STATUS.md)
+**Last Updated:** 2026-10-11  
+**Project Status:** ✅ MVP 0 Complete and Deployed  
+**Production URL:** https://reading-canon.vercel.app/  
+**For detailed history:** See [STATUS.md](STATUS.md)

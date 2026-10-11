@@ -1,9 +1,10 @@
 # Curator Acceptance Testing Checklist
 
-**Date:** 2026-10-09  
+**Date:** 2026-10-09 (Initial), 2026-10-11 (Production Deployed)  
 **Phase:** MVP 0 Validation  
 **Task:** 6.3.1 - Curator Acceptance Testing  
-**Duration:** 2-4 hours
+**Duration:** 2-4 hours  
+**Production URL:** https://reading-canon.vercel.app/
 
 ---
 
@@ -427,7 +428,7 @@ Quick actions on the Reading Dashboard and auto-save make updating status much f
 Based on the feedback above, list action items by priority:
 
 ### Blocking Issues (Must fix before MVP 0 release)
-1. **Deploy application to production environment** - Running locally is not practical for day-to-day use
+1. ~~**Deploy application to production environment** - Running locally is not practical for day-to-day use~~ **DEPLOYED (2026-10-11)** - Production URL: https://reading-canon.vercel.app/
 2. 
 3. 
 

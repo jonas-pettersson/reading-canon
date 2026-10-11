@@ -6,7 +6,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Reading Canon is a curated reading companion application for tracking and exploring significant literary works. This project demonstrates an AI-native development lifecycle with clear requirements, traceable decisions, and documented architecture.
 
-**See STATUS.md for current phase and next task.**
+**Status:** ✅ MVP 0 Complete and Deployed (2026-10-11)  
+**Production:** https://reading-canon.vercel.app/  
+**See STATUS.md for complete development history.**
 
 ## Document Hierarchy and Authority
 
@@ -140,4 +142,5 @@ After completing a major task (implementation tasks from plan-mvp0.md with passi
 
 ---
 
-**Last Updated:** 2026-10-05 (Removed redundancies - content now in authoritative docs)
+**Last Updated:** 2026-10-11 (MVP 0 deployed to production)  
+**Production URL:** https://reading-canon.vercel.app/
