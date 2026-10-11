@@ -222,6 +222,19 @@
 
   .actions {
     flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .button {
+    flex: 1 1 calc(50% - 0.25rem); /* 2 buttons per row on mobile */
+    min-width: 0; /* Allow buttons to shrink */
+    padding: 0.5rem 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  /* Back button takes full width on mobile */
+  .buttonBack {
+    flex: 1 1 100%;
   }
 }
 
