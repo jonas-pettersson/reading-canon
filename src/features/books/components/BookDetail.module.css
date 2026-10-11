@@ -31,6 +31,21 @@
   border: 1px solid var(--border);
 }
 
+.buttonWikipedia {
+  background: white;
+  color: var(--text-h);
+  border: 1px solid #ddd;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.buttonWikipedia:hover {
+  background: var(--code-bg);
+  border-color: #999;
+}
+
 .buttonEdit {
   background: #007bff;
   color: white;
@@ -214,5 +229,15 @@
   .categoryBadge {
     background: rgba(25, 118, 210, 0.2);
     color: #66b3ff;
+  }
+
+  .buttonWikipedia {
+    background: var(--bg);
+    border-color: var(--border);
+  }
+
+  .buttonWikipedia:hover {
+    background: var(--code-bg);
+    border-color: #555;
   }
 }

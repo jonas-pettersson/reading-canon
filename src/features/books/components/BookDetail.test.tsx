@@ -169,13 +169,26 @@ describe('BookDetail', () => {
     it('should display external references as clickable links', () => {
       render(<BookDetail book={mockBook} />, { wrapper: createWrapper() })
 
+      // Get the External References section
+      const externalRefsHeading = screen.getByRole('heading', { name: /External References/i })
+      expect(externalRefsHeading).toBeInTheDocument()
+
+      // Check for Project Gutenberg link - should be unique
       const gutenbergLink = screen.getByRole('link', { name: /Project Gutenberg/i })
       expect(gutenbergLink).toBeInTheDocument()
       expect(gutenbergLink).toHaveAttribute('href', 'https://www.gutenberg.org/ebooks/1727')
 
-      const wikipediaLink = screen.getByRole('link', { name: /Wikipedia/i })
-      expect(wikipediaLink).toBeInTheDocument()
-      expect(wikipediaLink).toHaveAttribute('href', 'https://en.wikipedia.org/wiki/Iliad')
+      // Check for Wikipedia external reference link (not the action button)
+      const allWikipediaLinks = screen.getAllByRole('link', { name: /Wikipedia/i })
+      // Should have 2 Wikipedia links: one in actions, one in External References
+      expect(allWikipediaLinks.length).toBe(2)
+
+      // Find the external reference Wikipedia link (has the specific URL)
+      const wikipediaExternalLink = allWikipediaLinks.find(
+        link => link.getAttribute('href') === 'https://en.wikipedia.org/wiki/Iliad'
+      )
+      expect(wikipediaExternalLink).toBeDefined()
+      expect(wikipediaExternalLink).toHaveAttribute('href', 'https://en.wikipedia.org/wiki/Iliad')
     })
 
     it('should open external links in new tab', () => {
@@ -203,9 +216,13 @@ describe('BookDetail', () => {
       }
       render(<BookDetail book={bookWithoutRefs} />)
 
-      // Should not crash, and should not display references section
-      const links = screen.queryAllByRole('link', { name: /Project Gutenberg|Wikipedia/i })
-      expect(links).toHaveLength(0)
+      // Should not crash, and should not display External References section
+      const externalRefsHeading = screen.queryByRole('heading', { name: /External References/i })
+      expect(externalRefsHeading).not.toBeInTheDocument()
+
+      // But Wikipedia action button should still be present
+      const wikipediaButton = screen.getByRole('link', { name: /Wikipedia/i })
+      expect(wikipediaButton).toBeInTheDocument()
     })
 
     it('should handle books with undefined external references', () => {

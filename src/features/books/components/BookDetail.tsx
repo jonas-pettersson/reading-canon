@@ -37,6 +37,10 @@ export function BookDetail({ book, onBack, onEdit, onDelete }: BookDetailProps) 
       : book.year_sort.toString()
     : null
 
+  // Generate Wikipedia search URL
+  const searchQuery = `${book.title} ${book.author_display_name}`
+  const wikipediaUrl = `https://en.wikipedia.org/w/index.php?search=${encodeURIComponent(searchQuery)}`
+
   return (
     <article className={styles.container}>
       {/* Action buttons */}
@@ -44,6 +48,15 @@ export function BookDetail({ book, onBack, onEdit, onDelete }: BookDetailProps) 
         <button onClick={onBack} className={`${styles.button} ${styles.buttonBack}`}>
           ← Back to Collection
         </button>
+        <a
+          href={wikipediaUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`${styles.button} ${styles.buttonWikipedia}`}
+          title="Search Wikipedia for this book"
+        >
+          📚 Wikipedia
+        </a>
         <button onClick={onEdit} className={`${styles.button} ${styles.buttonEdit}`}>
           Edit
         </button>
