@@ -10,6 +10,7 @@ type ReadingStatus = Database['public']['Enums']['reading_status_enum']
 export type ReadingBook = Book & {
   started_at?: string | null
   reading_status: ReadingStatus
+  ownership_status?: string | null
 }
 
 /**
@@ -61,6 +62,7 @@ export function useReadingBooks() {
 /**
  * Fetch books the user wants to read.
  * Returns books with reading_status = "want_to_read", ordered by book title.
+ * Includes ownership_status for filtering.
  */
 export function useWantToReadBooks() {
   return useQuery({
@@ -69,7 +71,7 @@ export function useWantToReadBooks() {
       // First, get user reading status for "want_to_read" books
       const { data: statusData, error: statusError } = await supabase
         .from('user_reading_status')
-        .select('book_id, reading_status')
+        .select('book_id, reading_status, ownership_status')
         .eq('reading_status', 'want_to_read')
 
       if (statusError) throw statusError
@@ -84,7 +86,7 @@ export function useWantToReadBooks() {
 
       if (booksError) throw booksError
 
-      // Combine books with their status info
+      // Combine books with their status and ownership info
       const booksMap = new Map(booksData?.map((b) => [b.id, b]) || [])
       const result = statusData
         .map((status) => {
@@ -93,6 +95,7 @@ export function useWantToReadBooks() {
           return {
             ...book,
             reading_status: status.reading_status,
+            ownership_status: status.ownership_status,
           } as ReadingBook
         })
         .filter((b): b is ReadingBook => b !== null)

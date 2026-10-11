@@ -37,6 +37,14 @@ export function ReadingDashboardPage() {
   const readingBooks = readingQuery.data || []
   const wantToReadBooks = wantToReadQuery.data || []
 
+  // Split want-to-read books by ownership status
+  const ownedBooks = wantToReadBooks.filter(
+    (book) => book.ownership_status === 'owned_physical' || book.ownership_status === 'owned_digital'
+  )
+  const notOwnedBooks = wantToReadBooks.filter(
+    (book) => book.ownership_status !== 'owned_physical' && book.ownership_status !== 'owned_digital'
+  )
+
   return (
     <div className={styles.pageContainer}>
       <h1 className={styles.pageTitle}>Reading Dashboard</h1>
@@ -72,14 +80,15 @@ export function ReadingDashboardPage() {
         )}
       </section>
 
-      {/* Want to Read Section */}
-      <section>
-        <h2 className={styles.sectionTitle}>Want to Read</h2>
-        {wantToReadBooks.length === 0 ? (
+      {/* On Your Shelf Section (Want to Read + Owned) */}
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>On Your Shelf</h2>
+        <p className={styles.sectionSubtitle}>Books you want to read that you already own</p>
+        {ownedBooks.length === 0 ? (
           <EmptyState
-            icon="📋"
-            title="Want to Read list is empty"
-            message="Add books from your collection that you'd like to read next. This helps you decide what to read!"
+            icon="📚"
+            title="No owned books in your Want to Read list"
+            message="Mark owned books as 'Want to Read' to see them here. These are books you can start reading right away!"
             action={{
               label: 'Browse Collection',
               onClick: () => navigate('/'),
@@ -87,7 +96,35 @@ export function ReadingDashboardPage() {
           />
         ) : (
           <div className={styles.cardList}>
-            {wantToReadBooks.map((book) => (
+            {ownedBooks.map((book) => (
+              <WantToReadBookCard
+                key={book.id}
+                book={book}
+                onStatusChange={(status) =>
+                  updateStatus.mutate({
+                    bookId: book.id,
+                    updates: { reading_status: status },
+                  })
+                }
+              />
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* To Acquire Section (Want to Read + Not Owned) */}
+      <section>
+        <h2 className={styles.sectionTitle}>To Acquire</h2>
+        <p className={styles.sectionSubtitle}>Books you want to read but need to acquire</p>
+        {notOwnedBooks.length === 0 ? (
+          <EmptyState
+            icon="📋"
+            title="No books to acquire"
+            message="Books you want to read but don't own yet will appear here."
+          />
+        ) : (
+          <div className={styles.cardList}>
+            {notOwnedBooks.map((book) => (
               <WantToReadBookCard
                 key={book.id}
                 book={book}

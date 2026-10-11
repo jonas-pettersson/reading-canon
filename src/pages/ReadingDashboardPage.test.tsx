@@ -82,7 +82,7 @@ describe('ReadingDashboardPage', () => {
     })
   })
 
-  it('displays want to read books', async () => {
+  it('displays want to read books split by ownership', async () => {
     const mockWantToReadBooks: ReadingBook[] = [
       {
         id: 'book-1',
@@ -90,6 +90,7 @@ describe('ReadingDashboardPage', () => {
         author_display_name: 'Harper Lee',
         year_sort: 1960,
         reading_status: 'want_to_read',
+        ownership_status: 'owned_physical',
       } as ReadingBook,
       {
         id: 'book-2',
@@ -97,6 +98,7 @@ describe('ReadingDashboardPage', () => {
         author_display_name: 'George Orwell',
         year_sort: 1949,
         reading_status: 'want_to_read',
+        ownership_status: 'not_owned',
       } as ReadingBook,
     ]
 
@@ -115,7 +117,10 @@ describe('ReadingDashboardPage', () => {
     renderPage()
 
     await waitFor(() => {
-      expect(screen.getByText('Want to Read')).toBeInTheDocument()
+      // Check for new section titles
+      expect(screen.getByText('On Your Shelf')).toBeInTheDocument()
+      expect(screen.getByText('To Acquire')).toBeInTheDocument()
+      // Both books should be visible
       expect(screen.getByText('To Kill a Mockingbird')).toBeInTheDocument()
       expect(screen.getByText('1984')).toBeInTheDocument()
     })
@@ -157,7 +162,9 @@ describe('ReadingDashboardPage', () => {
     renderPage()
 
     await waitFor(() => {
-      expect(screen.getByText(/want to read list is empty/i)).toBeInTheDocument()
+      // Both sections should show empty states
+      expect(screen.getByText(/no owned books in your want to read list/i)).toBeInTheDocument()
+      expect(screen.getByText(/no books to acquire/i)).toBeInTheDocument()
     })
   })
 
