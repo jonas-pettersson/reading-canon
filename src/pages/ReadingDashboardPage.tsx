@@ -37,12 +37,36 @@ export function ReadingDashboardPage() {
   const readingBooks = readingQuery.data || []
   const wantToReadBooks = wantToReadQuery.data || []
 
-  // Split want-to-read books by ownership status
-  const ownedBooks = wantToReadBooks.filter(
-    (book) => book.ownership_status === 'owned_physical' || book.ownership_status === 'owned_digital'
+  // Helper function to sort books by author (family_name, given_name, title)
+  const sortByAuthor = (books: typeof wantToReadBooks) => {
+    return [...books].sort((a, b) => {
+      // Sort by family_name first (if available)
+      const familyA = a.family_name || a.author_display_name || ''
+      const familyB = b.family_name || b.author_display_name || ''
+      const familyCompare = familyA.localeCompare(familyB)
+      if (familyCompare !== 0) return familyCompare
+
+      // Then by given_name (if available)
+      const givenA = a.given_name || ''
+      const givenB = b.given_name || ''
+      const givenCompare = givenA.localeCompare(givenB)
+      if (givenCompare !== 0) return givenCompare
+
+      // Finally by title
+      return a.title.localeCompare(b.title)
+    })
+  }
+
+  // Split want-to-read books by ownership status and sort each section
+  const ownedBooks = sortByAuthor(
+    wantToReadBooks.filter(
+      (book) => book.ownership_status === 'owned_physical' || book.ownership_status === 'owned_digital'
+    )
   )
-  const notOwnedBooks = wantToReadBooks.filter(
-    (book) => book.ownership_status !== 'owned_physical' && book.ownership_status !== 'owned_digital'
+  const notOwnedBooks = sortByAuthor(
+    wantToReadBooks.filter(
+      (book) => book.ownership_status !== 'owned_physical' && book.ownership_status !== 'owned_digital'
+    )
   )
 
   return (
