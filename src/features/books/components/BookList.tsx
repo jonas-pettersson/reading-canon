@@ -246,10 +246,10 @@ export function BookList({
     )
   }
 
-  // Format year for display
+  // Format year for display (hide if missing)
   const formatYear = (book: Book) => {
-    if (!book.year_sort) return 'Unknown'
-    return book.year_sort < 0 ? `${Math.abs(book.year_sort)} BCE` : book.year_sort
+    if (!book.year_sort) return ''
+    return book.year_sort < 0 ? `${Math.abs(book.year_sort)} BCE` : book.year_sort.toString()
   }
 
   // Table view

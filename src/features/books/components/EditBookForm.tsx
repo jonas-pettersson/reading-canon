@@ -5,6 +5,7 @@ import { useState } from 'react'
 import ISO6391 from 'iso-639-1'
 import { useUpdateBook, type UpdateBookInput } from '../hooks/useUpdateBook'
 import { PRIMARY_CATEGORIES } from '@/constants/categories'
+import { parseYearSort } from '@/utils/yearParser'
 import type { Database } from '@/types/database'
 import styles from './BookForm.module.css'
 
@@ -159,6 +160,7 @@ export function EditBookForm({ book, externalReferences, onSuccess, onCancel }: 
         family_name: data.family_name || null,
         title_original: data.title_original || null,
         year_published: data.year_published || null,
+        year_sort: parseYearSort(data.year_published),
         primary_category: data.primary_category || null,
         tags: tags || null,
         original_language: data.original_language || null,

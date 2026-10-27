@@ -7,6 +7,7 @@ import { useCreateBook, type CreateBookInput } from '../hooks/useCreateBook'
 import { useDuplicateDetection } from '../hooks/useDuplicateDetection'
 import { useBook } from '../hooks/useBook'
 import { PRIMARY_CATEGORIES } from '@/constants/categories'
+import { parseYearSort } from '@/utils/yearParser'
 import type { Database } from '@/types/database'
 import styles from './BookForm.module.css'
 
@@ -165,6 +166,7 @@ export function AddBookForm({ onSuccess, onCancel, copyFromId }: AddBookFormProp
         family_name: data.family_name || null,
         title_original: data.title_original || null,
         year_published: data.year_published || null,
+        year_sort: parseYearSort(data.year_published),
         primary_category: data.primary_category || null,
         tags: tags || null,
         original_language: data.original_language || null,

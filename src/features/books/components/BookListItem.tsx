@@ -40,12 +40,12 @@ export const BookListItem = forwardRef<HTMLDivElement, BookListItemProps>(
       }
     }
 
-    // Format year display
+    // Format year display (hide if missing)
     const yearDisplay = book.year_sort
       ? book.year_sort < 0
         ? `${Math.abs(book.year_sort)} BCE`
         : book.year_sort
-      : 'Unknown'
+      : null
 
     // When clickable, wrap in a div with button role (article can't have button role)
     const content = (
@@ -63,7 +63,7 @@ export const BookListItem = forwardRef<HTMLDivElement, BookListItemProps>(
 
         {/* Year and Category */}
         <div className={styles.metaRow}>
-          <span className={styles.year}>{yearDisplay}</span>
+          {yearDisplay && <span className={styles.year}>{yearDisplay}</span>}
 
           {book.primary_category && (
             <span data-testid="category-badge" className={styles.categoryBadge}>

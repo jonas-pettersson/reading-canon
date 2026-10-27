@@ -53,7 +53,7 @@ describe('BookListItem', () => {
       expect(screen.getByText('1984')).toBeInTheDocument()
     })
 
-    it('should display "Unknown" when year is missing', () => {
+    it('should hide year when it is missing', () => {
       const bookWithoutYear: Book = {
         ...mockBook,
         year_sort: null,
@@ -61,7 +61,11 @@ describe('BookListItem', () => {
 
       render(<BookListItem book={bookWithoutYear} />)
 
-      expect(screen.getByText('Unknown')).toBeInTheDocument()
+      // Year should not be displayed (no "Unknown" text)
+      expect(screen.queryByText('Unknown')).not.toBeInTheDocument()
+      // Only category badge should be visible in metaRow
+      const categoryBadge = screen.getByTestId('category-badge')
+      expect(categoryBadge).toBeInTheDocument()
     })
   })
 
@@ -164,10 +168,11 @@ describe('BookListItem', () => {
 
       render(<BookListItem book={minimalBook} />)
 
-      // Should still render with required fields
+      // Should still render with required fields only
       expect(screen.getByText('The Iliad')).toBeInTheDocument()
       expect(screen.getByText('Homer')).toBeInTheDocument()
-      expect(screen.getByText('Unknown')).toBeInTheDocument()
+      // No year display (previously showed "Unknown")
+      expect(screen.queryByText('Unknown')).not.toBeInTheDocument()
     })
   })
 
