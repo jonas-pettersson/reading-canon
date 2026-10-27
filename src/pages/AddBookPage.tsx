@@ -1,4 +1,4 @@
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom'
 import { AddBookForm } from '@/features/books/components/AddBookForm'
 import type { Database } from '@/types/database'
 
@@ -10,22 +10,36 @@ type Book = Database['public']['Tables']['books']['Row']
  * Features:
  * - Displays AddBookForm component
  * - Redirects to book detail page on successful creation
- * - Returns to collection page on cancel
+ * - Returns to collection page on cancel (or source book if copying)
  * - Supports copying from existing book via ?copyFrom=<bookId> query parameter
+ * - Preserves origin state for proper back navigation
  */
 export function AddBookPage() {
   const navigate = useNavigate()
+  const location = useLocation()
   const [searchParams] = useSearchParams()
   const copyFromId = searchParams.get('copyFrom')
 
+  // Get the origin path from location state (preserve for back navigation)
+  const originPath = (location.state as { from?: string })?.from
+
   const handleSuccess = (book: Book) => {
-    // Redirect to the newly created book's detail page
-    navigate(`/books/${book.id}`)
+    // Redirect to the newly created book's detail page, preserving origin
+    navigate(`/books/${book.id}`, {
+      state: originPath ? { from: originPath } : undefined
+    })
   }
 
   const handleCancel = () => {
-    // Return to collection page
-    navigate('/')
+    // If copying, go back to the source book (with origin preserved)
+    // Otherwise, return to collection page
+    if (copyFromId) {
+      navigate(`/books/${copyFromId}`, {
+        state: originPath ? { from: originPath } : undefined
+      })
+    } else {
+      navigate('/')
+    }
   }
 
   return (

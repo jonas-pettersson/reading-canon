@@ -181,7 +181,7 @@ function ReadingBookCard({
     <div className={styles.bookCard}>
       <div className={styles.bookCardContent}>
         <div className={styles.bookInfo}>
-          <Link to={`/books/${book.id}`} className={styles.bookLink}>
+          <Link to={`/books/${book.id}`} state={{ from: '/dashboard' }} className={styles.bookLink}>
             {book.title}
           </Link>
           <p className={styles.bookAuthor}>
@@ -229,7 +229,7 @@ function WantToReadBookCard({
     <div className={styles.bookCard}>
       <div className={styles.bookCardContent}>
         <div className={styles.bookInfo}>
-          <Link to={`/books/${book.id}`} className={styles.bookLink}>
+          <Link to={`/books/${book.id}`} state={{ from: '/dashboard' }} className={styles.bookLink}>
             {book.title}
           </Link>
           <p className={styles.bookAuthor}>

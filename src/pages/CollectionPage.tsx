@@ -73,9 +73,9 @@ export function CollectionPage() {
     setFilters(newFilters)
   }
 
-  // Handle book click - navigate to detail page
+  // Handle book click - navigate to detail page with origin tracking
   const handleBookClick = (bookId: string) => {
-    navigate(`/books/${bookId}`)
+    navigate(`/books/${bookId}`, { state: { from: '/collection' } })
   }
 
   // Check if any filters are active

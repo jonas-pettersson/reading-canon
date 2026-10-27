@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { useBook } from '@/features/books/hooks/useBook'
 import { useDeleteBook } from '@/features/books/hooks/useDeleteBook'
 import { BookDetail } from '@/features/books/components/BookDetail'
@@ -19,32 +19,30 @@ import { ConfirmDialog } from '@/components/ConfirmDialog'
 export function BookDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const location = useLocation()
   const { data: book, isLoading, error } = useBook(id || '')
   const deleteBook = useDeleteBook()
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
-  // Handle back navigation - use browser history with fallback
+  // Get the origin path from location state (where user came from)
+  const originPath = (location.state as { from?: string })?.from || '/collection'
+
+  // Handle back navigation - go to the list view we came from
   const handleBack = () => {
-    // Check if there's history to go back to
-    if (window.history.length > 1) {
-      navigate(-1)
-    } else {
-      // Fallback to collection if no history (e.g., direct link)
-      navigate('/collection')
-    }
+    navigate(originPath)
   }
 
-  // Handle edit navigation (for Phase 3)
+  // Handle edit navigation - preserve origin in state
   const handleEdit = () => {
     if (id) {
-      navigate(`/books/${id}/edit`)
+      navigate(`/books/${id}/edit`, { state: { from: originPath } })
     }
   }
 
-  // Handle copy navigation
+  // Handle copy navigation - preserve origin in state
   const handleCopy = () => {
     if (id) {
-      navigate(`/books/new?copyFrom=${id}`)
+      navigate(`/books/new?copyFrom=${id}`, { state: { from: originPath } })
     }
   }
 
@@ -53,12 +51,12 @@ export function BookDetailPage() {
     setIsDeleteDialogOpen(true)
   }
 
-  // Handle delete confirmation - delete book and redirect
+  // Handle delete confirmation - delete book and redirect to origin list
   const handleConfirmDelete = () => {
     if (id) {
       deleteBook.mutate(id, {
         onSuccess: () => {
-          navigate('/collection')
+          navigate(originPath)
         },
       })
     }

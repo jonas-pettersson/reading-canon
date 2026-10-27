@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { useBook } from '@/features/books/hooks/useBook'
 import { EditBookForm } from '@/features/books/components/EditBookForm'
 import type { Database } from '@/types/database'
@@ -13,22 +13,30 @@ type Book = Database['public']['Tables']['books']['Row']
  * - Fetches book data with external references
  * - Displays EditBookForm component
  * - Handles loading, error, and not-found states
- * - Navigates to detail view on success or cancel
+ * - Navigates to detail view on success or cancel, preserving origin state
  */
 export function EditBookPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const location = useLocation()
   const { data: book, isLoading, error } = useBook(id || '')
 
-  // Handle successful update
+  // Get the origin path from location state (preserve for back navigation)
+  const originPath = (location.state as { from?: string })?.from
+
+  // Handle successful update - navigate back to detail with origin preserved
   const handleSuccess = (updatedBook: Book) => {
-    navigate(`/books/${updatedBook.id}`)
+    navigate(`/books/${updatedBook.id}`, {
+      state: originPath ? { from: originPath } : undefined
+    })
   }
 
-  // Handle cancel
+  // Handle cancel - navigate back to detail with origin preserved
   const handleCancel = () => {
     if (id) {
-      navigate(`/books/${id}`)
+      navigate(`/books/${id}`, {
+        state: originPath ? { from: originPath } : undefined
+      })
     } else {
       navigate('/collection')
     }
