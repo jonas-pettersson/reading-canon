@@ -6,6 +6,7 @@
  */
 export const PRIMARY_CATEGORIES = [
   'Novel',
+  'Short Story / Novella',
   'Play / Drama',
   'Poetry',
   'Philosophy',
