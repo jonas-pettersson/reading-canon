@@ -35,6 +35,13 @@ export function BookDetailPage() {
     }
   }
 
+  // Handle copy navigation
+  const handleCopy = () => {
+    if (id) {
+      navigate(`/books/new?copyFrom=${id}`)
+    }
+  }
+
   // Handle delete - open confirmation dialog
   const handleDelete = () => {
     setIsDeleteDialogOpen(true)
@@ -227,6 +234,7 @@ export function BookDetailPage() {
         book={book}
         onBack={handleBack}
         onEdit={handleEdit}
+        onCopy={handleCopy}
         onDelete={handleDelete}
       />
       <ConfirmDialog

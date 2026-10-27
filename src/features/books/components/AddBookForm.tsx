@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react'
 import ISO6391 from 'iso-639-1'
 import { useCreateBook, type CreateBookInput } from '../hooks/useCreateBook'
 import { useDuplicateDetection } from '../hooks/useDuplicateDetection'
+import { useBook } from '../hooks/useBook'
 import { PRIMARY_CATEGORIES } from '@/constants/categories'
 import type { Database } from '@/types/database'
 import styles from './BookForm.module.css'
@@ -68,19 +69,25 @@ type BookFormData = z.infer<typeof bookFormSchema>
 export interface AddBookFormProps {
   onSuccess: (book: Book) => void
   onCancel: () => void
+  copyFromId?: string
 }
 
-export function AddBookForm({ onSuccess, onCancel }: AddBookFormProps) {
+export function AddBookForm({ onSuccess, onCancel, copyFromId }: AddBookFormProps) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [debouncedTitle, setDebouncedTitle] = useState('')
   const [debouncedAuthor, setDebouncedAuthor] = useState('')
   const { mutate, isPending } = useCreateBook()
+  // Only fetch source book if copyFromId is provided
+  const { data: sourceBook } = useBook(copyFromId || '', {
+    enabled: !!copyFromId,
+  })
 
   const {
     register,
     control,
     handleSubmit,
     watch,
+    reset,
     formState: { errors },
   } = useForm<BookFormData>({
     resolver: zodResolver(bookFormSchema),
@@ -112,6 +119,32 @@ export function AddBookForm({ onSuccess, onCancel }: AddBookFormProps) {
     }, 500)
     return () => clearTimeout(timer)
   }, [author])
+
+  // Pre-populate form when copying from existing book
+  useEffect(() => {
+    if (sourceBook) {
+      reset({
+        title: '', // Clear title - force user to enter new one
+        author_display_name: sourceBook.author_display_name,
+        given_name: sourceBook.given_name || '',
+        family_name: sourceBook.family_name || '',
+        title_original: sourceBook.title_original || '',
+        year_published: sourceBook.year_published || '',
+        primary_category: sourceBook.primary_category || '',
+        tags: sourceBook.tags?.join(', ') || '',
+        original_language: sourceBook.original_language || '',
+        source: sourceBook.source || '',
+        inclusion_rationale: sourceBook.inclusion_rationale || '',
+        author_lifespan: sourceBook.author_lifespan || '',
+        online_book_url: sourceBook.online_book_url || '',
+        external_references: sourceBook.external_references?.map((ref) => ({
+          url: ref.url,
+          link_text: ref.link_text || '',
+          reference_type: ref.reference_type || '',
+        })) || [],
+      })
+    }
+  }, [sourceBook, reset])
 
   // Check for duplicates
   const { data: duplicates } = useDuplicateDetection(debouncedTitle, debouncedAuthor)

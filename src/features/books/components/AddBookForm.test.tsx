@@ -37,6 +37,18 @@ vi.mock('../hooks/useDuplicateDetection', () => ({
   useDuplicateDetection: (title: string, author: string) => mockUseDuplicateDetection(title, author),
 }))
 
+// Mock the useBook hook
+const mockUseBook = vi.fn((_id: string, _options?: any) => ({
+  data: undefined,
+  isLoading: false,
+  isError: false,
+  error: null,
+}))
+
+vi.mock('../hooks/useBook', () => ({
+  useBook: (id: string, options?: any) => mockUseBook(id, options),
+}))
+
 function renderWithProviders(ui: React.ReactElement) {
   const queryClient = new QueryClient({
     defaultOptions: {
@@ -63,6 +75,12 @@ describe('AddBookForm', () => {
     })
     mockUseDuplicateDetection.mockReturnValue({
       data: [],
+      isLoading: false,
+      isError: false,
+      error: null,
+    })
+    mockUseBook.mockReturnValue({
+      data: undefined,
       isLoading: false,
       isError: false,
       error: null,
@@ -721,6 +739,76 @@ describe('AddBookForm', () => {
       renderWithProviders(<AddBookForm onSuccess={() => {}} onCancel={() => {}} />)
 
       expect(screen.getByText(/you can still add this book if it's intentionally different/i)).toBeInTheDocument()
+    })
+  })
+
+  describe('Copy Book Functionality', () => {
+    it('should pre-populate form fields when copyFromId is provided', async () => {
+      // Mock useBook hook to return source book data
+      const mockSourceBook = {
+        id: 'source-book-id',
+        title: 'The Iliad',
+        author_display_name: 'Homer',
+        given_name: 'Homer',
+        family_name: null,
+        title_original: 'Ἰλιάς',
+        year_published: '8th century BCE',
+        primary_category: 'Epic',
+        tags: ['ancient', 'poetry'],
+        original_language: 'GR',
+        source: 'Test Source',
+        inclusion_rationale: 'Foundational epic',
+        author_lifespan: 'c. 8th century BCE',
+        online_book_url: 'https://example.com/iliad',
+        external_references: [
+          {
+            id: 'ref-1',
+            book_id: 'source-book-id',
+            url: 'https://example.com',
+            link_text: 'Example',
+            reference_type: 'Reference',
+            created_at: '2024-01-01T00:00:00Z',
+            created_by_user_id: null,
+          },
+        ],
+        created_at: '2024-01-01T00:00:00Z',
+        updated_at: '2024-01-01T00:00:00Z',
+        created_by_user_id: null,
+        year_sort: -800,
+      }
+
+      // Mock useBook to return the source book
+      mockUseBook.mockReturnValue({
+        data: mockSourceBook,
+        isLoading: false,
+        isError: false,
+        error: null,
+      })
+
+      renderWithProviders(<AddBookForm onSuccess={() => {}} onCancel={() => {}} copyFromId="source-book-id" />)
+
+      // Wait for form to be populated
+      await waitFor(() => {
+        // Title should be cleared (empty)
+        expect((screen.getByLabelText(/^title \*/i) as HTMLInputElement).value).toBe('')
+
+        // Other fields should be pre-populated
+        expect((screen.getByLabelText(/author display name/i) as HTMLInputElement).value).toBe('Homer')
+        expect((screen.getByLabelText(/given name/i) as HTMLInputElement).value).toBe('Homer')
+        expect((screen.getByLabelText(/original title/i) as HTMLInputElement).value).toBe('Ἰλιάς')
+        expect((screen.getByLabelText(/year published/i) as HTMLInputElement).value).toBe('8th century BCE')
+        expect((screen.getByLabelText(/tags/i) as HTMLInputElement).value).toBe('ancient, poetry')
+        expect((screen.getByLabelText(/online book url/i) as HTMLInputElement).value).toBe('https://example.com/iliad')
+      })
+    })
+
+    it('should not pre-populate form when copyFromId is not provided', () => {
+      renderWithProviders(<AddBookForm onSuccess={() => {}} onCancel={() => {}} />)
+
+      // All fields should be empty
+      expect((screen.getByLabelText(/^title \*/i) as HTMLInputElement).value).toBe('')
+      expect((screen.getByLabelText(/author display name/i) as HTMLInputElement).value).toBe('')
+      expect((screen.getByLabelText(/given name/i) as HTMLInputElement).value).toBe('')
     })
   })
 })

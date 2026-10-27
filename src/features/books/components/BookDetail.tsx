@@ -6,6 +6,7 @@ export interface BookDetailProps {
   book: BookWithReferences
   onBack?: () => void
   onEdit?: () => void
+  onCopy?: () => void
   onDelete?: () => void
 }
 
@@ -29,7 +30,7 @@ export interface BookDetailProps {
  *   onDelete={() => handleDelete()}
  * />
  */
-export function BookDetail({ book, onBack, onEdit, onDelete }: BookDetailProps) {
+export function BookDetail({ book, onBack, onEdit, onCopy, onDelete }: BookDetailProps) {
   // Format year display
   const yearDisplay = book.year_sort
     ? book.year_sort < 0
@@ -59,6 +60,9 @@ export function BookDetail({ book, onBack, onEdit, onDelete }: BookDetailProps) 
         </a>
         <button onClick={onEdit} className={`${styles.button} ${styles.buttonEdit}`}>
           Edit
+        </button>
+        <button onClick={onCopy} className={`${styles.button} ${styles.buttonEdit}`}>
+          Copy
         </button>
         <button onClick={onDelete} className={`${styles.button} ${styles.buttonDelete}`}>
           Delete
