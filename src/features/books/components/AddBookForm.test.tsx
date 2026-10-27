@@ -90,6 +90,7 @@ describe('AddBookForm', () => {
       expect(screen.getByLabelText(/source/i)).toBeInTheDocument()
       expect(screen.getByLabelText(/inclusion rationale/i)).toBeInTheDocument()
       expect(screen.getByLabelText(/author lifespan/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(/online book url/i)).toBeInTheDocument()
     })
 
     it('should render submit and cancel buttons', () => {
@@ -142,8 +143,8 @@ describe('AddBookForm', () => {
       await user.click(addButton)
 
       // Should have at least one set of reference fields
-      const urlInputs = screen.getAllByLabelText(/url/i)
-      expect(urlInputs.length).toBeGreaterThan(0)
+      // Check for the external reference URL field (labeled "URL *")
+      expect(screen.getByLabelText(/^URL \*/i)).toBeInTheDocument()
     })
 
     it('should allow removing external references', async () => {
@@ -158,8 +159,10 @@ describe('AddBookForm', () => {
       const removeButton = screen.getByRole('button', { name: /remove/i })
       await user.click(removeButton)
 
-      // Should not have any reference fields visible
-      expect(screen.queryByLabelText(/url/i)).not.toBeInTheDocument()
+      // Should not have any external reference URL fields visible (but Online Book URL should still be there)
+      expect(screen.queryByLabelText(/^URL \*/i)).not.toBeInTheDocument()
+      // Online Book URL should still be present
+      expect(screen.getByLabelText(/online book url/i)).toBeInTheDocument()
     })
 
     it('should render url, link text, and reference type fields for each reference', async () => {
@@ -169,7 +172,7 @@ describe('AddBookForm', () => {
       const addButton = screen.getByRole('button', { name: /add reference/i })
       await user.click(addButton)
 
-      expect(screen.getByLabelText(/url/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(/^URL \*/i)).toBeInTheDocument()
       expect(screen.getByLabelText(/link text/i)).toBeInTheDocument()
       expect(screen.getByLabelText(/reference type/i)).toBeInTheDocument()
     })
@@ -227,7 +230,7 @@ describe('AddBookForm', () => {
       const addButton = screen.getByRole('button', { name: /add reference/i })
       await user.click(addButton)
 
-      const urlInput = screen.getByLabelText(/url/i)
+      const urlInput = screen.getByLabelText(/^URL \*/i)
       await user.type(urlInput, 'not-a-valid-url')
 
       const submitButton = screen.getByRole('button', { name: /add book/i })
@@ -235,6 +238,48 @@ describe('AddBookForm', () => {
 
       await waitFor(() => {
         expect(screen.getByText(/valid url/i)).toBeInTheDocument()
+      })
+    })
+
+    it('should validate URL format for online book URL field', async () => {
+      const user = userEvent.setup()
+      renderWithProviders(<AddBookForm onSuccess={() => {}} onCancel={() => {}} />)
+
+      // Add required fields
+      await user.type(screen.getByLabelText(/^title \*/i), 'The Iliad')
+      await user.type(screen.getByLabelText(/author display name/i), 'Homer')
+
+      // Add invalid online book URL
+      const onlineUrlInput = screen.getByLabelText(/online book url/i)
+      await user.type(onlineUrlInput, 'not-a-valid-url')
+
+      const submitButton = screen.getByRole('button', { name: /add book/i })
+      await user.click(submitButton)
+
+      await waitFor(() => {
+        expect(screen.getByText(/valid url/i)).toBeInTheDocument()
+      })
+    })
+
+    it('should accept valid URL for online book URL field', async () => {
+      const user = userEvent.setup()
+      renderWithProviders(<AddBookForm onSuccess={() => {}} onCancel={() => {}} />)
+
+      // Add required fields
+      await user.type(screen.getByLabelText(/^title \*/i), 'The Iliad')
+      await user.type(screen.getByLabelText(/author display name/i), 'Homer')
+
+      // Add valid online book URL
+      const onlineUrlInput = screen.getByLabelText(/online book url/i)
+      await user.type(onlineUrlInput, 'https://www.gutenberg.org/ebooks/123')
+
+      const submitButton = screen.getByRole('button', { name: /add book/i })
+      await user.click(submitButton)
+
+      await waitFor(() => {
+        expect(mockMutate).toHaveBeenCalled()
+        const callArgs = mockMutate.mock.calls[0][0]
+        expect(callArgs.book.online_book_url).toBe('https://www.gutenberg.org/ebooks/123')
       })
     })
 
@@ -385,7 +430,7 @@ describe('AddBookForm', () => {
       const addButton = screen.getByRole('button', { name: /add reference/i })
       await user.click(addButton)
 
-      await user.type(screen.getByLabelText(/url/i), 'https://example.com')
+      await user.type(screen.getByLabelText(/^URL \*/i), 'https://example.com')
       await user.type(screen.getByLabelText(/link text/i), 'Example Link')
       await user.type(screen.getByLabelText(/reference type/i), 'analysis')
 

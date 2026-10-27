@@ -148,6 +148,22 @@ export function BookDetail({ book, onBack, onEdit, onDelete }: BookDetailProps) 
               <p className={styles.rationale}>{book.inclusion_rationale}</p>
             </div>
           )}
+
+          {/* Online Book URL */}
+          {book.online_book_url && (
+            <div className={styles.metadataItem}>
+              <span className={styles.label}>Read Online</span>
+              <a
+                href={book.online_book_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.externalLink}
+                title="Read this book online"
+              >
+                {book.online_book_url}
+              </a>
+            </div>
+          )}
         </div>
 
         {/* Right Column: Personal Reading Data (with notes) */}

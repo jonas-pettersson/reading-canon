@@ -49,6 +49,7 @@ export type Database = {
           given_name: string | null
           id: string
           inclusion_rationale: string | null
+          online_book_url: string | null
           original_language: string | null
           primary_category: string | null
           source: string | null
@@ -68,6 +69,7 @@ export type Database = {
           given_name?: string | null
           id?: string
           inclusion_rationale?: string | null
+          online_book_url?: string | null
           original_language?: string | null
           primary_category?: string | null
           source?: string | null
@@ -87,6 +89,7 @@ export type Database = {
           given_name?: string | null
           id?: string
           inclusion_rationale?: string | null
+          online_book_url?: string | null
           original_language?: string | null
           primary_category?: string | null
           source?: string | null

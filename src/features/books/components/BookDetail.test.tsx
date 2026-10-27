@@ -75,6 +75,7 @@ describe('BookDetail', () => {
     family_name: null,
     given_name: null,
     source: 'Project Gutenberg',
+    online_book_url: null,
     created_at: '2024-01-01T00:00:00Z',
     updated_at: '2024-01-01T00:00:00Z',
     created_by_user_id: null,
@@ -162,6 +163,25 @@ describe('BookDetail', () => {
       // Verify the "Why This Book?" label in left column
       expect(screen.getByText(/Why This Book\?/i)).toBeInTheDocument()
       expect(screen.getByText(/Foundational epic of Western literature/)).toBeInTheDocument()
+    })
+
+    it('should display online book URL when available', () => {
+      const bookWithOnlineUrl: BookWithReferences = {
+        ...mockBook,
+        online_book_url: 'https://www.gutenberg.org/ebooks/1727',
+      }
+      render(<BookDetail book={bookWithOnlineUrl} />, { wrapper: createWrapper() })
+
+      expect(screen.getByText(/Read Online/i)).toBeInTheDocument()
+      const link = screen.getByRole('link', { name: /gutenberg\.org/i })
+      expect(link).toHaveAttribute('href', 'https://www.gutenberg.org/ebooks/1727')
+      expect(link).toHaveAttribute('target', '_blank')
+      expect(link).toHaveAttribute('rel', 'noopener noreferrer')
+    })
+
+    it('should not display online book URL section when not available', () => {
+      render(<BookDetail book={mockBook} />, { wrapper: createWrapper() })
+      expect(screen.queryByText(/Read Online/i)).not.toBeInTheDocument()
     })
   })
 

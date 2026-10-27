@@ -47,6 +47,21 @@ const bookFormSchema = z.object({
   source: z.string().optional(),
   inclusion_rationale: z.string().optional(),
   author_lifespan: z.string().optional(),
+  online_book_url: z
+    .string()
+    .optional()
+    .refine(
+      (val) => {
+        if (!val || val.trim() === '') return true // Empty is valid
+        try {
+          new URL(val)
+          return true
+        } catch {
+          return false
+        }
+      },
+      { message: 'Must be a valid URL (e.g., https://example.com)' }
+    ),
   external_references: z.array(externalReferenceSchema).optional(),
 })
 
@@ -83,6 +98,7 @@ export function EditBookForm({ book, externalReferences, onSuccess, onCancel }: 
       source: book.source || '',
       inclusion_rationale: book.inclusion_rationale || '',
       author_lifespan: book.author_lifespan || '',
+      online_book_url: book.online_book_url || '',
       external_references: externalReferences.map((ref) => ({
         _dbId: ref.id,
         url: ref.url,
@@ -149,6 +165,7 @@ export function EditBookForm({ book, externalReferences, onSuccess, onCancel }: 
         source: data.source || null,
         inclusion_rationale: data.inclusion_rationale || null,
         author_lifespan: data.author_lifespan || null,
+        online_book_url: data.online_book_url || null,
       },
       externalReferences: {
         toAdd: toAdd.length > 0 ? toAdd : undefined,
@@ -375,6 +392,25 @@ export function EditBookForm({ book, externalReferences, onSuccess, onCancel }: 
             rows={4}
             className={styles.input}
           />
+        </div>
+
+        <div>
+          <label htmlFor="online_book_url" className={styles.label}>
+            Online Book URL
+          </label>
+          <input
+            id="online_book_url"
+            type="text"
+            {...register('online_book_url')}
+            placeholder="https://www.gutenberg.org/..."
+            aria-describedby={errors.online_book_url ? 'online_book_url-error' : undefined}
+            className={styles.input}
+          />
+          {errors.online_book_url && (
+            <p id="online_book_url-error" className={styles.errorMessage}>
+              {errors.online_book_url.message}
+            </p>
+          )}
         </div>
       </div>
 
