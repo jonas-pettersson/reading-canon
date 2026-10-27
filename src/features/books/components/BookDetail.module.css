@@ -232,9 +232,11 @@
     font-size: 0.875rem;
   }
 
-  /* Back button takes full width on mobile */
+  /* Back button is less prominent on mobile - same size as other buttons */
   .buttonBack {
-    flex: 1 1 100%;
+    flex: 1 1 calc(50% - 0.25rem);
+    font-size: 0.8125rem; /* Slightly smaller text */
+    font-weight: 400; /* Less bold */
   }
 }
 

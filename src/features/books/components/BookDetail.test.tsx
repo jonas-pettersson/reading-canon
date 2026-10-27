@@ -347,7 +347,7 @@ describe('BookDetail', () => {
   describe('Navigation', () => {
     it('should render back button', () => {
       render(<BookDetail book={mockBook} />, { wrapper: createWrapper() })
-      const backButton = screen.getByRole('button', { name: /back to collection/i })
+      const backButton = screen.getByRole('button', { name: /back/i })
       expect(backButton).toBeInTheDocument()
     })
 
@@ -357,7 +357,7 @@ describe('BookDetail', () => {
 
       render(<BookDetail book={mockBook} onBack={onBack} />, { wrapper: createWrapper() })
 
-      const backButton = screen.getByRole('button', { name: /back to collection/i })
+      const backButton = screen.getByRole('button', { name: /back/i })
       await user.click(backButton)
 
       expect(onBack).toHaveBeenCalledTimes(1)
@@ -412,7 +412,7 @@ describe('BookDetail', () => {
       // All key content should be present
       expect(screen.getByText('The Iliad')).toBeInTheDocument()
       expect(screen.getByText(/Homer/)).toBeInTheDocument()
-      expect(screen.getByRole('button', { name: /back to collection/i })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /back/i })).toBeInTheDocument()
     })
   })
 

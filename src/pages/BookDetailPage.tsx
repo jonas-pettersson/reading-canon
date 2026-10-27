@@ -23,9 +23,15 @@ export function BookDetailPage() {
   const deleteBook = useDeleteBook()
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
-  // Handle back navigation
+  // Handle back navigation - use browser history with fallback
   const handleBack = () => {
-    navigate('/collection')
+    // Check if there's history to go back to
+    if (window.history.length > 1) {
+      navigate(-1)
+    } else {
+      // Fallback to collection if no history (e.g., direct link)
+      navigate('/collection')
+    }
   }
 
   // Handle edit navigation (for Phase 3)

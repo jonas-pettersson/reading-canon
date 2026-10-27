@@ -235,7 +235,7 @@ describe('BookDetailPage', () => {
         expect(screen.getByText('The Odyssey')).toBeInTheDocument()
       })
 
-      const backButton = screen.getByRole('button', { name: /back to collection/i })
+      const backButton = screen.getByRole('button', { name: /back/i })
       expect(backButton).toBeInTheDocument()
     })
 

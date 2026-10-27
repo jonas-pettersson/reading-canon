@@ -47,7 +47,7 @@ export function BookDetail({ book, onBack, onEdit, onCopy, onDelete }: BookDetai
       {/* Action buttons */}
       <div className={styles.actions}>
         <button onClick={onBack} className={`${styles.button} ${styles.buttonBack}`}>
-          ← Back to Collection
+          ← Back
         </button>
         <a
           href={wikipediaUrl}
