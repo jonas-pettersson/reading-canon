@@ -3,7 +3,7 @@
 **Current Phase:** ✅ MVP 0 - COMPLETE AND DEPLOYED  
 **Production URL:** https://reading-canon.vercel.app/  
 **Deployment Date:** 2026-10-11  
-**Last Updated:** 2026-10-11
+**Last Updated:** 2026-10-27 (Sprint 1 Enhancements Complete)
 
 ---
 
@@ -35,6 +35,42 @@
 - ✅ Changed sorting to author-based (family name, given name, title)
 - ✅ Improved mobile responsive layout for action buttons
 
+## 🚀 Sprint 1: Curator Productivity Enhancements (2026-10-27)
+
+**Status:** ✅ COMPLETE - 3 features implemented, tested, and deployed
+
+**Implemented Features:**
+- ✅ **Issue #5:** Online Book URL Field
+  - Added optional `online_book_url` field to books table
+  - Display as clickable external link on book detail page
+  - URL validation in add/edit forms
+  - 2 new tests (526 total tests)
+  - Commits: 1c0b352
+
+- ✅ **Issue #9:** Copy Book Feature
+  - "Copy" button on book detail page
+  - Pre-populate add form from existing book (except title)
+  - Navigate via `/books/new?copyFrom={id}` query parameter
+  - Enhanced `useBook` hook to accept query options
+  - 2 new tests (526 total tests)
+  - Commits: 71cdd97
+
+- ✅ **Issue #1:** Improved Back Navigation
+  - Use browser history API (`navigate(-1)`) instead of fixed route
+  - Fallback to `/collection` for direct links
+  - Changed button text to "← Back" (context-agnostic)
+  - Less prominent styling on mobile devices
+  - Tests updated for new button text
+  - Commits: 0aae5cc
+
+**Design Documentation:** See `artifacts/enhancements-sprint-1.md`
+
+**Remaining Open Issues:**
+- Issue #10: Add book by reference to Wikipedia (deferred - future enhancement)
+- Issue #8: Scan barcode (deferred - requires editions feature)
+- Issue #7: English titles vs original language (needs design decision)
+- Issue #6: Clean up "Why this book" field (data quality task)
+
 **Production Features:**
 - 643 books from Excel migration
 - Full CRUD for book management
@@ -47,7 +83,8 @@
 
 ## Test Metrics
 
-**Test Status:** 520 tests passing | 34 skipped (554 total)  
+**Test Status:** 526 tests passing | 34 skipped (560 total)  
+**Last Run:** 2026-10-27  
 **Coverage:**
 - Statements: 95.3%
 - Branches: 89.18%
