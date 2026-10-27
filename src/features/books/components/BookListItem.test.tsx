@@ -20,6 +20,7 @@ describe('BookListItem', () => {
     family_name: null,
     given_name: null,
     source: null,
+    online_book_url: null,
     created_at: '2024-01-01T00:00:00Z',
     updated_at: '2024-01-01T00:00:00Z',
     created_by_user_id: null,

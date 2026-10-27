@@ -38,7 +38,7 @@ vi.mock('../hooks/useDuplicateDetection', () => ({
 }))
 
 // Mock the useBook hook
-const mockUseBook = vi.fn((_id: string, _options?: any) => ({
+const mockUseBook = vi.fn((_id: string, _options?: any): any => ({
   data: undefined,
   isLoading: false,
   isError: false,

@@ -36,6 +36,7 @@ const mockBook: Book = {
   source: 'Western Canon',
   inclusion_rationale: 'Foundational epic',
   author_lifespan: 'c. 8th century BC',
+  online_book_url: null,
   created_at: '2024-01-01T00:00:00Z',
   created_by_user_id: null,
   updated_at: '2024-01-01T00:00:00Z',
