@@ -32,6 +32,7 @@ export function StatsPage() {
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>Reading Status</h2>
         <div className={styles.statsGrid}>
+          <StatsCard label="Finished" count={stats.byReadingStatus.finished} />
           <StatsCard
             label="Want to Read"
             count={stats.byReadingStatus.want_to_read}
@@ -41,7 +42,6 @@ export function StatsPage() {
             count={stats.byReadingStatus.reading}
           />
           <StatsCard label="Paused" count={stats.byReadingStatus.paused} />
-          <StatsCard label="Finished" count={stats.byReadingStatus.finished} />
           <StatsCard
             label="Abandoned"
             count={stats.byReadingStatus.abandoned}
